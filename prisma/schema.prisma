@@ -1,0 +1,179 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Article {
+  title           String
+  imageUrl        String
+  content         String
+  description     String
+  readTimes       Int               @default(0)
+  wordsCount      Int               @default(0)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  id              Int               @id @default(autoincrement())
+  categoryName    CategoryName?
+  Category        Category?         @relation(fields: [categoryName], references: [name])
+  MarkedArticles  MarkedArticles[]
+  ReadedTimeCount ReadedTimeCount[]
+  MasteredArticle MasteredArticle[]
+
+  @@index([categoryName])
+}
+
+model Category {
+  name     CategoryName @unique
+  articles Article[]
+}
+
+model User {
+  id              String            @id
+  name            String
+  email           String            @unique
+  role            Role              @default(USER)
+  emailVerified   Boolean
+  image           String?
+  createdAt       DateTime
+  updatedAt       DateTime
+  MarkedArticles  MarkedArticles[]
+  ReadedTimeCount ReadedTimeCount[]
+  MasteredArticle MasteredArticle[]
+  accounts        Account[]
+  sessions        Session[]
+
+  @@map("user")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model MarkedArticles {
+  id        Int     @id @default(autoincrement())
+  articleId Int
+  userId    String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, articleId])
+  @@index([userId, articleId])
+}
+
+model ReadedTimeCount {
+  id        Int     @id @default(autoincrement())
+  times     Int
+  articleId Int
+  userId    String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, articleId])
+  @@index([userId, articleId])
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
+
+model RateLimit {
+  id          String  @id
+  key         String?
+  count       Int?
+  lastRequest BigInt?
+
+  @@map("rateLimit")
+}
+
+model EmailRateLimit {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  lastEmailSentAt DateTime
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([email])
+  @@map("emailRateLimit")
+}
+
+enum CategoryName {
+  nature_geography       @map("nature-geography")
+  plant_research         @map("plant-research")
+  animal_protection      @map("animal-protection")
+  space_exploration      @map("space-exploration")
+  school_education       @map("school-education")
+  technology_invention   @map("technology-invention")
+  culture_history        @map("culture-history")
+  language_evolution     @map("language-evolution")
+  entertainment_sports   @map("entertainment-sports")
+  objects_materials      @map("objects-materials")
+  fashion_trends         @map("fashion-trends")
+  diet_health            @map("diet-health")
+  architecture_places    @map("architecture-places")
+  transportation_travel  @map("transportation-travel")
+  national_government    @map("national-government")
+  society_economy        @map("society-economy")
+  laws_regulations       @map("laws-regulations")
+  battlefield_contention @map("battlefield-contention")
+  social_roles           @map("social-roles")
+  behavior_actions       @map("behavior-actions")
+  physical_mental_health @map("physical-mental-health")
+  time_date              @map("time-date")
+}
+
+model MasteredArticle {
+  id        Int     @id @default(autoincrement())
+  articleId Int
+  userId    String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, articleId])
+  @@index([userId, articleId])
+}
