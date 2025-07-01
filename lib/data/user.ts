@@ -2,7 +2,7 @@
 
 import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/prisma";
-import type { Article, Category, Role, User, Prisma } from "@prisma/client";
+import type { Article, Category, Role, User } from "@prisma/client";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -259,7 +259,7 @@ export async function getPaginatedUserMasteredArticles(
 	query?: string,
 ) {
 	const skip = (page - 1) * limit;
-	
+
 	// Define base where condition
 	// Need to use type assertion due to complex nested filters
 	// biome-ignore lint/suspicious/noExplicitAny: Prisma filters require complex type handling
@@ -269,11 +269,11 @@ export async function getPaginatedUserMasteredArticles(
 		where.article = {
 			...(where.article || {}),
 			Category: {
-				name: category
-			}
+				name: category,
+			},
 		};
 	}
-	
+
 	if (query) {
 		where.article = {
 			...(where.article || {}),
@@ -283,7 +283,7 @@ export async function getPaginatedUserMasteredArticles(
 			},
 		};
 	}
-	
+
 	const [articles, total] = await Promise.all([
 		prisma.masteredArticle.findMany({
 			where,
@@ -499,4 +499,31 @@ export async function isArticleMastered(userId: string, articleId: number) {
 		},
 	});
 	return !!masteredArticle;
+}
+
+export async function getNotices(userId: string) {
+	return prisma.user.findUnique({
+		where: {
+			id: userId,
+		},
+		select: {
+			markNotice: true,
+			masterNotice: true,
+			finishNotice: true,
+		},
+	});
+}
+
+export async function updateNotices(
+	userId: string,
+	notice: "masterNotice" | "markNotice" | "finishNotice",
+) {
+	return prisma.user.update({
+		where: {
+			id: userId,
+		},
+		data: {
+			[notice]: true,
+		},
+	});
 }

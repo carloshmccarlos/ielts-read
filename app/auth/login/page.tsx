@@ -10,9 +10,10 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { authClient } from "@/lib/auth/auth-client";
 import { signIn } from "@/lib/auth/sign-in";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 export default function LoginPage() {
@@ -21,6 +22,12 @@ export default function LoginPage() {
 	const callbackUrl = searchParams.get("callbackUrl") || "/";
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
+
+	const session = authClient.useSession();
+
+	if (!session?.data?.user) {
+		redirect("/");
+	}
 
 	const handleSubmit = async (values: AuthFormSchema) => {
 		setLoading(true);

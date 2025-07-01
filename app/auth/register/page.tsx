@@ -1,5 +1,7 @@
 "use client";
 
+import { AuthForm, type AuthFormSchema } from "@/components/auth/AuthForm";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
 	Card,
 	CardContent,
@@ -9,17 +11,12 @@ import {
 } from "@/components/ui/card";
 import { signUp } from "@/lib/auth/sign-up";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-
-import { AuthForm, type AuthFormSchema } from "@/components/auth/AuthForm";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function RegisterPage() {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState("");
 	const [success, setSuccess] = useState(false);
-	const router = useRouter();
 
 	const handleSubmit = async (values: AuthFormSchema) => {
 		setLoading(true);
@@ -41,7 +38,6 @@ export default function RegisterPage() {
 			} else {
 				setSuccess(true);
 				// Wait a moment before redirecting to login page
-			
 			}
 		} catch (error: unknown) {
 			console.error("Registration error:", error);
@@ -70,8 +66,8 @@ export default function RegisterPage() {
 					{success ? (
 						<Alert className="bg-green-50 border-green-500 text-green-700 mb-6">
 							<AlertDescription className="text-lg">
-								Registration successful! A verification email has been sent to your email address.
-								Redirecting to login page...
+								Registration successful! A verification email has been sent to
+								your email address. Redirecting to login page...
 							</AlertDescription>
 						</Alert>
 					) : (

@@ -55,7 +55,7 @@ export async function toggleMarkArticle(articleId: number) {
 /**
  * Increment the read count for an article by the current user
  */
-export async function incrementReadCount(articleId: number) {
+export async function increaseFinishTime(articleId: number) {
 	const session = await auth.api.getSession({
 		headers: await headers(),
 	});

@@ -1,6 +1,8 @@
 import ArticleContent from "@/components/ArticleContent";
 import Spinner from "@/components/Spinner";
+import { auth } from "@/lib/auth/auth";
 import { getArticleById, increaseReadTimes } from "@/lib/data/article";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";

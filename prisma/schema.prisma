@@ -39,6 +39,9 @@ model User {
   role            Role              @default(USER)
   emailVerified   Boolean
   image           String?
+  masterNotice    Boolean           @default(false)
+  markNotice      Boolean           @default(false)
+  finishNotice    Boolean           @default(false)
   createdAt       DateTime
   updatedAt       DateTime
   MarkedArticles  MarkedArticles[]
