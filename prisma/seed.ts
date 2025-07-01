@@ -6,7 +6,7 @@ async function main() {
 	console.log("Start seeding ...");
 
 	// Seed Categories
-	const categoryNames = [
+	/*	const categoryNames = [
 		"nature_geography",
 		"plant_research",
 		"animal_protection",
@@ -40,7 +40,7 @@ async function main() {
 			},
 		});
 	}
-	console.log("Categories seeded.");
+	console.log("Categories seeded.");*/
 
 	// Load articles from JSON
 	const articlesData = JSON.parse(fs.readFileSync("articles.json", "utf-8"));

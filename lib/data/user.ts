@@ -2,7 +2,7 @@
 
 import { auth } from "@/lib/auth/auth";
 import { prisma } from "@/lib/prisma";
-import type { Article, Category, Role, User } from "@prisma/client";
+import type { Article, Category, Role, User, Prisma } from "@prisma/client";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -64,6 +64,7 @@ export interface ProfileData {
 export interface ApiProfileResponse {
 	user: UserWithCounts;
 	totalReadTimes: number;
+	role?: Role;
 }
 
 /**
@@ -258,24 +259,31 @@ export async function getPaginatedUserMasteredArticles(
 	query?: string,
 ) {
 	const skip = (page - 1) * limit;
+	
+	// Define base where condition
+	// Need to use type assertion due to complex nested filters
+	// biome-ignore lint/suspicious/noExplicitAny: Prisma filters require complex type handling
 	const where: any = { userId };
 
 	if (category) {
 		where.article = {
-			...where.article,
-			categoryName: category,
+			...(where.article || {}),
+			Category: {
+				name: category
+			}
 		};
 	}
-
+	
 	if (query) {
 		where.article = {
-			...where.article,
+			...(where.article || {}),
 			title: {
 				contains: query,
 				mode: "insensitive",
 			},
 		};
 	}
+	
 	const [articles, total] = await Promise.all([
 		prisma.masteredArticle.findMany({
 			where,
@@ -359,6 +367,7 @@ export async function getProfileData(
 		return {
 			user,
 			totalReadTimes,
+			role: user.role,
 		};
 	} catch (error) {
 		console.error("Error fetching profile data:", error);
@@ -401,6 +410,7 @@ export async function updateUserProfile(
 		return {
 			user: updatedUser as UserWithCounts,
 			totalReadTimes,
+			role: updatedUser.role,
 		};
 	} catch (error) {
 		console.error("Error updating profile data:", error);

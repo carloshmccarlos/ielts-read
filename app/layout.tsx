@@ -5,9 +5,6 @@ import Navbar from "@/components/nav/Navbar";
 import { auth } from "@/lib/auth/auth";
 import { getAllCategories } from "@/lib/data/category";
 import { getRoleByUserId } from "@/lib/data/user";
-
-import { ModeToggle } from "@/components/ThemeToggle";
-import { ThemeProvider } from "@/components/ui/theme-provider";
 import { headers } from "next/headers";
 import type React from "react";
 import { Toaster } from "sonner";
