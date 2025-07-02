@@ -28,8 +28,9 @@ model Article {
 }
 
 model Category {
-  name     CategoryName @unique
-  articles Article[]
+  name        CategoryName @unique
+  description String       @default("")
+  articles    Article[]
 }
 
 model User {

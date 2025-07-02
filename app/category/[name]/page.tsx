@@ -12,8 +12,9 @@ import {
 	getArticlesByCategory,
 } from "@/lib/data/article";
 
-import { CategoryName } from "@prisma/client";
+import { getCategoryByName } from "@/lib/data/category";
 import { pathToCategory, transformCategoryName } from "@/lib/utils";
+import { CategoryName } from "@prisma/client";
 import Link from "next/link";
 
 interface Props {
@@ -39,16 +40,15 @@ export default async function ArticleByCategory({
 		: 1;
 	const skip = (currentPage - 1) * pageSize;
 
-	// 验证categoryName是否为有效的分类
-
 	const isValidCategory = Object.keys(CategoryName).includes(categoryName);
 	if (!isValidCategory) {
 		notFound();
 	}
 
-	const [articles, totalCount] = await Promise.all([
+	const [articles, totalCount, category] = await Promise.all([
 		getArticlesByCategory(categoryName, skip, pageSize),
 		countArticlesByCategory(categoryName),
+		getCategoryByName(categoryName as CategoryName),
 	]);
 
 	if (!articles || articles.length === 0) {
@@ -56,19 +56,26 @@ export default async function ArticleByCategory({
 	}
 
 	const totalPages = Math.ceil(totalCount / pageSize);
+	const imageUrl = process.env.CLOUDFLARE_R2_PUBLIC_IMAGE_URL;
+
+	const bgImageUrl = `${imageUrl}/category/${categoryName}.webp`;
 
 	return (
-		<main className="h-[30vh] bg-[url('/content-image/1.png')] bg-cover bg-center">
-			<div className="max-w-[2000px] mx-auto px-2 sm:px-4 lg:px-8 xl:px-16 2xl:px-32 py-2 sm:py-2 lg:py-4">
+		<main
+			className="h-[30vh] bg-cover bg-center relative"
+			style={{ backgroundImage: `url(${bgImageUrl})` }}
+		>
+			{/* Semi-transparent overlay */}
+			<div className="absolute inset-0 bg-black opacity-50" />
+
+			<div className="max-w-[2000px] mx-auto px-2 sm:px-4 lg:px-8 xl:px-16 2xl:px-32 py-2 sm:py-2 lg:py-4 relative z-10">
 				<h2 className="text-white font-serif lg:text-5xl text-3xl font-bold my-6">
 					<Link href={`/category/${categoryName}`}>
 						{transformCategoryName(categoryName)}
 					</Link>
 				</h2>
 				<p className="text-white font-serif text-lg font-bold mb-6 w-1/2">
-					Animal protection is a broad and multifaceted concept that encompasses
-					a range of efforts aimed at safeguarding the well-being, health, and
-					inherent value of non-human animals.
+					{category?.description || "No description available"}
 				</p>
 				<div className="grid grid-cols-1 lg:grid-cols-6 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12 items-stretch">
 					{/* Latest Big Card  */}

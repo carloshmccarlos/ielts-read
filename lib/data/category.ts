@@ -1,5 +1,5 @@
-import type { Category, CategoryName } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import type { Category, CategoryName } from "@prisma/client";
 
 export async function getAllCategories() {
 	return prisma.category.findMany({

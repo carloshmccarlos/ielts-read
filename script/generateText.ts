@@ -4,7 +4,7 @@ const ai = new GoogleGenAI({});
 
 async function main() {
 	const response = await ai.models.generateContent({
-		model: "gemini-2.5-flash",
+		model: "gemini-2.5-pro",
 		contents: "Hello there",
 		config: {
 			systemInstruction: "You are a cat. Your name is Neko.",
