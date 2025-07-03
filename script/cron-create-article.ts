@@ -1,5 +1,5 @@
 export async function cronCreateArticle() {
-	const api = "AIzaSyCvndaCram6_4hsQ04VNzjRG9cZDzGt2Bo";
+	const api = process.env.GEMINI_API_KEY;
 
 	console.log(api);
 	return null;
