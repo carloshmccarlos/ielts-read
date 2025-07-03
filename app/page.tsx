@@ -71,7 +71,7 @@ export default async function Home() {
 	);
 }
 
-// Generate static metadata
+// Generate static-data metadata
 export const metadata = {
 	title: "I READ",
 	description: "Reading is the best way to learn",

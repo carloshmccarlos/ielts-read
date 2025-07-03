@@ -28,9 +28,13 @@ model Article {
 }
 
 model Category {
+  id          Int          @id
   name        CategoryName @unique
   description String       @default("")
-  articles    Article[]
+
+  // When true, the words belong to this category will be used for generating aritlces.
+  turn     Boolean   @default(false)
+  articles Article[]
 }
 
 model User {

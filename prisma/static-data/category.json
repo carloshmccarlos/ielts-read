@@ -1,89 +1,111 @@
 [
 	{
+		"id": 1,
 		"name": "nature_geography",
 		"description": "Nature geography is the study of the Earth's physical features, environment, and the processes that shape them, including landforms, climates, ecosystems, and the distribution of all living organisms."
 	},
 	{
+		"id": 2,
 		"name": "plant_research",
 		"description": "Plant research involves the scientific investigation of plant life, covering a wide range of topics from their molecular biology and genetics to their ecological roles, cultivation, and various practical uses."
 	},
 	{
+		"id": 3,
 		"name": "animal_protection",
 		"description": "Animal protection is a broad and multifaceted concept that encompasses a range of efforts aimed at safeguarding the well-being, health, and inherent value of non-human animals from cruelty and suffering."
 	},
 	{
+		"id": 4,
 		"name": "space_exploration",
 		"description": "Space exploration is the use of astronomy and space technology to venture into and investigate outer space. This scientific endeavor involves discovering celestial phenomena through robotic probes and human missions."
 	},
 	{
+		"id": 5,
 		"name": "school_education",
 		"description": "School education refers to the structured learning provided in formal institutions, designed to impart critical knowledge, essential skills, and cultural values to foster personal and societal development."
 	},
 	{
+		"id": 6,
 		"name": "technology_invention",
 		"description": "Technology invention is the creative process of designing and creating new devices, methods, or systems to solve specific problems, often leading to significant societal advancements and transformative change."
 	},
 	{
+		"id": 7,
 		"name": "culture_history",
 		"description": "Culture history is the comprehensive study of human societies throughout time, examining the evolution of their traditions, beliefs, arts, and social structures through artifacts, texts, and oral histories."
 	},
 	{
+		"id": 8,
 		"name": "language_evolution",
 		"description": "Language evolution is the scientific study of how languages change over time. It investigates the development of language families, phonological shifts, and grammatical transformations driven by social factors."
 	},
 	{
+		"id": 9,
 		"name": "entertainment_sports",
 		"description": "Entertainment and sports encompass a wide array of activities and performances providing amusement and recreation. These fields have deep cultural significance and represent a major global economic force."
 	},
 	{
+		"id": 10,
 		"name": "objects_materials",
 		"description": "Objects and materials refer to the physical things in our world and the substances they are made from. This field covers everything from raw resources to engineered composites and their inherent properties."
 	},
 	{
+		"id": 11,
 		"name": "fashion_trends",
 		"description": "Fashion trends are the prevailing styles in clothing and personal appearance popular at a specific time. They reflect cultural shifts, artistic expression, and consumer desires driven by media and designers."
 	},
 	{
+		"id": 12,
 		"name": "diet_health",
 		"description": "Diet and health describe the critical relationship between food consumption and overall physical well-being. This field focuses on nutrition and balanced eating habits to prevent chronic diseases and ensure wellness."
 	},
 	{
+		"id": 13,
 		"name": "architecture_places",
 		"description": "Architecture and places involve the art and science of designing and constructing buildings. It goes beyond function to shape human experience, reflect cultural values, and create a distinct sense of place."
 	},
 	{
+		"id": 14,
 		"name": "transportation_travel",
 		"description": "Transportation and travel pertain to the movement of people and goods. This includes the various modes of transport and the complex infrastructure like roads and ports vital for global commerce and tourism."
 	},
 	{
+		"id": 15,
 		"name": "national_government",
 		"description": "A national government is the system of political administration exercising authority over a sovereign state. It is responsible for making laws, managing national affairs, and providing essential public services."
 	},
 	{
+		"id": 16,
 		"name": "society_economy",
 		"description": "Society and economy are intertwined concepts describing social structures and the system of production, distribution, and consumption. Economic models profoundly shape social hierarchies and opportunities."
 	},
 	{
+		"id": 17,
 		"name": "laws_regulations",
 		"description": "Laws and regulations are the established set of rules and legal principles that govern a society. Enacted by an authority, they aim to maintain order, protect individual rights, and resolve any disputes."
 	},
 	{
+		"id": 18,
 		"name": "battlefield_contention",
 		"description": "Battlefield contention is the direct struggle for control or tactical advantage within a conflict zone. It involves military strategy and the engagement of opposing forces across land, air, sea, and cyber domains."
 	},
 	{
+		"id": 19,
 		"name": "social_roles",
 		"description": "Social roles are the sets of expected behaviors and responsibilities associated with a person's status within a society. These roles guide interactions and contribute to a predictable social structure."
 	},
 	{
+		"id": 20,
 		"name": "behavior_actions",
 		"description": "Behavior and actions encompass the full range of human conduct, from simple physical movements to complex social interactions. These responses to stimuli are studied in fields like psychology and sociology."
 	},
 	{
+		"id": 21,
 		"name": "physical_mental_health",
 		"description": "Physical and mental health are interconnected components of an individual's overall well-being. This concept encompasses the body's functional state and the mind's emotional and psychological resilience."
 	},
 	{
+		"id": 22,
 		"name": "time_date",
 		"description": "Time and date are the fundamental concepts for measuring and organizing the sequence of events, providing a universal framework for scheduling, recording history, and coordinating commercial interactions."
 	}

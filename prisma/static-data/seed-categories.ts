@@ -13,7 +13,7 @@ async function main() {
 
 	// Load categories from JSON file
 	const categoriesData = JSON.parse(
-		fs.readFileSync("../prisma/category.json", "utf-8"),
+		fs.readFileSync("category.json", "utf-8"),
 	) as CategoryData[];
 
 	console.log(`Found ${categoriesData.length} categories to update`);
@@ -23,8 +23,9 @@ async function main() {
 		try {
 			await prisma.category.upsert({
 				where: { name: category.name as CategoryName },
-				update: { description: category.description },
+				update: { id: category.id, description: category.description },
 				create: {
+					id: category.id,
 					name: category.name as CategoryName,
 					description: category.description,
 				},
