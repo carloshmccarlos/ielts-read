@@ -1,5 +1,3 @@
-import fs from "node:fs";
-import path from "node:path";
 import {
 	createArticle,
 	deleteArticle,
@@ -10,13 +8,15 @@ import {
 	updateGenerationTurn,
 } from "@/lib/data/get-generation-turn";
 import type { CategoryName, IeltsWordsCount } from "@prisma/client";
+import wordsDataJson from "@/prisma/static-data/words.json";
 import { articleGeneration } from "./article-generation";
 import { imageGeneration } from "./image-generation";
 import { uploadArticleImage } from "./image-operation";
 
-const wordsData: { categoryName: CategoryName; words: string[] }[] = JSON.parse(
-	fs.readFileSync(path.join("prisma/static-data/words.json"), "utf-8"),
-);
+const wordsData = wordsDataJson as {
+	categoryName: CategoryName;
+	words: string[];
+}[];
 
 type ArticleGenerationResult = {
 	title: string;
