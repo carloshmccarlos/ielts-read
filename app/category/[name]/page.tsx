@@ -18,20 +18,20 @@ import { CategoryName } from "@prisma/client";
 import Link from "next/link";
 
 interface Props {
-	params: {
+	params: Promise<{
 		name: string;
-	};
-	searchParams: {
+	}>;
+	searchParams: Promise<{
 		page?: string | string[];
-	};
+	}>;
 }
 
 export default async function ArticleByCategory({
 	params,
 	searchParams,
 }: Props) {
-	const { name } = params;
-	const { page } = searchParams;
+	const { name } = await params;
+	const { page } = await searchParams;
 
 	const categoryName = pathToCategory(name);
 	const pageSize = 16;
