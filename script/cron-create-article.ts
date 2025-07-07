@@ -107,8 +107,8 @@ export async function cronCreateArticle() {
 				`Article ${createdArticle.id} updated successfully with image ${imageUrl}`,
 			);
 
-			// Wait for 10 seconds before processing the next category
-			await new Promise((resolve) => setTimeout(resolve, 10000));
+			// Wait for 60 seconds before processing the next category
+			await new Promise((resolve) => setTimeout(resolve, 60000));
 		}
 		await updateGenerationTurn(turn.ieltsWordsCount);
 	} catch (error) {

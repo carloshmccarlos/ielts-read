@@ -1,10 +1,14 @@
-import adminCheck from "@/lib/auth/adminCheck";
-import { articleGeneration } from "@/script/article-generation";
 import { cronCreateArticle } from "@/script/cron-create-article";
-import { imageGeneration } from "@/script/image-generation";
-import { NextResponse } from "next/server";
 
-export async function POST(request: Request) {
+import { type NextRequest, NextResponse } from "next/server";
+
+export async function GET(request: NextRequest) {
+	if (
+		request.headers.get("Authorization") !== `Bearer ${process.env.CRON_SECRET}`
+	) {
+		return new NextResponse("Unauthorized", { status: 401 });
+	}
+
 	try {
 		// const article = await articleGeneration();
 		cronCreateArticle().catch((error) => {
