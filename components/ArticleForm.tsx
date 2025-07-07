@@ -1,7 +1,7 @@
 "use client";
 
-import { CategoryName } from "@prisma/client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CategoryName } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -36,6 +36,9 @@ const formSchema = z.object({
 	title: z.string().min(1, { message: "Title is required" }),
 	imageUrl: z.string().min(1, { message: "Image URL is required" }),
 	description: z.string().min(1, { message: "Description is required" }),
+	ieltsWordsCount: z.string({
+		required_error: "IELTS words count is required.",
+	}),
 	categoryName: z.string().min(1, { message: "Please select a category" }),
 	content: z.string().min(1, { message: "Content is required" }),
 });
@@ -71,6 +74,7 @@ export function ArticleForm({ initialData, articleId }: ArticleFormProps) {
 						description: article.description,
 						categoryName: article.categoryName,
 						content: article.content,
+						ieltsWordsCount: article.ieltsWordsCount,
 					});
 				} catch (err) {
 					setError(
@@ -84,14 +88,12 @@ export function ArticleForm({ initialData, articleId }: ArticleFormProps) {
 	}, [articleId, initialData]);
 
 	// Convert enum values to option list
-	const categoryOptions = Object.entries(CategoryName).map(
-		([key, value]) => ({
-			value,
-			label:
-				transformCategoryName(key).charAt(0).toUpperCase() +
-				transformCategoryName(key).slice(1),
-		}),
-	);
+	const categoryOptions = Object.entries(CategoryName).map(([key, value]) => ({
+		value,
+		label:
+			transformCategoryName(key).charAt(0).toUpperCase() +
+			transformCategoryName(key).slice(1),
+	}));
 
 	const form = useForm<FormData>({
 		resolver: zodResolver(formSchema),
@@ -101,6 +103,7 @@ export function ArticleForm({ initialData, articleId }: ArticleFormProps) {
 			description: formData?.description || "",
 			categoryName: formData?.categoryName || "",
 			content: formData?.content || "",
+			ieltsWordsCount: formData?.ieltsWordsCount,
 		},
 	});
 
@@ -197,6 +200,35 @@ export function ArticleForm({ initialData, articleId }: ArticleFormProps) {
 							<FormControl>
 								<Textarea rows={3} {...field} />
 							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+
+				<FormField
+					control={form.control}
+					name="ieltsWordsCount"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>IELTS Words Count</FormLabel>
+							<Select
+								onValueChange={field.onChange}
+								value={field.value?.toString()}
+								defaultValue={field.value?.toString()}
+							>
+								<FormControl>
+									<SelectTrigger>
+										<SelectValue placeholder="Select a words count" />
+									</SelectTrigger>
+								</FormControl>
+								<SelectContent>
+									{[20, 30, 40].map((count) => (
+										<SelectItem key={count} value={`count_${count}`}>
+											{count}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
 							<FormMessage />
 						</FormItem>
 					)}

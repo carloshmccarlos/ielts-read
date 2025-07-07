@@ -7,11 +7,25 @@ import type { NextRequest } from "next/server";
 export async function POST(request: NextRequest) {
 	try {
 		const body = await request.json();
-		const { title, imageUrl, content, description, categoryName } = body;
+		const {
+			title,
+			imageUrl,
+			content,
+			description,
+			categoryName,
+			ieltsWordsCount,
+		} = body;
 
-		if (!title || !imageUrl || !content || !description || !categoryName) {
+		if (
+			!title ||
+			!imageUrl ||
+			!content ||
+			!description ||
+			!categoryName ||
+			!ieltsWordsCount
+		) {
 			return NextResponse.json(
-				{ error: "所有字段都是必填的" },
+				{ error: "All fields are required" },
 				{ status: 400 },
 			);
 		}
@@ -21,23 +35,35 @@ export async function POST(request: NextRequest) {
 				categoryName.replaceAll("-", "_") as CategoryName,
 			)
 		) {
-			return NextResponse.json({ error: "无效的分类名称" }, { status: 400 });
+			return NextResponse.json(
+				{ error: "Invalid category name" },
+				{ status: 400 },
+			);
 		}
-		// 创建文章
+		const ieltsCount = Number.parseInt(
+			ieltsWordsCount.replace("count_", ""),
+			10,
+		);
+		const articleWordsCount = Math.round(ieltsCount * 25);
+
 		const article = await createArticle({
 			title,
 			imageUrl,
 			content,
 			description,
 			categoryName,
-			wordsCount: 30,
+			ieltsWordsCount,
+			articleWordsCount,
 		});
 
 		console.log(article);
 		return NextResponse.json(article, { status: 201 });
 	} catch (error) {
-		console.error("创建文章时出错:", error);
-		return NextResponse.json({ error: "创建文章失败" }, { status: 500 });
+		console.error("Error creating article:", error);
+		return NextResponse.json(
+			{ error: "Failed to create article" },
+			{ status: 500 },
+		);
 	}
 }
 

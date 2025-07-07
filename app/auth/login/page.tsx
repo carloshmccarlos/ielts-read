@@ -25,7 +25,7 @@ export default function LoginPage() {
 
 	const session = authClient.useSession();
 
-	if (!session?.data?.user) {
+	if (session?.data?.user) {
 		redirect("/");
 	}
 

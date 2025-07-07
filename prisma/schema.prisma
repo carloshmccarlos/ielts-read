@@ -9,16 +9,28 @@ datasource db {
 }
 
 model Article {
-  title           String
-  imageUrl        String
-  content         String
-  description     String
-  readTimes       Int               @default(0)
-  wordsCount      Int               @default(0)
+  id    Int    @id @default(autoincrement())
+  title String
+
+  imageUrl String @default("")
+
+  content     String
+  description String
+  readTimes   Int    @default(0)
+
+  // articleWordsCount is the total count of the article, it will be about 25x(500, 750, 1250, 2000) count of wordsCount
+  articleWordsCount Int @default(0)
+
+  // wordsCount is the count of IELTS words used in article, it will be 20, 30, 50, 80.
+  ieltsWordsCount IeltsWordsCount @default(count_20)
+
+  // IELTS words in /prisma/static-data used in this article
+  ieltsWords String[] @default([])
+
+  categoryName CategoryName
+
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
-  id              Int               @id @default(autoincrement())
-  categoryName    CategoryName?
   Category        Category?         @relation(fields: [categoryName], references: [name])
   MarkedArticles  MarkedArticles[]
   ReadedTimeCount ReadedTimeCount[]
@@ -27,13 +39,22 @@ model Article {
   @@index([categoryName])
 }
 
+model GenerateTurn {
+  // used for judging which count is used to limit the count of words used for generating aritlce.
+  date            DateTime
+  ieltsWordsCount IeltsWordsCount @id
+}
+
+enum IeltsWordsCount {
+  count_20 @map("20")
+  count_30 @map("30")
+  count_40 @map("40")
+}
+
 model Category {
-  id          Int          @id
-  name        CategoryName @unique
+  name        CategoryName @id @unique
   description String       @default("")
 
-  // When true, the words belong to this category will be used for generating aritlces.
-  turn     Boolean   @default(false)
   articles Article[]
 }
 

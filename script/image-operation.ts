@@ -31,14 +31,14 @@ const s3Client = new S3Client({
  * @param targetPath - Optional: The target path in the bucket (defaults to content-image/fileName)
  * @returns Promise with the upload result
  */
-export async function uploadContentImage(
+export async function uploadArticleImage(
 	fileName: string,
 	targetPath?: string,
-): Promise<boolean> {
+): Promise<string | null> {
 	try {
 		// Construct the full path to the image file
 		const imagePath = path.join(
-			"F:\\project\\next js project\\ielts-read\\",
+			process.cwd(),
 			"public",
 			"content-image",
 			fileName,
@@ -47,7 +47,7 @@ export async function uploadContentImage(
 		// Check if the file exists
 		if (!fs.existsSync(imagePath)) {
 			console.error(`File not found: ${imagePath}`);
-			return false;
+			return null;
 		}
 
 		// Read the file content
@@ -64,7 +64,7 @@ export async function uploadContentImage(
 		else if (fileExtension === ".webp") contentType = "image/webp";
 
 		// Set the target key (path in the bucket)
-		const targetKey = targetPath || `content-image/${fileName}`;
+		const targetKey = targetPath || `article/${fileName}`;
 
 		// Upload to R2
 		const uploadParams = {
@@ -78,10 +78,12 @@ export async function uploadContentImage(
 		console.log(
 			`Successfully uploaded ${fileName} to ${BUCKET_NAME}/${targetKey}`,
 		);
-		return true;
+		fs.unlinkSync(imagePath);
+		console.log(`Successfully deleted local image: ${fileName}`);
+		return `${process.env.CLOUDFLARE_R2_PUBLIC_IMAGE_URL}/${targetKey}`;
 	} catch (error) {
 		console.error("Error uploading image to R2:", error);
-		return false;
+		return null;
 	}
 }
 
@@ -89,12 +91,14 @@ export async function uploadContentImage(
 
 /**
  * Deletes an image from the R2 bucket
- * @param key - The key (path) of the file in the bucket to delete
+ * @param imageName - The id of the article, the image name of the article.
  * @returns Promise with the delete result
  */
-export async function deleteContentImage(key: string): Promise<boolean> {
+export async function deleteArticleImage(imageName: string): Promise<boolean> {
 	try {
 		// Delete the file from R2
+		const key = `article/${imageName}.webp`;
+
 		const deleteParams = {
 			Bucket: BUCKET_NAME,
 			Key: key,

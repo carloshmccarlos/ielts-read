@@ -18,25 +18,25 @@ import { CategoryName } from "@prisma/client";
 import Link from "next/link";
 
 interface Props {
-	params: Promise<{
+	params: {
 		name: string;
-	}>;
-	searchParams: Promise<{
-		page: number;
-	}>;
+	};
+	searchParams: {
+		page?: string | string[];
+	};
 }
 
 export default async function ArticleByCategory({
 	params,
 	searchParams,
 }: Props) {
-	const { name } = await params;
-	const { page } = await searchParams;
+	const { name } = params;
+	const { page } = searchParams;
 
 	const categoryName = pathToCategory(name);
 	const pageSize = 16;
 	const currentPage = page
-		? Number.parseInt(Array.isArray(page) ? page[0] : page, 10)
+		? Number.parseInt(Array.isArray(page) ? page[0] : String(page), 10)
 		: 1;
 	const skip = (currentPage - 1) * pageSize;
 

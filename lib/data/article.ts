@@ -1,6 +1,8 @@
-import { prisma } from "@/lib/prisma";
-import type { CategoryName } from "@prisma/client";
 import { auth } from "@/lib/auth/auth";
+import { prisma } from "@/lib/prisma";
+import { deleteArticleImage } from "@/script/image-operation";
+import type { CategoryName } from "@prisma/client";
+import type { IeltsWordsCount } from "@prisma/client";
 import { headers } from "next/headers";
 
 export async function getArticleById(id: number) {
@@ -26,15 +28,20 @@ export async function getArticlesByCategory(
 	return prisma.article.findMany({
 		where: {
 			categoryName: categoryName as CategoryName,
-			...(userId ? {
-				NOT: {
-					MasteredArticle: {
-						some: {
-							userId: userId
-						}
+			imageUrl: {
+				gt: "",
+			},
+			...(userId
+				? {
+						NOT: {
+							MasteredArticle: {
+								some: {
+									userId: userId,
+								},
+							},
+						},
 					}
-				}
-			} : {})
+				: {}),
 		},
 		include: {
 			Category: true,
@@ -64,15 +71,20 @@ export async function searchArticles(query: string) {
 					},
 				},
 			],
-			...(userId ? {
-				NOT: {
-					MasteredArticle: {
-						some: {
-							userId: userId
-						}
+			imageUrl: {
+				gt: "",
+			},
+			...(userId
+				? {
+						NOT: {
+							MasteredArticle: {
+								some: {
+									userId: userId,
+								},
+							},
+						},
 					}
-				}
-			} : {})
+				: {}),
 		},
 		include: {
 			Category: true,
@@ -92,15 +104,22 @@ export async function getLatestArticles() {
 
 	return prisma.article.findMany({
 		take: 9,
-		where: userId ? {
-			NOT: {
-				MasteredArticle: {
-					some: {
-						userId: userId
+		where: {
+			imageUrl: {
+				gt: "",
+			},
+			...(userId
+				? {
+						NOT: {
+							MasteredArticle: {
+								some: {
+									userId: userId,
+								},
+							},
+						},
 					}
-				}
-			}
-		} : undefined,
+				: {}),
+		},
 		include: {
 			Category: true,
 		},
@@ -119,15 +138,22 @@ export async function getHottestArticles() {
 
 	return prisma.article.findMany({
 		take: 7,
-		where: userId ? {
-			NOT: {
-				MasteredArticle: {
-					some: {
-						userId: userId
+		where: {
+			imageUrl: {
+				gt: "",
+			},
+			...(userId
+				? {
+						NOT: {
+							MasteredArticle: {
+								some: {
+									userId: userId,
+								},
+							},
+						},
 					}
-				}
-			}
-		} : undefined,
+				: {}),
+		},
 		include: {
 			Category: true,
 		},
@@ -158,6 +184,11 @@ export async function countArticlesByCategory(categoryName: string) {
 
 export async function getAllArticles() {
 	return prisma.article.findMany({
+		where: {
+			imageUrl: {
+				gt: "",
+			},
+		},
 		include: {
 			Category: true,
 		},
@@ -169,22 +200,34 @@ export async function getAllArticles() {
 
 export async function createArticle(articleData: {
 	title: string;
-	imageUrl: string;
+	imageUrl?: string;
 	content: string;
 	description: string;
-	categoryName: string;
-	wordsCount: number;
+	categoryName: CategoryName;
+	ieltsWordsCount: IeltsWordsCount;
+	articleWordsCount: number;
+	ieltsWords?: string[];
 }) {
-	const { title, imageUrl, content, description, categoryName, wordsCount } =
-		articleData;
+	const {
+		title,
+		imageUrl,
+		content,
+		description,
+		categoryName,
+		ieltsWordsCount,
+		articleWordsCount,
+		ieltsWords,
+	} = articleData;
 	return prisma.article.create({
 		data: {
 			title,
-			imageUrl,
+			imageUrl: imageUrl ?? "",
 			content,
 			description,
-			wordsCount,
-			categoryName: categoryName.replaceAll("-", "_") as CategoryName,
+			ieltsWordsCount,
+			articleWordsCount,
+			categoryName,
+			ieltsWords,
 		},
 		include: {
 			Category: true,
@@ -200,9 +243,21 @@ export async function updateArticle(
 		content: string;
 		description: string;
 		categoryName: string;
+		ieltsWordsCount: IeltsWordsCount;
+		articleWordsCount: number;
+		ieltsWords?: string[];
 	},
 ) {
-	const { title, imageUrl, content, description, categoryName } = articleData;
+	const {
+		title,
+		imageUrl,
+		content,
+		description,
+		categoryName,
+		ieltsWordsCount,
+		articleWordsCount,
+		ieltsWords,
+	} = articleData;
 
 	const existingArticle = await prisma.article.findUnique({ where: { id } });
 
@@ -218,6 +273,9 @@ export async function updateArticle(
 			content,
 			description,
 			categoryName: categoryName as CategoryName,
+			ieltsWordsCount,
+			articleWordsCount,
+			ieltsWords,
 		},
 		include: {
 			Category: true,
@@ -232,17 +290,61 @@ export async function deleteArticle(id: number) {
 		return null;
 	}
 
+	const imageName = `${existingArticle.categoryName}-${id}`;
+
+	const deleteImageResult = await deleteArticleImage(imageName);
+
+	if (!deleteImageResult) {
+		throw new Error("Delete image fail.");
+	}
+
 	return prisma.article.delete({
 		where: { id },
 	});
 }
 
 export async function deleteArticles(ids: number[]) {
+	// Concurrently delete all images associated with the articles.
+	const imageDeletionResults = await Promise.allSettled(
+		ids.map(async (id) => {
+			const existingArticle = await prisma.article.findUnique({
+				where: { id },
+			});
+
+			if (!existingArticle) {
+				return null;
+			}
+
+			const imageName = `${existingArticle.categoryName}-${id}`;
+
+			await deleteArticleImage(imageName);
+		}),
+	);
+
+	imageDeletionResults.forEach((result, index) => {
+		if (result.status === "rejected") {
+			console.error(
+				`Error deleting image for article ${ids[index]}:`,
+				result.reason,
+			);
+		} else if (result.status === "fulfilled" && !result.value) {
+			console.error(`Failed to delete image for article ${ids[index]}.`);
+		}
+	});
+
+	// Delete all the articles from the database in a single transaction.
 	return prisma.article.deleteMany({
 		where: {
 			id: {
 				in: ids,
 			},
 		},
+	});
+}
+
+export async function updateArticleImageUrl(id: number, imageUrl: string) {
+	return prisma.article.update({
+		where: { id: id },
+		data: { imageUrl: imageUrl },
 	});
 }
