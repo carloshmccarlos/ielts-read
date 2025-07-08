@@ -10,12 +10,8 @@ const ai = new GoogleGenAI({
 export async function articleGeneration(
 	categoryName: CategoryName,
 	providedWords: string[],
-	ieltsWordsCountEnum: IeltsWordsCount,
+	ieltsWordsCount: number,
 ) {
-	const ieltsWordsCount = Number.parseInt(
-		ieltsWordsCountEnum.split("_")[1],
-		10,
-	);
 	const minArticleWordsCount = ieltsWordsCount * 20;
 	const maxArticleWordsCount = ieltsWordsCount * 25;
 
@@ -83,7 +79,7 @@ export async function articleGeneration(
 			content,
 			description,
 			categoryName,
-			ieltsWordsCount: ieltsWordsCountEnum,
+			ieltsWordsCount,
 			articleWordsCount,
 			ieltsWords: words,
 		};

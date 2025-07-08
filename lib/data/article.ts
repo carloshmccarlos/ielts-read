@@ -204,7 +204,7 @@ export async function createArticle(articleData: {
 	content: string;
 	description: string;
 	categoryName: CategoryName;
-	ieltsWordsCount: IeltsWordsCount;
+	ieltsWordsCount: number;
 	articleWordsCount: number;
 	ieltsWords?: string[];
 }) {
@@ -243,7 +243,7 @@ export async function updateArticle(
 		content: string;
 		description: string;
 		categoryName: string;
-		ieltsWordsCount: IeltsWordsCount;
+		ieltsWordsCount: number;
 		articleWordsCount: number;
 		ieltsWords?: string[];
 	},

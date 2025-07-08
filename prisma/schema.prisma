@@ -22,7 +22,7 @@ model Article {
   articleWordsCount Int @default(0)
 
   // wordsCount is the count of IELTS words used in article, it will be 20, 30, 50, 80.
-  ieltsWordsCount IeltsWordsCount @default(count_20)
+  ieltsWordsCount Int @default(0)
 
   // IELTS words in /prisma/static-data used in this article
   ieltsWords String[] @default([])
@@ -39,23 +39,18 @@ model Article {
   @@index([categoryName])
 }
 
-model GenerateTurn {
-  // used for judging which count is used to limit the count of words used for generating aritlce.
-  date            DateTime
-  ieltsWordsCount IeltsWordsCount @id
-}
-
 enum IeltsWordsCount {
-  count_20 @map("20")
-  count_30 @map("30")
-  count_40 @map("40")
+  count_20
+  count_30
+  count_40
 }
 
 model Category {
   name        CategoryName @id @unique
   description String       @default("")
 
-  articles Article[]
+  updatedAt DateTime  @default(now()) @updatedAt
+  articles  Article[]
 }
 
 model User {

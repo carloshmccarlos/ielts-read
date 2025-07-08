@@ -12,7 +12,7 @@ export async function imageGeneration(
 
 	const prompt = imageGenerationPrompt.prompt;
 
-	const contents = `${prompt} + The article description is ${description}`;
+	const contents = `${prompt} + The  description is ${description}`;
 
 	try {
 		const response = await ai.models.generateContent({
@@ -20,7 +20,7 @@ export async function imageGeneration(
 			contents: contents,
 			config: {
 				responseModalities: [Modality.TEXT, Modality.IMAGE],
-				maxOutputTokens: 2048
+				maxOutputTokens: 2048,
 			},
 		});
 
@@ -42,28 +42,30 @@ export async function imageGeneration(
 				// Start with lower quality and resize to keep under 150KB
 				let quality = 70;
 				let buffer = await sharp(originalBuffer)
-					.resize(800, 600, { fit: 'inside', withoutEnlargement: true })
+					.resize(800, 600, { fit: "inside", withoutEnlargement: true })
 					.webp({ quality: quality })
 					.toBuffer();
-				
+
 				// If the image is still too large, reduce quality and dimensions further
 				while (buffer.length > 150 * 1024 && quality > 20) {
 					quality -= 10;
 					buffer = await sharp(originalBuffer)
-						.resize(800, 600, { fit: 'inside', withoutEnlargement: true })
+						.resize(800, 600, { fit: "inside", withoutEnlargement: true })
 						.webp({ quality: quality })
 						.toBuffer();
 				}
-				
+
 				// If still too large, reduce dimensions
 				if (buffer.length > 150 * 1024) {
 					buffer = await sharp(originalBuffer)
-						.resize(640, 480, { fit: 'inside', withoutEnlargement: true })
+						.resize(640, 480, { fit: "inside", withoutEnlargement: true })
 						.webp({ quality: quality })
 						.toBuffer();
 				}
-				
-				console.log(`Image generated successfully for ${imageName} (${buffer.length / 1024}KB)`);
+
+				console.log(
+					`Image generated successfully for ${imageName} (${buffer.length / 1024}KB)`,
+				);
 				return buffer;
 			}
 		}

@@ -5,7 +5,7 @@ import { type NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
 	try {
 		// const article = await articleGeneration();
-		cronCreateArticle().catch((error) => {
+		await cronCreateArticle().catch((error) => {
 			console.error("Error in cronCreateArticle:", error);
 		});
 

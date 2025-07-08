@@ -67,27 +67,8 @@ Output only the final Markdown-formatted article with highlighted vocabulary wor
 
 export const imageGenerationPrompt = {
 	prompt:
-		"You are a realistic image generator. Based on the article I provide, generate a photo-realistic image that accurately reflects the main setting, elements, and atmosphere described in the text.\n" +
-		"\n" +
+		"Generate a photorealistic 4:3 .webp image from the provided description.\n" +
 		"Requirements:\n" +
-		"Style: Realistic with natural lighting and detailed textures\n" +
-		"\n" +
-		"Aspect Ratio: 4:3 (standard web-friendly proportions)\n" +
-		"\n" +
-		"Format: .webp (lossy, web-optimized image format)\n" +
-		"\n" +
-		"Maximum File Size: Strictly under 200KB — ensure compression settings are optimized for this constraint\n" +
-		"\n" +
-		"Image Dimensions: Keep resolution balanced (e.g., 800×600 or 1024×768) to maintain visual quality while controlling size\n" +
-		"\n" +
-		"No text overlays, watermarks, or artistic abstractions\n" +
-		"\n" +
-		"Focus on faithful visual storytelling, recreating the main scene, concept, or environment from the article accurately\n" +
-		"\n" +
-		"The final image must be suitable as a lightweight, visually engaging image for use in webpages or reading apps\n" +
-		"\n" +
-		"Export Instructions:\n" +
-		"Use efficient compression to ensure the final .webp image file is under 200KB\n" +
-		"\n" +
-		"Prioritize detail in key focal areas while minimizing background complexity if necessary to reduce file size",
+		"Style: Realistic, natural lighting, detailed textures.\n" +
+		"Dimensions: Balanced resolution (e.g., 800x600 or 1024x768).\n",
 };

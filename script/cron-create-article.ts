@@ -1,14 +1,10 @@
-import {
-	createArticle,
-	deleteArticle,
-	updateArticleImageUrl,
-} from "@/lib/data/article";
-import {
-	getGenerationTurn,
-	updateGenerationTurn,
-} from "@/lib/data/get-generation-turn";
-import type { CategoryName, IeltsWordsCount } from "@prisma/client";
+import { createArticle, updateArticleImageUrl } from "@/lib/data/article";
+
+import { updateCategory } from "@/lib/data/category";
+import { prisma } from "@/lib/prisma";
 import wordsDataJson from "@/prisma/static-data/words.json";
+import type { CategoryName } from "@prisma/client";
+import { IeltsWordsCount as IeltsWordsCountEnum } from "@prisma/client";
 import { articleGeneration } from "./article-generation";
 import { imageGeneration } from "./image-generation";
 import { uploadArticleImage } from "./image-operation";
@@ -23,32 +19,57 @@ type ArticleGenerationResult = {
 	content: string;
 	description: string;
 	categoryName: CategoryName;
-	ieltsWordsCount: IeltsWordsCount;
+	ieltsWordsCount: number;
 	articleWordsCount: number;
 	ieltsWords: string[];
 };
 
 export async function cronCreateArticle() {
 	try {
-		const turn = await getGenerationTurn();
-		if (!turn) {
-			console.error("Failed to get generation turn.");
+		// 1. Get the category with the least recent update time
+		const categoryToUpdate = await prisma.category.findFirst({
+			orderBy: {
+				updatedAt: "asc",
+			},
+		});
+
+		if (!categoryToUpdate) {
+			console.error("No categories found.");
 			return;
 		}
 
-		for (const category of wordsData) {
-			const { categoryName, words } = category;
+		const { name: categoryName } = categoryToUpdate;
+
+		// 2. Filter words for the selected category
+		const categoryWordsData = wordsData.find(
+			(data) => data.categoryName === categoryName,
+		);
+
+		if (!categoryWordsData) {
+			console.error(`Words not found for category: ${categoryName}`);
+			return;
+		}
+		const { words } = categoryWordsData;
+
+		// 3. Use all of IeltsWordsCount
+		const ieltsWordsCountValues = Object.values(IeltsWordsCountEnum);
+
+		for (const ieltsWordsCountValue of ieltsWordsCountValues) {
+			const ieltsWordsCount = Number.parseInt(
+				ieltsWordsCountValue.split("_")[1],
+				10,
+			);
 
 			let articleObject: ArticleGenerationResult | null | undefined;
 			let articleAttempt = 1;
 			while (true) {
 				console.log(
-					`Article generation attempt ${articleAttempt} for ${categoryName}.`,
+					`Article generation attempt ${articleAttempt} for ${categoryName} with ielts word count ${ieltsWordsCount}.`,
 				);
 				articleObject = await articleGeneration(
 					categoryName,
 					words,
-					turn.ieltsWordsCount,
+					ieltsWordsCount,
 				);
 				if (articleObject) {
 					console.log(`Article generation for ${categoryName} succeed.`);
@@ -86,7 +107,11 @@ export async function cronCreateArticle() {
 				if (imageBuffer) {
 					const fileName = `${imageName.toLowerCase().replace(/\s+/g, "-")}.webp`;
 					const remotePath = `article/${fileName}`;
-					imageUrl = await uploadArticleImage(imageBuffer, fileName, remotePath);
+					imageUrl = await uploadArticleImage(
+						imageBuffer,
+						fileName,
+						remotePath,
+					);
 				}
 
 				if (imageUrl) {
@@ -107,10 +132,12 @@ export async function cronCreateArticle() {
 				`Article ${createdArticle.id} updated successfully with image ${imageUrl}`,
 			);
 
-			// Wait for 60 seconds before processing the next category
-			await new Promise((resolve) => setTimeout(resolve, 60000));
+			await new Promise((resolve) => setTimeout(resolve, 10000));
 		}
-		await updateGenerationTurn(turn.ieltsWordsCount);
+
+		// 4. Update the category's updatedAt timestamp
+		await updateCategory(categoryName);
+		console.log(`Category ${categoryName} timestamp updated.`);
 	} catch (error) {
 		console.error("Error in cron job for creating article:", error);
 	}

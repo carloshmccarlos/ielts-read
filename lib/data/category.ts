@@ -15,3 +15,14 @@ export async function getCategoryByName(
 		where: { name },
 	});
 }
+
+export async function updateCategory(name: CategoryName) {
+	// We do a "no-op" update to trigger the @updatedAt directive
+	const category = await prisma.category.findUnique({ where: { name } });
+	if (category) {
+		return prisma.category.update({
+			where: { name },
+			data: { description: category.description },
+		});
+	}
+}
