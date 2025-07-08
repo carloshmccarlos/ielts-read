@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
 	) {
 		return new NextResponse("Unauthorized", { status: 401 });
 	}
-	return new NextResponse("Authorized", { status: 200 });
+	return new NextResponse("Authorized", { status: 401 });
 
 	/*try {
 		// const article = await articleGeneration();
