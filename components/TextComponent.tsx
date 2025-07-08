@@ -43,9 +43,13 @@ function TextComponent({ className, article, titleSize, readCount }: Props) {
 					</p>
 				)}
 				<div className={"flex items-center justify-between mt-auto"}>
-					<time className="text-sm text-gray-500 mt-auto font-[Open-serif]">
-						{new Date(article.createdAt).toLocaleDateString()}
-					</time>
+					<span className="text-sm text-gray-500 mt-auto font-[Open-serif]">
+						total: {article.articleWordsCount}
+					</span>
+
+					<span className="text-sm text-gray-500 mt-auto font-[Open-serif]">
+						ielts: {article.ieltsWordsCount}
+					</span>
 
 					{readCount && (
 						<span className="text-sm  font-[Open-serif] text-gray-500">

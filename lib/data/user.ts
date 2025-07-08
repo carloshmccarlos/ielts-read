@@ -527,3 +527,48 @@ export async function updateNotices(
 		},
 	});
 }
+
+/**
+ * Get recently read articles by the user, excluding mastered articles
+ * @param userId User ID
+ * @param limit Maximum number of articles to return
+ * @returns Array of recently read articles excluding mastered ones
+ */
+export async function getUserRecentlyReadArticles(userId: string, limit = 5) {
+	// Get articles that have been read by the user
+	const readArticles = await prisma.readedTimeCount.findMany({
+		where: {
+			userId: userId,
+		},
+		include: {
+			article: {
+				include: {
+					Category: true,
+				},
+			},
+		},
+		orderBy: {
+			times: "desc", // Order by read count
+		},
+	});
+
+	// Get mastered articles by the user
+	const masteredArticles = await prisma.masteredArticle.findMany({
+		where: {
+			userId: userId,
+		},
+		select: {
+			articleId: true,
+		},
+	});
+
+	const masteredArticleIds = new Set(masteredArticles.map(item => item.articleId));
+
+	// Filter out mastered articles
+	const filteredArticles = readArticles.filter(
+		item => !masteredArticleIds.has(item.articleId)
+	);
+
+	// Return limited number of articles
+	return filteredArticles.slice(0, limit);
+}

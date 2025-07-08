@@ -4,7 +4,7 @@ import type { CardProps } from "@/types/interface";
 import { categoryToPath, titleToPath } from "@/lib/utils";
 import Link from "next/link";
 
-function NoImageCard({ article, className }: CardProps) {
+function NoImageCard({ article, className, readCount }: CardProps) {
 	if (!article) {
 		return null;
 	}
@@ -16,7 +16,7 @@ function NoImageCard({ article, className }: CardProps) {
 			className={` flex flex-col flex-grow shadow-sm hover:shadow-lg group
 			 bg-gray-100  transition-all duration-500 rounded-sm  ${className}`}
 		>
-			<TextComponent article={article} />
+			<TextComponent article={article} readCount={readCount} />
 		</Link>
 	);
 }
