@@ -13,9 +13,9 @@ function Footer() {
 					have suggestions to improve the platform, please send an email to
 				</span>
 				<span className={"font-bold text-xl"}>
-					<Link href={"mailto:carloshmccarlos@gmail.com"}>
+					<Link href={"mailto:official@ielts-read.space"}>
 						{" "}
-						carloshmccarlos@gmail.com.
+						official@ielts-read.space.
 					</Link>
 				</span>
 				{/*<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
