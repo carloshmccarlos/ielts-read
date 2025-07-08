@@ -78,15 +78,15 @@ export async function cronCreateArticle() {
 				console.log(
 					`Image generation/upload attempt ${imageAttempt} for article ${createdArticle.id}.`,
 				);
-				const imageGenerated = await imageGeneration(
+				const imageBuffer = await imageGeneration(
 					articleObject.description,
 					imageName,
 				);
 
-				if (imageGenerated) {
+				if (imageBuffer) {
 					const fileName = `${imageName.toLowerCase().replace(/\s+/g, "-")}.webp`;
 					const remotePath = `article/${fileName}`;
-					imageUrl = await uploadArticleImage(fileName, remotePath);
+					imageUrl = await uploadArticleImage(imageBuffer, fileName, remotePath);
 				}
 
 				if (imageUrl) {

@@ -26,33 +26,18 @@ const s3Client = new S3Client({
 });
 
 /**
- * Uploads an image from the public/content-image directory to R2 bucket
- * @param fileName - The name of the file in public/content-image directory
+ * Uploads an image buffer directly to R2 bucket
+ * @param imageBuffer - The image data as a Buffer
+ * @param fileName - The name to use for the file in the bucket
  * @param targetPath - Optional: The target path in the bucket (defaults to content-image/fileName)
  * @returns Promise with the upload result
  */
 export async function uploadArticleImage(
+	imageBuffer: Buffer,
 	fileName: string,
 	targetPath?: string,
 ): Promise<string | null> {
 	try {
-		// Construct the full path to the image file
-		const imagePath = path.join(
-			process.cwd(),
-			"public",
-			"content-image",
-			fileName,
-		);
-
-		// Check if the file exists
-		if (!fs.existsSync(imagePath)) {
-			console.error(`File not found: ${imagePath}`);
-			return null;
-		}
-
-		// Read the file content
-		const fileContent = fs.readFileSync(imagePath);
-
 		// Determine the file's MIME type based on extension
 		const fileExtension = path.extname(fileName).toLowerCase();
 		let contentType = "application/octet-stream"; // default
@@ -69,8 +54,8 @@ export async function uploadArticleImage(
 		// Upload to R2
 		const uploadParams = {
 			Bucket: BUCKET_NAME,
-			Key: targetKey,
-			Body: fileContent,
+			Key:  targetKey,
+			Body: imageBuffer,
 			ContentType: contentType,
 		};
 
@@ -78,8 +63,6 @@ export async function uploadArticleImage(
 		console.log(
 			`Successfully uploaded ${fileName} to ${BUCKET_NAME}/${targetKey}`,
 		);
-		fs.unlinkSync(imagePath);
-		console.log(`Successfully deleted local image: ${fileName}`);
 		return `${process.env.CLOUDFLARE_R2_PUBLIC_IMAGE_URL}/${targetKey}`;
 	} catch (error) {
 		console.error("Error uploading image to R2:", error);
