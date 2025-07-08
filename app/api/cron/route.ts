@@ -8,8 +8,9 @@ export async function GET(request: NextRequest) {
 	) {
 		return new NextResponse("Unauthorized", { status: 401 });
 	}
+	return new NextResponse("Authorized", { status: 200 });
 
-	try {
+	/*try {
 		// const article = await articleGeneration();
 		cronCreateArticle().catch((error) => {
 			console.error("Error in cronCreateArticle:", error);
@@ -27,5 +28,5 @@ export async function GET(request: NextRequest) {
 			{ error: "An unknown error occurred" },
 			{ status: 500 },
 		);
-	}
+	}*/
 }
