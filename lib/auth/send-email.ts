@@ -24,7 +24,7 @@ export async function sendEmail({ to, subject, text }: Props) {
 	// Only send the email if we have a valid API key
 	if (resendAPI) {
 		return await resend.emails.send({
-			from: "email@ielts-read.space",
+			from: "i-read-offcial@ielts-read.space",
 			to: to,
 			subject: subject,
 			html: text,
