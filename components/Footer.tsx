@@ -7,11 +7,10 @@ function Footer() {
 		<footer className="bg-black mt-12 text-white">
 			<div className="max-w-[2000px] mx-auto px-2 sm:px-4 lg:px-8 xl:px-16 2xl:px-32 py-12">
 				<span className=" text-center text-lg text-gray-300 mb-4 leading-relaxed ">
-					Our IELTS Reading platform offers high-quality, AI-generated articles
-					based on over 3,000 core IELTS vocabulary words, designed to help you
-					enhance your reading skills and master essential vocabulary. If you
-					encounter any bugs or have suggestions to improve the platform, please
-					send an email to
+					I READ offers high-quality, AI-generated articles based on over 3600
+					core IELTS vocabulary words, designed to help you enhance your reading
+					skills and master essential vocabulary. If you encounter any bugs or
+					have suggestions to improve the platform, please send an email to
 				</span>
 				<span className={"font-bold text-xl"}>
 					<Link href={"mailto:carloshmccarlos@gmail.com"}>
