@@ -13,7 +13,6 @@ import Link from "next/link";
 
 export default function ProfileDropdown({ role }: { role: "USER" | "ADMIN" }) {
 	const session = authClient.useSession();
-	console.log(JSON.stringify(role));
 
 	return (
 		<DropdownMenu>

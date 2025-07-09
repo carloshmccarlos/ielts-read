@@ -15,8 +15,8 @@ function BigCard({ article, className }: CardProps) {
 	return (
 		<Link
 			href={`/article/${article.id}-${categoryPath}-${titlePath}`}
-			className={`h-full flex-col-reverse group bg-gray-100 hover:bg-gray-50 
-			transition-colors duration-200 rounded-sm flex flex-grow  md:flex-row w-full ${className}`}
+			className={`h-full shadow-sm hover:shadow-lg flex-col-reverse group bg-gray-100 hover:bg-gray-50 
+			transition-all duration-500 rounded-sm flex flex-grow  md:flex-row w-full ${className}`}
 		>
 			<TextComponent
 				article={article}
