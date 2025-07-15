@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { customSession, emailOTP } from "better-auth/plugins";
+import { toast } from "sonner";
 
 export const auth = betterAuth({
 	database: prismaAdapter(prisma, {
@@ -32,12 +33,28 @@ export const auth = betterAuth({
 		requireEmailVerification: true,
 
 		sendResetPassword: async ({ user, url, token }, request) => {
-			await sendEmail({
-				to: user.email,
-				subject: "Reset your password",
-				text: `Click the link to reset your password: ${url}, 
-				this link will expire in 5 minutes.`,
+			const existedUser = await prisma.user.findUnique({
+				where: { email: user.email },
 			});
+
+			if (!existedUser) {
+				// Instead of silently failing, throw an error that can be handled by the UI
+				throw new Error("No user found with this email address");
+			}
+
+			// Only proceed if email is verified
+			if (!existedUser.emailVerified) {
+				throw new Error("Email not verified. Please verify your email first");
+			}
+
+			if (existedUser) {
+				await sendEmail({
+					to: user.email,
+					subject: "Reset your password",
+					text: `Click the link to reset your password: ${url}, 
+				this link will expire in 5 minutes.`,
+				});
+			}
 		},
 	},
 
@@ -76,6 +93,14 @@ export const auth = betterAuth({
 	plugins: [
 		emailOTP({
 			async sendVerificationOTP({ email, otp, type }) {
+				const existedUser = await prisma.user.findUnique({
+					where: { email },
+				});
+
+				if (!existedUser) {
+					throw new Error("No user found with this email address");
+				}
+
 				await sendEmail({
 					to: email,
 					subject:

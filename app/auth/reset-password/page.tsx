@@ -15,6 +15,7 @@ import {
 	getSendEmailTime,
 	updateSendEmailTime,
 } from "@/lib/data/email-check";
+import { checkUserExist, getUserData } from "@/lib/data/user";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -83,6 +84,12 @@ export default function ResetPasswordPage() {
 
 				// Reset cooldown if it's expired
 				await deleteSendEmailTime({ email: values.email });
+			}
+
+			const existUser = await checkUserExist(values.email);
+			if (!existUser) {
+				toast.error("User does not exist or not verified!");
+				return;
 			}
 
 			const { data, error } = await authClient.requestPasswordReset({

@@ -562,13 +562,23 @@ export async function getUserRecentlyReadArticles(userId: string, limit = 5) {
 		},
 	});
 
-	const masteredArticleIds = new Set(masteredArticles.map(item => item.articleId));
+	const masteredArticleIds = new Set(
+		masteredArticles.map((item) => item.articleId),
+	);
 
 	// Filter out mastered articles
 	const filteredArticles = readArticles.filter(
-		item => !masteredArticleIds.has(item.articleId)
+		(item) => !masteredArticleIds.has(item.articleId),
 	);
 
 	// Return limited number of articles
 	return filteredArticles.slice(0, limit);
+}
+
+export async function checkUserExist(email: string) {
+	const user = await prisma.user.findUnique({
+		where: { email },
+	});
+
+	return !!user;
 }
