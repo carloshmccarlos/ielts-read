@@ -60,6 +60,10 @@ export const auth = betterAuth({
 
 	// 会话配置
 	session: {
+		cookieCache: {
+			enabled: true,
+			maxAge: 24 * 60 * 60,
+		},
 		maxAge: 30 * 24 * 60 * 60, // 30天（秒）
 		updateAge: 24 * 60 * 60, // 24小时（秒）
 		cookieName: "auth.session",
