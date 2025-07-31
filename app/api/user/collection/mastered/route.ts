@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth/auth";
+import { getUserSession } from "@/lib/auth/getUserSession";
 import {
 	addMasteredArticle,
 	getPaginatedUserMasteredArticles,
@@ -10,7 +11,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
-	const session = await getCookieCache(request);
+	const session = await getUserSession(await headers());
 	const user = session?.user;
 	if (!user?.id) {
 		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

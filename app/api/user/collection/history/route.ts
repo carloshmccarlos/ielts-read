@@ -1,12 +1,14 @@
+import { getUserSession } from "@/lib/auth/getUserSession";
 import { getPaginatedUserReadHistory } from "@/lib/data/user";
 import { getCookieCache } from "better-auth/cookies";
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
 	try {
 		// Use cookie cache instead of the slow auth.api.getSession
-		const session = await getCookieCache(request);
+		const session = await getUserSession(await headers());
 		const user = session?.user;
 		if (!user?.id) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

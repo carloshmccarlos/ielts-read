@@ -1,13 +1,14 @@
 import { auth } from "@/lib/auth/auth";
+import { getUserSession } from "@/lib/auth/getUserSession";
 import { getProfileData, updateUserProfile } from "@/lib/data/user";
+import { getCookieCache } from "better-auth/cookies";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getCookieCache } from "better-auth/cookies";
 
 export async function GET(request: NextRequest) {
 	try {
-		const session = await getCookieCache(request);
+		const session = await getUserSession(await headers());
 
 		if (!session?.user?.id) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
