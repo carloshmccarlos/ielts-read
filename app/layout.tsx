@@ -1,13 +1,13 @@
-import type { Metadata, Viewport } from "next";
-import "./globals.css";
 import { QueryProvider } from "@/components/QueryProvider";
-import Navbar from "@/components/nav/Navbar";
-import { auth } from "@/lib/auth/auth";
 import { getAllCategories } from "@/lib/data/category";
 import { getRoleByUserId } from "@/lib/data/user";
+import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import type React from "react";
 import { Toaster } from "sonner";
+import Navbar from "../components/nav/Navbar";
+import "./globals.css";
+import { getUserSession } from "@/lib/auth/getUserSession";
 
 export const metadata: Metadata = {
 	title: "I READ",
@@ -33,12 +33,10 @@ export default async function RootLayout({
 	children: React.ReactNode;
 }>) {
 	const categories = await getAllCategories();
-	const session = await auth.api.getSession({
-		headers: await headers(),
-	});
+	const session = await getUserSession(await headers());
 
 	const role = session?.user?.id
-		? (await getRoleByUserId(session.user.id))?.role || "USER"
+		? (await getRoleByUserId(session?.user.id))?.role || "USER"
 		: "USER";
 
 	if (!categories) {

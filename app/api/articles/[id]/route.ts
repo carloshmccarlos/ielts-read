@@ -1,4 +1,3 @@
-import adminCheck from "@/lib/auth/adminCheck";
 import {
 	deleteArticle,
 	getArticleById,
@@ -38,9 +37,6 @@ export async function GET(request: NextRequest, { params }: Props) {
 
 export async function PUT(request: NextRequest, { params }: Props) {
 	try {
-		// Check if user is admin
-		await adminCheck();
-		
 		const id = Number.parseInt((await params).id, 10);
 		if (Number.isNaN(id)) {
 			return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
@@ -48,10 +44,15 @@ export async function PUT(request: NextRequest, { params }: Props) {
 
 		const body = await request.json();
 
-		const { title, imageUrl, content, description, categoryName, ieltsWordsCount } =
-			body;
+		const {
+			title,
+			imageUrl,
+			content,
+			description,
+			categoryName,
+			ieltsWordsCount,
+		} = body;
 
-	
 		if (!title || !imageUrl || !content || !description || !ieltsWordsCount) {
 			return NextResponse.json(
 				{
@@ -82,7 +83,7 @@ export async function PUT(request: NextRequest, { params }: Props) {
 
 		// Revalidate the admin edit page
 		revalidatePath("/admin/edit");
-		
+
 		return NextResponse.json(updatedArticle);
 	} catch (error) {
 		console.error("Error updating article:", error);
@@ -95,9 +96,6 @@ export async function PUT(request: NextRequest, { params }: Props) {
 
 export async function DELETE(request: NextRequest, { params }: Props) {
 	try {
-		// Check if user is admin
-		await adminCheck();
-
 		// Delete the article
 		const articleId = Number.parseInt((await params).id, 10);
 

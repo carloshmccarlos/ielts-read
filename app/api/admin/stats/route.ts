@@ -1,15 +1,8 @@
-import adminCheck from "@/lib/auth/adminCheck";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function GET() {
 	try {
-		// Check if user is admin
-		const adminCheckResult = await adminCheck();
-		if (adminCheckResult) {
-			return adminCheckResult;
-		}
-
 		// Get counts for dashboard stats
 		const [articleCount, userCount, categoryCount, totalReadTimes] =
 			await Promise.all([

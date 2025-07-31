@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth/auth";
+import { getUserSession } from "@/lib/auth/getUserSession";
 import { getRoleByUserId } from "@/lib/data/user";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -9,9 +10,7 @@ export default async function AdminLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const session = await auth.api.getSession({
-		headers: await headers(),
-	});
+	const session = await getUserSession(await headers());
 
 	if (!session?.user?.id) {
 		redirect("/auth/login");

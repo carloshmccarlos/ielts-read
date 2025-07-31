@@ -1,12 +1,8 @@
-import adminCheck from "@/lib/auth/adminCheck";
 import { getAllArticles } from "@/lib/data/article";
 import { NextResponse } from "next/server";
 
 export async function GET() {
 	try {
-		// Check if user is admin
-		await adminCheck();
-
 		// Get all articles with their categories
 		const articles = await getAllArticles();
 

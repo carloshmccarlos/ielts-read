@@ -1,7 +1,6 @@
 "use client";
 
 import LoginButton from "@/components/LoginButton";
-import { ModeToggle } from "@/components/ThemeToggle";
 import Menu from "@/components/nav/Menu";
 import ProfileDropdown from "@/components/nav/ProfileDropdown";
 import { authClient } from "@/lib/auth/auth-client";

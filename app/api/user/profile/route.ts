@@ -3,12 +3,11 @@ import { getProfileData, updateUserProfile } from "@/lib/data/user";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getCookieCache } from "better-auth/cookies";
 
 export async function GET(request: NextRequest) {
 	try {
-		const session = await auth.api.getSession({
-			headers: await headers(),
-		});
+		const session = await getCookieCache(request);
 
 		if (!session?.user?.id) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

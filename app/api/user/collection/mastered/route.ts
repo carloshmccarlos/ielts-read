@@ -4,20 +4,19 @@ import {
 	getPaginatedUserMasteredArticles,
 	isArticleMastered,
 } from "@/lib/data/user";
+import { getCookieCache } from "better-auth/cookies";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
-	try {
-		const session = await auth.api.getSession({
-			headers: await headers(),
-		});
-		const user = session?.user;
-		if (!user?.id) {
-			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-		}
+	const session = await getCookieCache(request);
+	const user = session?.user;
+	if (!user?.id) {
+		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+	}
 
+	try {
 		const { searchParams } = new URL(request.url);
 		const articleId = searchParams.get("articleId");
 
@@ -78,4 +77,4 @@ export async function POST(request: NextRequest) {
 			{ status: 500 },
 		);
 	}
-} 
+}

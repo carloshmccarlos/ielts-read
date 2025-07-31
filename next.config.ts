@@ -20,6 +20,7 @@ const nextConfig: NextConfig = {
 	},
 	experimental: {
 		serverComponentsExternalPackages: ["@prisma/client"],
+		useCache: true,
 	},
 	output: "standalone",
 };

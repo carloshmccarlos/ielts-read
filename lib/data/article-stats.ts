@@ -2,6 +2,7 @@
 
 import { auth } from "@/lib/auth/auth";
 
+import { getUserSession } from "@/lib/auth/getUserSession";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 
@@ -9,9 +10,7 @@ import { headers } from "next/headers";
  * Mark or unmark an article for the current user
  */
 export async function toggleMarkArticle(articleId: number) {
-	const session = await auth.api.getSession({
-		headers: await headers(),
-	});
+	const session = await getUserSession(await headers());
 
 	if (!session?.user?.id) {
 		throw new Error("You must be logged in to mark articles");

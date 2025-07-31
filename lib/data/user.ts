@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@/lib/auth/auth";
+import { getUserSession } from "@/lib/auth/getUserSession";
 import { prisma } from "@/lib/prisma";
 import type { Article, Category, Role, User } from "@prisma/client";
 import { headers } from "next/headers";
@@ -72,9 +73,7 @@ export interface ApiProfileResponse {
  * @returns User session or redirects to login if not authenticated
  */
 export async function getCurrentUser(): Promise<SessionUser> {
-	const session = await auth.api.getSession({
-		headers: await headers(),
-	});
+	const session = await getUserSession(await headers());
 
 	if (!session?.user?.id) {
 		return redirect("/auth/login");
@@ -305,27 +304,6 @@ export async function getPaginatedUserMasteredArticles(
 		prisma.masteredArticle.count({ where }),
 	]);
 	return { articles, total };
-}
-
-/**
- * Get all user data including marked articles and reading history
- * @returns User data or redirects to login if not authenticated
- */
-export async function getUserData(): Promise<UserData> {
-	const user = await getCurrentUser();
-	const userId = user.id;
-
-	// Get marked articles and read history in parallel
-	const [markedArticles, readHistory] = await Promise.all([
-		getUserMarkedArticles(userId),
-		getUserReadHistory(userId),
-	]);
-
-	return {
-		markedArticles,
-		readHistory,
-		user,
-	};
 }
 
 /**

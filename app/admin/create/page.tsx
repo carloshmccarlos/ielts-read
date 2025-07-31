@@ -1,20 +1,19 @@
 import { ArticleForm } from "@/components/ArticleForm";
-import { auth } from "@/lib/auth/auth";
+import { getUserSession } from "@/lib/auth/getUserSession";
 import { getRoleByUserId } from "@/lib/data/user";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 export default async function CreateArticlePage() {
-	const session = await auth.api.getSession({
-		headers: await headers(),
-	});
+	const session = await getUserSession(await headers());
+	const user = session?.user;
 
-	if (!session?.user?.id) {
+	if (!user?.id) {
 		redirect("/auth/login");
 	}
 
 	// Check if user is admin
-	const userRole = await getRoleByUserId(session.user.id);
+	const userRole = await getRoleByUserId(user.id);
 	if (userRole?.role !== "ADMIN") {
 		redirect("/");
 	}

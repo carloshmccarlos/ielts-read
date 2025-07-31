@@ -15,7 +15,7 @@ import {
 	getSendEmailTime,
 	updateSendEmailTime,
 } from "@/lib/data/email-check";
-import { checkUserExist, getUserData } from "@/lib/data/user";
+import { checkUserExist } from "@/lib/data/user";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -33,7 +33,6 @@ interface ExtendedError {
 export default function ResetPasswordPage() {
 	const searchParams = useSearchParams();
 	const token = searchParams.get("token");
-	const error = searchParams.get("error");
 	const [loading, setLoading] = useState(false);
 	const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
 	const [message, setMessage] = useState("");

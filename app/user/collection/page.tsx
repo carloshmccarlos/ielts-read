@@ -9,7 +9,7 @@ import { authClient } from "@/lib/auth/auth-client";
 import type { MarkedArticle, ReadHistory } from "@/lib/data/user";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const LIMIT = 8;
@@ -65,17 +65,15 @@ const fetchMasteredArticles = async (
 
 export default function CollectionPage() {
 	const session = authClient.useSession();
-	const router = useRouter();
+
+	if (!session?.data?.user?.id) {
+		return redirect("/auth/login");
+	}
+
 	const [activeTab, setActiveTab] = useState("marked");
 	const [markedPage, setMarkedPage] = useState(1);
 	const [historyPage, setHistoryPage] = useState(1);
 	const [masteredPage, setMasteredPage] = useState(1);
-
-	useEffect(() => {
-		if (!session) {
-			router.push("/");
-		}
-	}, [router, session]);
 
 	const {
 		data: markedData,
@@ -84,7 +82,7 @@ export default function CollectionPage() {
 	} = useQuery<MarkedArticlesResponse>({
 		queryKey: ["markedArticles", markedPage],
 		queryFn: () => fetchMarkedArticles(markedPage),
-		enabled: activeTab === "marked" && !!session,
+		enabled: activeTab === "marked",
 	});
 
 	const {
@@ -94,7 +92,7 @@ export default function CollectionPage() {
 	} = useQuery<ReadHistoryResponse>({
 		queryKey: ["readHistory", historyPage],
 		queryFn: () => fetchReadHistory(historyPage),
-		enabled: activeTab === "history" && !!session,
+		enabled: activeTab === "history",
 	});
 
 	const {
@@ -104,16 +102,8 @@ export default function CollectionPage() {
 	} = useQuery<MasteredArticlesResponse>({
 		queryKey: ["masteredArticles", masteredPage],
 		queryFn: () => fetchMasteredArticles(masteredPage),
-		enabled: activeTab === "mastered" && !!session,
+		enabled: activeTab === "mastered",
 	});
-
-	if (!session) {
-		return (
-			<div className="container mx-auto py-10 px-4 md:px-8">
-				<Spinner />
-			</div>
-		);
-	}
 
 	return (
 		<div className="max-w-[2000px] mx-auto px-2 sm:px-4 lg:px-8 xl:px-16 2xl:px-32 py-2 sm:py-2 lg:py-4">

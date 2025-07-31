@@ -1,9 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { auth } from "@/lib/auth/auth";
 import { BookMarked, User } from "lucide-react";
-import { headers } from "next/headers";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 export default async function UserLayout({
 	children,
@@ -11,13 +8,6 @@ export default async function UserLayout({
 	children: React.ReactNode;
 }) {
 	// Check if user is authenticated
-	const session = await auth.api.getSession({
-		headers: await headers(),
-	});
-
-	if (!session?.user?.id) {
-		return redirect("/auth/login");
-	}
 
 	return (
 		<div className="container mx-auto py-6">

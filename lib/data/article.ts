@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth/auth";
+import { getUserSession } from "@/lib/auth/getUserSession";
 import { prisma } from "@/lib/prisma";
 import { deleteArticleImage } from "@/script/image-operation";
 import type { CategoryName } from "@prisma/client";
@@ -19,9 +20,7 @@ export async function getArticlesByCategory(
 	skip = 0,
 	take = 16,
 ) {
-	const session = await auth.api.getSession({
-		headers: await headers(),
-	});
+	const session = await getUserSession(await headers());
 
 	const userId = session?.user?.id;
 

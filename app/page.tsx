@@ -4,7 +4,7 @@ import HorizontalCard from "@/components/HorizontalCard";
 import NoImageCard from "@/components/NoImageCard";
 import VerticalCard from "@/components/VerticalCard";
 import { Button } from "@/components/ui/button";
-import { auth } from "@/lib/auth/auth";
+import { getUserSession } from "@/lib/auth/getUserSession";
 import { getHottestArticles, getLatestArticles } from "@/lib/data/article";
 import { getUserRecentlyReadArticles } from "@/lib/data/user";
 import { headers } from "next/headers";
@@ -15,14 +15,10 @@ export default async function Home() {
 	const latestArticles = await getLatestArticles();
 	const hottestArticles = await getHottestArticles();
 
-	// Get user session
-	const session = await auth.api.getSession({
-		headers: await headers(),
-	});
+	const session = await getUserSession(await headers());
 
-	// Get recently read articles if user is logged in
 	const recentlyReadArticles = session?.user?.id
-		? await getUserRecentlyReadArticles(session.user.id, 6)
+		? await getUserRecentlyReadArticles(session?.user.id, 6)
 		: [];
 
 	return (

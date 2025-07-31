@@ -38,8 +38,8 @@ interface ProfileData {
 export default function ProfilePage() {
 	const session = authClient.useSession();
 
-	if (!session) {
-		return redirect("/");
+	if (!session?.data?.user?.id) {
+		return redirect("/auth/login");
 	}
 
 	const router = useRouter();
