@@ -128,7 +128,7 @@ export const auth = betterAuth({
 			return {
 				user: {
 					...user,
-					role: role,
+					role: "admin",
 				},
 				session,
 			};

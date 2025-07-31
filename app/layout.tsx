@@ -33,21 +33,12 @@ export default async function RootLayout({
 	children: React.ReactNode;
 }>) {
 	const categories = await getAllCategories();
-	const session = await getUserSession(await headers());
-
-	const role = session?.user?.id
-		? (await getRoleByUserId(session?.user.id))?.role || "USER"
-		: "USER";
-
-	if (!categories) {
-		return null;
-	}
 
 	return (
 		<html lang="en">
 			<body className="relative overflow-y-scroll  flex flex-col font-serif justify-center items-stretch antialiased">
 				<QueryProvider>
-					<Navbar categories={categories} role={role} />
+					<Navbar categories={categories} />
 
 					{children}
 

@@ -4,7 +4,9 @@ import LoginButton from "@/components/LoginButton";
 import Menu from "@/components/nav/Menu";
 import ProfileDropdown from "@/components/nav/ProfileDropdown";
 import { authClient } from "@/lib/auth/auth-client";
+import { getRoleByUserId } from "@/lib/data/user";
 import type { Category } from "@prisma/client";
+import type { Session } from "better-auth";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -13,15 +15,35 @@ import Spinner from "../Spinner";
 
 interface Props {
 	categories: Category[];
-	role: "USER" | "ADMIN";
 }
 
-function NavBar({ categories, role }: Props) {
+function NavBar({ categories }: Props) {
+	const session = authClient.useSession();
+	const [role, setRole] = useState<"USER" | "ADMIN">("USER");
+	const user: Session = session?.data?.user as unknown as Session;
+
+	if (!categories) {
+		return null;
+	}
+
 	const [scrolled, setScrolled] = useState(false);
 	const pathname = usePathname();
 	const { data, isPending } = authClient.useSession();
 
 	const type = pathname.startsWith("/admin") ? "admin" : "col";
+
+	useEffect(() => {
+		const updateRole = async () => {
+			if (user?.id) {
+				const roleData = await getRoleByUserId(user.id);
+				setRole(roleData?.role || "USER");
+			} else {
+				return;
+			}
+		};
+
+		updateRole().then();
+	}, [user?.id]);
 
 	useEffect(() => {
 		const handleScroll = () => {
