@@ -125,15 +125,20 @@ export const auth = betterAuth({
 			if (!user || !session) {
 				return { user, session };
 			}
-			if (session.role) {
+			
+			// Type assertion to safely access role property
+			const sessionWithRole = session as typeof session & { role?: string };
+			
+			if (sessionWithRole.role) {
 				return {
 					user: {
 						...user,
-						role: session.role,
+						role: sessionWithRole.role,
 					},
 					session,
 				};
 			}
+			
 			const role = await getRoleByUserId(session.userId);
 			return {
 				user: {
