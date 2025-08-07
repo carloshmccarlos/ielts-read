@@ -124,13 +124,25 @@ export const auth = betterAuth({
 			if (!user || !session) {
 				return { user, session };
 			}
+			if (session.role) {
+				return {
+					user: {
+						...user,
+						role: session.role,
+					},
+					session,
+				};
+			}
 			const role = await getRoleByUserId(session.userId);
 			return {
 				user: {
 					...user,
-					role: "admin",
+					role: role,
 				},
-				session,
+				session: {
+					...session,
+					role: role,
+				},
 			};
 		}),
 	],
