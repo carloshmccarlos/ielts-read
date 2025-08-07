@@ -5,6 +5,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { customSession, emailOTP } from "better-auth/plugins";
 import { toast } from "sonner";
+import type {} from "@/types/better-auth";
 
 export const auth = betterAuth({
 	database: prismaAdapter(prisma, {

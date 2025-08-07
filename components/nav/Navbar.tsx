@@ -20,7 +20,7 @@ interface Props {
 function NavBar({ categories }: Props) {
 	const session = authClient.useSession();
 	const [role, setRole] = useState<"USER" | "ADMIN">("USER");
-	const user: Session = session?.data?.user as unknown as Session;
+	const user = session?.data?.user;
 
 	if (!categories) {
 		return null;
