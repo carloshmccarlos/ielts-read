@@ -4,19 +4,15 @@ import ArticleDialog from "@/components/ArticleDialog";
 import MarkdownRenderer from "@/components/MarkdownRender";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth/auth-client";
-import {
-	getUserArticleStats,
-	increaseFinishTime,
-	toggleMarkArticle,
-	toggleMasterArticle,
-} from "@/lib/data/article-stats";
+import { getUserArticleStats } from "@/lib/data/article-stats";
 import { getNotices, updateNotices } from "@/lib/data/user";
 import { transformCategoryName } from "@/lib/utils";
 import type { ArticleWithCategory } from "@/types/interface";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { GraduationCap, SmilePlus, Star } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useArticleMutations } from "@/hooks/useArticleMutations";
 import { toast } from "sonner";
 
 interface Props {
@@ -32,7 +28,6 @@ interface UserNotices {
 
 function ArticleContent({ article }: Props) {
 	const session = authClient.useSession();
-	const queryClient = useQueryClient();
 	const showCategoryName = transformCategoryName(article.Category?.name || "");
 	const [markNotice, setMarkNotice] = useState(false);
 	const [masterNotice, setMasterNotice] = useState(false);
@@ -70,49 +65,9 @@ function ArticleContent({ article }: Props) {
 		enabled: isLoggedIn,
 	});
 
-	const { mutate: toggleMark, isPending: isTogglingMark } = useMutation({
-		mutationFn: () => toggleMarkArticle(article.id),
-		onSuccess: (data) => {
-			queryClient
-				.invalidateQueries({
-					queryKey: ["articleStats", article.id],
-				})
-				.then();
-			toast.success(data.marked ? "Article marked" : "Article unmarked");
-		},
-		onError: () => {
-			toast.error("Failed to update mark status");
-		},
-	});
-
-	const { mutate: toggleMaster, isPending: isTogglingMaster } = useMutation({
-		mutationFn: () => toggleMasterArticle(article.id),
-		onSuccess: (data) => {
-			queryClient
-				.invalidateQueries({
-					queryKey: ["articleStats", article.id],
-				})
-				.then();
-			toast.success(data.mastered ? "Article mastered" : "Article unmastered");
-		},
-		onError: () => {
-			toast.error("Failed to update mastered status");
-		},
-	});
-
-	const { mutate: incrementRead, isPending: isIncrementingRead } = useMutation({
-		mutationFn: () => increaseFinishTime(article.id),
-		onSuccess: (data) => {
-			queryClient
-				.invalidateQueries({
-					queryKey: ["articleStats", article.id],
-				})
-				.then();
-			toast.success(`You've read this article ${data.times} times`);
-		},
-		onError: () => {
-			toast.error("Failed to update read count");
-		},
+	// Use optimized mutations with optimistic updates
+	const { toggleMark, toggleMaster, incrementRead, isAnyPending } = useArticleMutations(article.id, {
+		enableOptimistic: true,
 	});
 
 	const handleToggleMark = async () => {
@@ -127,7 +82,7 @@ function ArticleContent({ article }: Props) {
 			setMarkNotice(true);
 		}
 
-		toggleMark();
+		toggleMark.mutate();
 	};
 
 	const handleToggleMaster = async () => {
@@ -142,7 +97,7 @@ function ArticleContent({ article }: Props) {
 			setMasterNotice(true);
 		}
 
-		toggleMaster();
+		toggleMaster.mutate();
 	};
 
 	const handleIncreaseFinishTime = async () => {
@@ -156,13 +111,13 @@ function ArticleContent({ article }: Props) {
 
 			setFinishNotice(true);
 		}
-		incrementRead();
+		incrementRead.mutate();
 	};
 
 	const isMarked = stats?.marked || false;
 	const readTimes = stats?.readTimes || 0;
 	const isMastered = stats?.mastered || false;
-	const isLoading = isTogglingMark || isIncrementingRead || isTogglingMaster;
+	const isLoading = isAnyPending;
 
 	return (
 		<article className="py-8 px-4 md:px-8 lg:px-16 max-w-7xl mx-auto relative">

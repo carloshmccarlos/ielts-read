@@ -7,11 +7,12 @@ import { DataTable } from "@/components/ui/data-table";
 import ToolBar from "@/components/admin/ToolBar";
 import { transformCategoryName } from "@/lib/utils";
 import type { Article, Category } from "@prisma/client";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef, RowSelectionState } from "@tanstack/react-table";
 import { ArrowUpDown, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useAdminMutations } from "@/hooks/useAdminMutations";
 import { toast } from "sonner";
 
 type ArticleWithCategory = Article & {
@@ -26,36 +27,11 @@ async function fetchArticles(): Promise<ArticleWithCategory[]> {
 	return response.json();
 }
 
-async function deleteArticle(id: number) {
-	const response = await fetch(`/api/articles/${id}`, {
-		method: "DELETE",
-	});
 
-	if (!response.ok) {
-		const errorData = await response.json();
-		throw new Error(errorData.message || "Failed to delete article");
-	}
-}
-
-async function deleteArticles(ids: number[]) {
-	const response = await fetch("/api/articles", {
-		method: "DELETE",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({ ids }),
-	});
-
-	if (!response.ok) {
-		const errorData = await response.json();
-		throw new Error(errorData.message || "Failed to delete articles");
-	}
-}
 
 export function ArticleTable() {
 	const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 	const [filteredCategory, setFilteredCategory] = useState("all");
-	const queryClient = useQueryClient();
 	const [categories, setCategories] = useState<Category[]>([]);
 
 	useEffect(() => {
@@ -95,32 +71,11 @@ export function ArticleTable() {
 				)
 			: articles;
 
-	const deleteMutation = useMutation({
-		mutationFn: deleteArticle,
+	// Use optimized mutations with optimistic updates
+	const { deleteArticle, deleteArticles } = useAdminMutations({
 		onSuccess: () => {
-			toast.success("Article deleted successfully");
-			queryClient.invalidateQueries({ queryKey: ["articles"] }).then();
-		},
-		onError: (error) => {
-			console.error("Error deleting article:", error);
-			toast.error(
-				error instanceof Error ? error.message : "Failed to delete article",
-			);
-		},
-	});
-
-	const deleteArticlesMutation = useMutation({
-		mutationFn: deleteArticles,
-		onSuccess: () => {
-			toast.success("Articles deleted successfully");
-			queryClient.invalidateQueries({ queryKey: ["articles"] });
+			// Clear row selection after successful bulk delete
 			setRowSelection({});
-		},
-		onError: (error) => {
-			console.error("Error deleting articles:", error);
-			toast.error(
-				error instanceof Error ? error.message : "Failed to delete articles",
-			);
 		},
 	});
 
@@ -128,7 +83,7 @@ export function ArticleTable() {
 		if (!confirm("Are you sure you want to delete this article?")) {
 			return;
 		}
-		deleteMutation.mutate(id);
+		deleteArticle.mutate(id);
 	}
 
 	const columns: ColumnDef<ArticleWithCategory>[] = [
@@ -292,7 +247,7 @@ export function ArticleTable() {
 			const selectedIds = Object.keys(rowSelection)
 				.filter((key) => rowSelection[key])
 				.map((key) => showedArticles[Number(key)].id);
-			deleteArticlesMutation.mutate(selectedIds);
+			deleteArticles.mutate(selectedIds);
 		}
 	}
 
@@ -329,7 +284,7 @@ export function ArticleTable() {
 						onChange={setFilteredCategory}
 						categories={categories}
 						handleDeleteSelected={handleDeleteSelected}
-						isDeleting={deleteArticlesMutation.isPending}
+						isDeleting={deleteArticles.isPending}
 						selectedRowCount={Object.keys(rowSelection).length}
 					/>
 				)}
