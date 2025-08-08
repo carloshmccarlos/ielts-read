@@ -21,7 +21,7 @@ export function useOptimizedQuery<TData, TError = Error>({
 }: OptimizedQueryOptions<TData, TError>) {
 	const queryClient = useQueryClient();
 	const { measureAsync } = useAsyncPerformance();
-	const prefetchTimeoutRef = useRef<NodeJS.Timeout>();
+	const prefetchTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
 	// Wrap queryFn with performance monitoring
 	const wrappedQueryFn = useCallback(async () => {
@@ -100,7 +100,7 @@ export function useBatchQueries<T extends Record<string, any>>(
 	);
 
 	const data = queries.reduce((acc, { key }, index) => {
-		acc[key] = results[index].data;
+		(acc as any)[key] = results[index].data;
 		return acc;
 	}, {} as T);
 

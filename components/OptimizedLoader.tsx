@@ -17,17 +17,18 @@ export function createLazyComponent<T extends ComponentType<any>>(
 }
 
 // Wrapper component for lazy loading with suspense
-export function LazyWrapper<P extends Record<string, any>>({
+export function LazyWrapper({
 	component: Component,
 	fallback,
 	...props
 }: {
-	component: LazyExoticComponent<ComponentType<P>>;
+	component: LazyExoticComponent<ComponentType<any>>;
 	fallback?: React.ReactNode;
-} & P) {
+	[key: string]: any;
+}) {
 	return (
 		<Suspense fallback={fallback || <OptimizedSpinner />}>
-			<Component {...(props as P)} />
+			<Component {...props} />
 		</Suspense>
 	);
 }
