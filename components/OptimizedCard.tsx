@@ -4,7 +4,7 @@ import { memo, useMemo } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import OptimizedImage from "@/components/OptimizedImage";
-import { transformCategoryName } from "@/lib/utils";
+import { transformCategoryName, categoryToPath, titleToPath } from "@/lib/utils";
 import { usePerformanceMonitor } from "@/hooks/usePerformance";
 import type { ArticleWithCategory } from "@/types/interface";
 
@@ -37,6 +37,13 @@ const OptimizedCard = memo<OptimizedCardProps>(({
 		}), 
 		[article.createdAt]
 	);
+
+	// Generate URL path components
+	const articleUrl = useMemo(() => {
+		const titlePath = titleToPath(article.title);
+		const categoryPath = categoryToPath(article.Category?.name || "");
+		return `/article/${article.id}-${categoryPath}-${titlePath}`;
+	}, [article.id, article.title, article.Category?.name]);
 
 	const truncatedTitle = useMemo(() => {
 		if (variant === "big") return article.title;
@@ -114,7 +121,7 @@ const OptimizedCard = memo<OptimizedCardProps>(({
 
 	return (
 		<Link 
-			href={`/article/${article.slug}`}
+			href={articleUrl}
 			className="block h-full"
 			prefetch={priority}
 		>
