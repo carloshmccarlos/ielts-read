@@ -4,8 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { customSession, emailOTP } from "better-auth/plugins";
-import { toast } from "sonner";
-import type {} from "@/types/better-auth";
 
 export const auth = betterAuth({
 	database: prismaAdapter(prisma, {
@@ -125,10 +123,10 @@ export const auth = betterAuth({
 			if (!user || !session) {
 				return { user, session };
 			}
-			
+
 			// Type assertion to safely access role property
 			const sessionWithRole = session as typeof session & { role?: string };
-			
+
 			if (sessionWithRole.role) {
 				return {
 					user: {
@@ -138,7 +136,7 @@ export const auth = betterAuth({
 					session,
 				};
 			}
-			
+
 			const role = await getRoleByUserId(session.userId);
 			return {
 				user: {
