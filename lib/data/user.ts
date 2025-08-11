@@ -91,6 +91,16 @@ export async function getUserMarkedArticles(userId: string) {
 	return prisma.markedArticles.findMany({
 		where: {
 			userId: userId,
+			// Exclude articles that are mastered by the user
+			NOT: {
+				article: {
+					MasteredArticle: {
+						some: {
+							userId: userId,
+						},
+					},
+				},
+			},
 		},
 		include: {
 			article: {
