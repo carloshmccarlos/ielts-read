@@ -22,7 +22,7 @@ interface UserWithCounts {
 	name: string | null;
 	email: string;
 	image: string | null;
-	createdAt: string;
+	createdAt: Date | string;
 	role: string;
 	_count: {
 		MarkedArticles: number;
