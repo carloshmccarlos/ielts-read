@@ -2,10 +2,10 @@ import { prisma } from "@/lib/prisma";
 import { cache } from "react";
 import { notFound } from "next/navigation";
 
-// Cache article by slug with all related data
-export const getArticleBySlug = cache(async (slug: string) => {
+// Cache article by id with all related data
+export const getArticleById = cache(async (id: number) => {
   const article = await prisma.article.findUnique({
-    where: { slug },
+    where: { id },
     include: {
       Category: true,
       _count: {
@@ -37,7 +37,7 @@ export const getArticles = cache(async (options: {
   const where: any = {};
   
   if (category && category !== "all") {
-    where.categoryName = category;
+    where.categoryName = category as any; // CategoryName enum from Prisma
   }
   
   if (search) {
@@ -77,7 +77,7 @@ export const getArticles = cache(async (options: {
 // Cache articles by category
 export const getArticlesByCategory = cache(async (categoryName: string) => {
   return await prisma.article.findMany({
-    where: { categoryName },
+    where: { categoryName: categoryName as any }, // CategoryName enum from Prisma
     include: {
       Category: true,
       _count: {
