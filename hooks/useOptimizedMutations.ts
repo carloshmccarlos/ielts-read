@@ -51,7 +51,7 @@ export function useOptimizedMutation<TData = unknown, TError = Error, TVariables
         toast.error(errorMessage);
       }
       
-      onError?.(error, variables);
+      onError?.(error as TError, variables);
     },
     onSuccess: (data, variables) => {
       if (successMessage) {
@@ -96,7 +96,7 @@ export function useBatchMutation<TData = unknown, TError = Error, TVariables = v
       if (errorMessage) {
         toast.error(errorMessage);
       }
-      onError?.(error, variables);
+      onError?.(error as TError, variables);
     },
     onSuccess: (data, variables) => {
       if (successMessage) {
