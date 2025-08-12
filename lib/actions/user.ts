@@ -61,24 +61,24 @@ export const getUserCollections = cache(async () => {
     prisma.markedArticles.findMany({
       where: { userId: session.user.id },
       include: {
-        Article: {
+        article: {
           include: {
             Category: true
           }
         }
       },
-      orderBy: { createdAt: "desc" }
+      orderBy: { id: "desc" }
     }),
     prisma.readedTimeCount.findMany({
       where: { userId: session.user.id },
       include: {
-        Article: {
+        article: {
           include: {
             Category: true
           }
         }
       },
-      orderBy: { createdAt: "desc" }
+      orderBy: { id: "desc" }
     })
   ]);
 
