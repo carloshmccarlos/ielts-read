@@ -1,13 +1,11 @@
 import { QueryProvider } from "@/components/QueryProvider";
 import { getAllCategories } from "@/lib/data/category";
-import { getRoleByUserId } from "@/lib/data/user";
 import type { Metadata, Viewport } from "next";
-import { headers } from "next/headers";
 import type React from "react";
 import { Toaster } from "sonner";
 import Navbar from "../components/nav/Navbar";
 import "./globals.css";
-import { getUserSession } from "@/lib/auth/getUserSession";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
 	title: "I READ",
@@ -42,6 +40,7 @@ export default async function RootLayout({
 
 					{children}
 
+					<SpeedInsights />
 					<Toaster position="top-center" />
 				</QueryProvider>
 			</body>
