@@ -3,6 +3,7 @@
 import ArticleDialog from "@/components/ArticleDialog";
 import MarkdownRenderer from "@/components/MarkdownRender";
 import { Button } from "@/components/ui/button";
+import { useArticleMutations } from "@/hooks/useArticleMutations";
 import { useCurrentUser } from "@/hooks/useSession";
 import { getUserArticleStats } from "@/lib/data/article-stats";
 import { getNotices, updateNotices } from "@/lib/data/user";
@@ -12,7 +13,6 @@ import { useQuery } from "@tanstack/react-query";
 import { GraduationCap, SmilePlus, Star } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import { useArticleMutations } from "@/hooks/useArticleMutations";
 import { toast } from "sonner";
 
 interface Props {
@@ -36,7 +36,7 @@ function ArticleContent({ article }: Props) {
 		queryKey: ["userNotices", userId],
 		queryFn: async () => {
 			if (!userId) return null;
-			return await getNotices(userId) as UserNotices | null;
+			return (await getNotices(userId)) as UserNotices | null;
 		},
 		enabled: isLoggedIn && !!userId,
 		staleTime: 5 * 60 * 1000, // 5 minutes
@@ -53,9 +53,10 @@ function ArticleContent({ article }: Props) {
 	});
 
 	// Use optimized mutations with optimistic updates
-	const { toggleMark, toggleMaster, incrementRead, isAnyPending } = useArticleMutations(article.id, {
-		enableOptimistic: true,
-	});
+	const { toggleMark, toggleMaster, incrementRead, isAnyPending } =
+		useArticleMutations(article.id, {
+			enableOptimistic: true,
+		});
 
 	const handleToggleMark = async () => {
 		if (!isLoggedIn) {
@@ -147,7 +148,7 @@ function ArticleContent({ article }: Props) {
 
 			<div className={"flex flex-col  gap-2 py-16 items-end"}>
 				<div className={"flex flex-row gap-2 items-center"}>
-					{!markNotice ? (
+					{!markNotice && userId ? (
 						<ArticleDialog triggerText={"mark"} onClick={handleToggleMark}>
 							<Button
 								variant="outline"
@@ -174,8 +175,11 @@ function ArticleContent({ article }: Props) {
 						</Button>
 					)}
 
-					{!finishNotice ? (
-						<ArticleDialog triggerText={"finish"} onClick={handleIncreaseFinishTime}>
+					{!finishNotice && userId ? (
+						<ArticleDialog
+							triggerText={"finish"}
+							onClick={handleIncreaseFinishTime}
+						>
 							<Button
 								variant="outline"
 								className="cursor-pointer flex items-center gap-2"
@@ -198,7 +202,7 @@ function ArticleContent({ article }: Props) {
 					)}
 				</div>
 
-				{!masterNotice ? (
+				{!masterNotice && userId ? (
 					<ArticleDialog triggerText={"master"} onClick={handleToggleMaster}>
 						<Button
 							variant="outline"
