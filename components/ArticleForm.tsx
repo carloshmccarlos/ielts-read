@@ -3,9 +3,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CategoryName } from "@prisma/client";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { useQuery } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -54,38 +55,31 @@ export function ArticleForm({ initialData, articleId }: ArticleFormProps) {
 	const router = useRouter();
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const [formData, setFormData] = useState<FormData | null>(
-		initialData || null,
-	);
 
-	// Fetch article data if articleId is provided
-	useEffect(() => {
-		if (articleId && !initialData) {
-			const fetchArticle = async () => {
-				try {
-					const response = await fetch(`/api/articles/${articleId}`);
-					if (!response.ok) {
-						throw new Error("Article not found");
-					}
-					const article = await response.json();
-					setFormData({
-						title: article.title,
-						imageUrl: article.imageUrl,
-						description: article.description,
-						categoryName: article.categoryName,
-						content: article.content,
-						ieltsWordsCount: article.ieltsWordsCount,
-					});
-				} catch (err) {
-					setError(
-						err instanceof Error ? err.message : "Failed to fetch article",
-					);
-				}
-			};
+	// Use TanStack Query to fetch article data if articleId is provided
+	const { data: articleData, isLoading: isLoadingArticle, error: articleError } = useQuery({
+		queryKey: ["article", articleId],
+		queryFn: async () => {
+			if (!articleId) return null;
+			const response = await fetch(`/api/articles/${articleId}`);
+			if (!response.ok) {
+				throw new Error("Article not found");
+			}
+			return await response.json();
+		},
+		enabled: !!articleId && !initialData,
+		staleTime: 5 * 60 * 1000, // 5 minutes
+	});
 
-			fetchArticle().then();
-		}
-	}, [articleId, initialData]);
+	// Determine the form data to use
+	const formData = initialData || (articleData ? {
+		title: articleData.title,
+		imageUrl: articleData.imageUrl,
+		description: articleData.description,
+		categoryName: articleData.categoryName,
+		content: articleData.content,
+		ieltsWordsCount: articleData.ieltsWordsCount,
+	} : null);
 
 	// Convert enum values to option list
 	const categoryOptions = Object.entries(CategoryName).map(([key, value]) => ({
@@ -107,12 +101,10 @@ export function ArticleForm({ initialData, articleId }: ArticleFormProps) {
 		},
 	});
 
-	// Update form values when formData changes
-	useEffect(() => {
-		if (formData) {
-			form.reset(formData);
-		}
-	}, [formData, form]);
+	// Reset form when formData is available (replaces useEffect)
+	if (formData && !form.formState.isDirty) {
+		form.reset(formData);
+	}
 
 	const handleSubmit = async (data: FormData) => {
 		try {

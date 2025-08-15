@@ -11,7 +11,7 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "@/components/ui/sheet";
-import { authClient } from "@/lib/auth/auth-client";
+import { useCurrentUser } from "@/hooks/useSession";
 import type { Category } from "@prisma/client";
 import { usePathname } from "next/navigation";
 
@@ -22,7 +22,7 @@ interface Props {
 
 function Menu({ categories, type }: Props) {
 	// const inputRef = useRef<HTMLInputElement>(null);
-	const session = authClient.useSession();
+	const { user, isLoggedIn } = useCurrentUser();
 
 	return (
 		<Sheet>
@@ -68,7 +68,7 @@ function Menu({ categories, type }: Props) {
 				</div>*/}
 
 				{/* login and register function, hidden for now, realised later*/}
-				{!session.data && (
+				{!isLoggedIn && (
 					<div className={"flex justify-center items-center gap-2 md:gap-4"}>
 						<RegisterButton />
 						<LoginButton />

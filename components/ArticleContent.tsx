@@ -3,7 +3,7 @@
 import ArticleDialog from "@/components/ArticleDialog";
 import MarkdownRenderer from "@/components/MarkdownRender";
 import { Button } from "@/components/ui/button";
-import { authClient } from "@/lib/auth/auth-client";
+import { useCurrentUser } from "@/hooks/useSession";
 import { getUserArticleStats } from "@/lib/data/article-stats";
 import { getNotices, updateNotices } from "@/lib/data/user";
 import { transformCategoryName } from "@/lib/utils";
@@ -11,7 +11,7 @@ import type { ArticleWithCategory } from "@/types/interface";
 import { useQuery } from "@tanstack/react-query";
 import { GraduationCap, SmilePlus, Star } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useArticleMutations } from "@/hooks/useArticleMutations";
 import { toast } from "sonner";
 
@@ -27,37 +27,24 @@ interface UserNotices {
 }
 
 function ArticleContent({ article }: Props) {
-	const session = authClient.useSession();
+	const { user, isLoggedIn } = useCurrentUser();
 	const showCategoryName = transformCategoryName(article.Category?.name || "");
-	const [markNotice, setMarkNotice] = useState(false);
-	const [masterNotice, setMasterNotice] = useState(false);
-	const [finishNotice, setFinishNotice] = useState(false);
+	const userId = user?.id;
 
-	const isLoggedIn = !!session.data?.user;
-	const userId = session.data?.user?.id;
+	// Use TanStack Query to fetch user notices
+	const { data: noticesData } = useQuery({
+		queryKey: ["userNotices", userId],
+		queryFn: async () => {
+			if (!userId) return null;
+			return await getNotices(userId) as UserNotices | null;
+		},
+		enabled: isLoggedIn && !!userId,
+		staleTime: 5 * 60 * 1000, // 5 minutes
+	});
 
-	useEffect(() => {
-		async function getNotice() {
-			try {
-				if (!userId) return;
-
-				const response = (await getNotices(userId)) as UserNotices | null;
-
-				if (response) {
-					setMarkNotice(response.markNotice || false);
-					setMasterNotice(response.masterNotice || false);
-					setFinishNotice(response.finishNotice || false);
-				}
-			} catch (error: unknown) {
-				console.error("Failed to fetch user notices:", error);
-				toast.error("Failed to fetch notification preferences");
-			}
-		}
-
-		if (isLoggedIn) {
-			getNotice();
-		}
-	}, [isLoggedIn, userId]);
+	const markNotice = noticesData?.markNotice || false;
+	const masterNotice = noticesData?.masterNotice || false;
+	const finishNotice = noticesData?.finishNotice || false;
 
 	const { data: stats, isLoading: isLoadingStats } = useQuery({
 		queryKey: ["articleStats", article.id],
@@ -78,8 +65,6 @@ function ArticleContent({ article }: Props) {
 
 		if (!markNotice && userId) {
 			await updateNotices(userId, "markNotice");
-
-			setMarkNotice(true);
 		}
 
 		toggleMark.mutate();
@@ -93,8 +78,6 @@ function ArticleContent({ article }: Props) {
 
 		if (!masterNotice && userId) {
 			await updateNotices(userId, "masterNotice");
-
-			setMasterNotice(true);
 		}
 
 		toggleMaster.mutate();
@@ -108,8 +91,6 @@ function ArticleContent({ article }: Props) {
 
 		if (!finishNotice && userId) {
 			await updateNotices(userId, "finishNotice");
-
-			setFinishNotice(true);
 		}
 		incrementRead.mutate();
 	};

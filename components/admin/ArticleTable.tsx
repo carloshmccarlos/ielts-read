@@ -11,7 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { ColumnDef, RowSelectionState } from "@tanstack/react-table";
 import { ArrowUpDown, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useAdminMutations } from "@/hooks/useAdminMutations";
 import { toast } from "sonner";
 
@@ -32,27 +32,18 @@ async function fetchArticles(): Promise<ArticleWithCategory[]> {
 export function ArticleTable() {
 	const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 	const [filteredCategory, setFilteredCategory] = useState("all");
-	const [categories, setCategories] = useState<Category[]>([]);
-
-	useEffect(() => {
-		const getCategories = async () => {
-			try {
-				const response = await fetch("/api/category");
-				if (!response.ok) {
-					return;
-				}
-
-				const categories: Category[] = await response.json();
-
-				setCategories(categories);
-			} catch (error) {
-				console.error(error);
-				toast.error("Failed to get categories.");
+	// Use TanStack Query to fetch categories
+	const { data: categories = [] } = useQuery({
+		queryKey: ["categories"],
+		queryFn: async () => {
+			const response = await fetch("/api/category");
+			if (!response.ok) {
+				throw new Error("Failed to fetch categories");
 			}
-		};
-
-		getCategories();
-	}, []);
+			return await response.json() as Category[];
+		},
+		staleTime: 10 * 60 * 1000, // 10 minutes
+	});
 
 	const {
 		data: articles,
@@ -226,14 +217,7 @@ export function ArticleTable() {
 		},
 	];
 
-	useEffect(() => {
-		if (showedArticles) {
-			const selectedIds = Object.keys(rowSelection)
-				.filter((key) => rowSelection[key])
-				.map((key) => showedArticles[Number(key)].id);
-			console.log("Selected article IDs:", selectedIds);
-		}
-	}, [rowSelection, showedArticles]);
+	// Removed useEffect for logging - not needed for production
 
 	const selectedRowCount = Object.values(rowSelection).filter(Boolean).length;
 

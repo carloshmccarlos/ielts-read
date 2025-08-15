@@ -10,7 +10,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { authClient } from "@/lib/auth/auth-client";
+import { useCurrentUser } from "@/hooks/useSession";
 import { signIn } from "@/lib/auth/sign-in";
 import Link from "next/link";
 import { redirect, useRouter, useSearchParams } from "next/navigation";
@@ -23,9 +23,9 @@ export default function LoginPage() {
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
 
-	const session = authClient.useSession();
+	const { isLoggedIn } = useCurrentUser();
 
-	if (session?.data?.user) {
+	if (isLoggedIn) {
 		redirect("/");
 	}
 

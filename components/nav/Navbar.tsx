@@ -3,13 +3,14 @@
 import LoginButton from "@/components/LoginButton";
 import Menu from "@/components/nav/Menu";
 import ProfileDropdown from "@/components/nav/ProfileDropdown";
-import { authClient } from "@/lib/auth/auth-client";
+import { useCurrentUser } from "@/hooks/useSession";
 import { getRoleByUserId } from "@/lib/data/user";
 import type { Category } from "@prisma/client";
 import type { Session } from "better-auth";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import RegisterButton from "../RegisterButton";
 import Spinner from "../Spinner";
 
@@ -18,9 +19,7 @@ interface Props {
 }
 
 function NavBar({ categories }: Props) {
-	const session = authClient.useSession();
-	const [role, setRole] = useState<"USER" | "ADMIN">("USER");
-	const user = session?.data?.user;
+	const { user, isLoading: isPending } = useCurrentUser();
 
 	if (!categories) {
 		return null;
@@ -28,22 +27,21 @@ function NavBar({ categories }: Props) {
 
 	const [scrolled, setScrolled] = useState(false);
 	const pathname = usePathname();
-	const { data, isPending } = authClient.useSession();
 
 	const type = pathname.startsWith("/admin") ? "admin" : "col";
 
-	useEffect(() => {
-		const updateRole = async () => {
-			if (user?.id) {
-				const roleData = await getRoleByUserId(user.id);
-				setRole(roleData?.role || "USER");
-			} else {
-				return;
-			}
-		};
+	// Use TanStack Query to fetch user role
+	const { data: roleData } = useQuery({
+		queryKey: ["userRole", user?.id],
+		queryFn: async () => {
+			if (!user?.id) return null;
+			return await getRoleByUserId(user.id);
+		},
+		enabled: !!user?.id,
+		staleTime: 5 * 60 * 1000, // 5 minutes
+	});
 
-		updateRole().then();
-	}, [user?.id]);
+	const role = roleData?.role || "USER";
 
 	useEffect(() => {
 		const handleScroll = () => {
@@ -91,7 +89,7 @@ function NavBar({ categories }: Props) {
 						<div className="lg:flex items-center absolute right-0 sm:right-4">
 							<Spinner />
 						</div>
-					) : data?.user?.id ? (
+					) : user?.id ? (
 						<div className=" lg:flex items-center gap-2 md:gap-4 absolute right-0 sm:right-4">
 							<ProfileDropdown role={role} />
 						</div>
