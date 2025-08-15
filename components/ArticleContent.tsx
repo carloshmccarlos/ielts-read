@@ -12,7 +12,6 @@ import type { ArticleWithCategory } from "@/types/interface";
 import { useQuery } from "@tanstack/react-query";
 import { GraduationCap, SmilePlus, Star } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
 import { toast } from "sonner";
 
 interface Props {
