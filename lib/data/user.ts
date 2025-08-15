@@ -194,9 +194,26 @@ export async function getPaginatedUserMarkedArticles(
 	limit: number,
 ) {
 	const skip = (page - 1) * limit;
+	
+	// Get mastered article IDs to exclude from marked articles
+	const masteredArticleIds = await prisma.masteredArticle.findMany({
+		where: { userId },
+		select: { articleId: true },
+	});
+	
+	const masteredIds = masteredArticleIds.map((ma: { articleId: number }) => ma.articleId);
+	
+	const whereCondition = {
+		userId,
+		// Exclude articles that are already mastered
+		articleId: {
+			notIn: masteredIds,
+		},
+	};
+	
 	const [articles, total] = await Promise.all([
 		prisma.markedArticles.findMany({
-			where: { userId },
+			where: whereCondition,
 			include: {
 				article: {
 					include: {
@@ -212,7 +229,7 @@ export async function getPaginatedUserMarkedArticles(
 			skip,
 			take: limit,
 		}),
-		prisma.markedArticles.count({ where: { userId } }),
+		prisma.markedArticles.count({ where: whereCondition }),
 	]);
 	return { articles, total };
 }

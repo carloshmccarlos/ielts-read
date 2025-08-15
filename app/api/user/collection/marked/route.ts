@@ -1,6 +1,5 @@
 import { getUserSession } from "@/lib/auth/getUserSession";
 import { getPaginatedUserMarkedArticles } from "@/lib/data/user";
-import { getCookieCache } from "better-auth/cookies";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";

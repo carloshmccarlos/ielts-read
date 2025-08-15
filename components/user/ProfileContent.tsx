@@ -41,7 +41,9 @@ interface ProfileContentProps {
 
 export default function ProfileContent({ profileData }: ProfileContentProps) {
 	const router = useRouter();
-	const [newUsername, setNewUsername] = useState<string>(profileData.user.name || "");
+	const [newUsername, setNewUsername] = useState<string>(
+		profileData.user.name || "",
+	);
 	const [isProcessing, setIsProcessing] = useState(false);
 
 	const { user, totalReadTimes } = profileData;
@@ -218,9 +220,8 @@ export default function ProfileContent({ profileData }: ProfileContentProps) {
 						</div>
 					</CardContent>
 					<CardFooter className="flex justify-between">
-						<div></div>
 						{newUsername === profileData.user.name || newUsername === "" ? (
-							<Button disabled>Save Changes</Button>
+							<Button disabled>{"Save Changes"}</Button>
 						) : (
 							<Button onClick={handleSaveChanges} disabled={isProcessing}>
 								{isProcessing ? "Saving..." : "Save Changes"}

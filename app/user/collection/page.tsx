@@ -9,7 +9,7 @@ import { authClient } from "@/lib/auth/auth-client";
 import type { MarkedArticle, ReadHistory } from "@/lib/data/user";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { redirect, useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const LIMIT = 8;
@@ -64,12 +64,6 @@ const fetchMasteredArticles = async (
 };
 
 export default function CollectionPage() {
-	const session = authClient.useSession();
-
-	if (!session?.data?.user?.id) {
-		return redirect("/auth/login");
-	}
-
 	const [activeTab, setActiveTab] = useState("marked");
 	const [markedPage, setMarkedPage] = useState(1);
 	const [historyPage, setHistoryPage] = useState(1);
@@ -138,7 +132,7 @@ export default function CollectionPage() {
 											You haven't marked any articles yet.
 										</p>
 										<Link
-											href="/public"
+											href="/"
 											className="text-blue-600 hover:underline mt-2 inline-block"
 										>
 											Browse articles
@@ -197,7 +191,7 @@ export default function CollectionPage() {
 											You haven't read any articles yet.
 										</p>
 										<Link
-											href="/public"
+											href="/"
 											className="text-blue-600 hover:underline mt-2 inline-block"
 										>
 											Browse articles
@@ -256,7 +250,7 @@ export default function CollectionPage() {
 											You haven't mastered any articles yet.
 										</p>
 										<Link
-											href="/public"
+											href="/"
 											className="text-blue-600 hover:underline mt-2 inline-block"
 										>
 											Browse articles
