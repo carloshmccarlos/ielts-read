@@ -14,6 +14,7 @@ import {
 import { useCurrentUser } from "@/hooks/useSession";
 import type { Category } from "@prisma/client";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 interface Props {
 	categories: Category[];
@@ -23,9 +24,14 @@ interface Props {
 function Menu({ categories, type }: Props) {
 	// const inputRef = useRef<HTMLInputElement>(null);
 	const { user, isLoggedIn } = useCurrentUser();
+	const [isOpen, setIsOpen] = useState(false);
+
+	const handleLinkClick = () => {
+		setIsOpen(false);
+	};
 
 	return (
-		<Sheet>
+		<Sheet open={isOpen} onOpenChange={setIsOpen}>
 			<SheetTrigger className={"text-start"}>
 				<div
 					className={`hover:cursor-pointer ${type === "admin" && "hover:bg-slate-700"} hover:bg-gray-300 pr-1`}
@@ -79,6 +85,7 @@ function Menu({ categories, type }: Props) {
 					categories={categories}
 					type={type}
 					className={"flex flex-col py-2 px-4 "}
+					onLinkClick={handleLinkClick}
 				/>
 			</SheetContent>
 		</Sheet>

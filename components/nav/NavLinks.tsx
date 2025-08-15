@@ -10,9 +10,10 @@ interface Props {
 	className?: string;
 	type: "row" | "col" | "admin";
 	categories: Category[];
+	onLinkClick?: () => void;
 }
 
-function NavLinks({ className, type, categories }: Props) {
+function NavLinks({ className, type, categories, onLinkClick }: Props) {
 	const pathname = usePathname();
 	let currentCategory = pathname.split("/")[2];
 
@@ -32,6 +33,7 @@ function NavLinks({ className, type, categories }: Props) {
 				<div className="flex flex-col space-y-1 p-2">
 					<Link
 						href="/admin"
+						onClick={onLinkClick}
 						className={`block text-xl font-semibold py-2 px-4 mb-1 rounded transition-colors ${
 							pathname === "/admin"
 								? "bg-slate-700 text-white font-medium"
@@ -42,6 +44,7 @@ function NavLinks({ className, type, categories }: Props) {
 					</Link>
 					<Link
 						href="/admin/edit"
+						onClick={onLinkClick}
 						className={`block py-2 text-xl font-semibold px-4 mb-1 rounded transition-colors ${
 							pathname.startsWith("/admin/edit")
 								? "bg-slate-700 text-white font-medium"
@@ -52,6 +55,7 @@ function NavLinks({ className, type, categories }: Props) {
 					</Link>
 					<Link
 						href="/admin/users"
+						onClick={onLinkClick}
 						className={`block py-2 text-xl font-semibold px-4 mb-1 rounded transition-colors ${
 							pathname.startsWith("/admin/users")
 								? "bg-slate-700 text-white font-medium"
@@ -70,6 +74,7 @@ function NavLinks({ className, type, categories }: Props) {
 			<div className="flex flex-col space-y-1 p-2">
 				<Link
 					href="/"
+					onClick={onLinkClick}
 					className={cn(
 						" rounded-sm px-3 py-2 text-xl font-semibold transition-colors border-b border-gray-100",
 						pathname === "/"
@@ -84,6 +89,7 @@ function NavLinks({ className, type, categories }: Props) {
 						<Link
 							key={category.name}
 							href={`/category/${categoryToPath(category.name)}`}
+							onClick={onLinkClick}
 							className={cn(
 								"rounded-sm px-3 py-2 text-xl font-semibold transition-colors border-b border-gray-100",
 								currentCategory === category.name
