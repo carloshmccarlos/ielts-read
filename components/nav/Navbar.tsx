@@ -7,19 +7,17 @@ import { useCurrentUser } from "@/hooks/useSession";
 import { getRoleByUserId } from "@/lib/actions/articles-with-user";
 import type { Category } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
-import type { Session } from "better-auth";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import RegisterButton from "../RegisterButton";
-import Spinner from "../Spinner";
 
 interface Props {
 	categories: Category[];
 }
 
 function NavBar({ categories }: Props) {
-	const { user, isLoading: isPending } = useCurrentUser();
+	const { user } = useCurrentUser();
 
 	if (!categories) {
 		return null;
@@ -85,11 +83,7 @@ function NavBar({ categories }: Props) {
 						</Link>
 					</div>
 
-					{isPending ? (
-						<div className="lg:flex items-center absolute right-0 sm:right-4">
-							<Spinner />
-						</div>
-					) : user?.id ? (
+					{user?.id ? (
 						<div className=" lg:flex items-center gap-2 md:gap-4 absolute right-0 sm:right-4">
 							<ProfileDropdown role={role} />
 						</div>

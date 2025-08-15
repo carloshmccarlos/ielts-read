@@ -22,13 +22,8 @@ const nextConfig: NextConfig = {
 		contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
 	},
 
-	// Performance optimizations
-	compiler: {
-		// Remove console.log in production
-		removeConsole: process.env.NODE_ENV === "production" ? {
-			exclude: ["error", "warn"]
-		} : false,
-	},
+	// Note: Compiler options disabled due to custom Babel configuration
+	// Remove babel.config.js to enable SWC compiler optimizations
 
 	// Webpack optimizations
 	webpack: (config, { isServer, dev }) => {
@@ -70,18 +65,21 @@ const nextConfig: NextConfig = {
 		return config;
 	},
 
-	// Experimental features (adjusted for Node.js compatibility)
+	// Server external packages (moved from experimental)
+	serverExternalPackages: ["@prisma/client"],
+
+	// Experimental features
 	experimental: {
-		serverComponentsExternalPackages: ["@prisma/client"],
-		// Enable cache directive for auth functions
+		// Enable cache directive for server actions
 		useCache: true,
 		// Enable optimized package imports
 		optimizePackageImports: [
 			"@radix-ui/react-icons",
 			"lucide-react",
 			"@tanstack/react-query",
+			"react-hook-form",
+			"date-fns",
 		],
-		// Removed ppr for Node.js v23 compatibility
 	},
 
 	// Output configuration

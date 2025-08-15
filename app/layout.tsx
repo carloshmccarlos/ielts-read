@@ -11,18 +11,20 @@ import { getAllCategories } from "@/lib/actions/category";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = generateSEOMetadata({
-	title: "IELTS Reading Practice - Master Your English Reading Skills",
+	title: "IELTS Vocabulary Memorization Through Reading - Master IELTS Words",
 	description:
-		"Improve your IELTS reading score with our comprehensive collection of practice articles, reading exercises, and expert tips. Free IELTS reading preparation platform.",
+		"Memorize IELTS vocabulary effectively through contextual reading practice. Learn and retain essential IELTS words naturally with our curated articles designed for vocabulary building and retention.",
 	keywords: [
-		"IELTS reading",
-		"English reading practice",
+		"IELTS vocabulary",
+		"IELTS words memorization",
+		"vocabulary through reading",
+		"IELTS word practice",
+		"contextual vocabulary learning",
 		"IELTS preparation",
-		"reading comprehension",
-		"English learning",
-		"IELTS test prep",
-		"reading skills improvement",
-		"free IELTS practice",
+		"English vocabulary building",
+		"IELTS academic words",
+		"vocabulary retention",
+		"free IELTS vocabulary practice",
 	],
 });
 

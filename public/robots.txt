@@ -13,3 +13,5 @@ Disallow: /api/
 
 # Sitemap location
 Sitemap: https://ielts-read.vercel.app/sitemap.xml
+
+# This site helps users memorize IELTS vocabulary through contextual reading practice
