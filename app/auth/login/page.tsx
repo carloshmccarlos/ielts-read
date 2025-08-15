@@ -12,16 +12,14 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCurrentUser } from "@/hooks/useSession";
 import { signIn } from "@/lib/auth/sign-in";
+import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 import { redirect, useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
 
 export default function LoginPage() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const callbackUrl = searchParams.get("callbackUrl") || "/";
-	const [error, setError] = useState("");
-	const [loading, setLoading] = useState(false);
 
 	const { isLoggedIn } = useCurrentUser();
 
@@ -29,31 +27,26 @@ export default function LoginPage() {
 		redirect("/");
 	}
 
-	const handleSubmit = async (values: AuthFormSchema) => {
-		setLoading(true);
-		setError("");
-
-		try {
-			const { data, error: signInError } = await signIn({
-				email: values.email,
-				password: values.password,
-			});
-
-			if (signInError) {
-				setError(
-					signInError.message ||
-						"Login failed. Please check your email and password.",
-				);
-			} else if (data) {
+	const { mutate, isPending, error } = useMutation({
+		mutationFn: signIn,
+		onSuccess: (result) => {
+			if (result.data) {
 				router.push(callbackUrl);
 			}
-		} catch (error) {
-			console.error("Login error:", error);
-			setError("An error occurred during login. Please try again later.");
-		} finally {
-			setLoading(false);
-		}
+		},
+	});
+
+	const handleSubmit = async (values: AuthFormSchema) => {
+		mutate({
+			email: values.email,
+			password: values.password,
+		});
 	};
+
+	const errorMessage = error
+		? (error as any).message ||
+		  "Login failed. Please check your email and password."
+		: "";
 
 	return (
 		<div className="flex flex-col items-center py-24 px-4 sm:px-6 lg:px-8">
@@ -82,8 +75,8 @@ export default function LoginPage() {
 							<AuthForm
 								type="login"
 								onSubmit={handleSubmit}
-								error={error}
-								loading={loading}
+								error={errorMessage}
+								loading={isPending}
 							/>
 						</TabsContent>
 
