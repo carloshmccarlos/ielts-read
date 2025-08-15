@@ -4,30 +4,34 @@ import FeaturedSection from "@/components/sections/FeaturedSection";
 import HottestSection from "@/components/sections/HottestSection";
 import LatestSection from "@/components/sections/LatestSection";
 import RecentlyReadSection from "@/components/sections/RecentlyReadSection";
-import { getUserSession } from "@/lib/auth/getUserSession";
 import {
 	getArticlesByCategories,
 	getFeaturedArticles,
-	getMoreHottestArticles,
 	getLatestArticlesFromEachCategory,
-} from "@/lib/data/article";
-import { getUserRecentlyReadArticles } from "@/lib/data/user";
+	getMoreHottestArticles,
+} from "@/lib/actions/article";
+import { getUserRecentlyReadArticles } from "@/lib/actions/articles-with-user";
+import { getUserSession } from "@/lib/auth/getUserSession";
+import { CategoryName } from "@prisma/client";
 import { headers } from "next/headers";
 import type React from "react";
-import { CategoryName } from "@prisma/client";
 
 export default async function Home() {
 	// Fetch enhanced data for multiple sections
-	const [latestArticles, hottestArticles, featuredArticles, categoryArticles] = await Promise.all([
-		getLatestArticlesFromEachCategory(),
-		getMoreHottestArticles(30),
-		getFeaturedArticles(20),
-		getArticlesByCategories([
-			CategoryName.nature_geography,
-			CategoryName.technology_invention,
-			CategoryName.culture_history,
-		], 6),
-	]);
+	const [latestArticles, hottestArticles, featuredArticles, categoryArticles] =
+		await Promise.all([
+			getLatestArticlesFromEachCategory(),
+			getMoreHottestArticles(30),
+			getFeaturedArticles(20),
+			getArticlesByCategories(
+				[
+					CategoryName.nature_geography,
+					CategoryName.technology_invention,
+					CategoryName.culture_history,
+				],
+				6,
+			),
+		]);
 
 	const session = await getUserSession(await headers());
 
@@ -51,9 +55,9 @@ export default async function Home() {
 				<CategoryShowcaseSection categoryArticles={categoryArticles} />
 
 				{/* Recently Reading Section */}
-				<RecentlyReadSection 
-					recentlyReadArticles={recentlyReadArticles} 
-					isLoggedIn={!!session?.user?.id} 
+				<RecentlyReadSection
+					recentlyReadArticles={recentlyReadArticles}
+					isLoggedIn={!!session?.user?.id}
 				/>
 			</main>
 			<Footer />

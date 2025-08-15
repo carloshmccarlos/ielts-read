@@ -5,7 +5,10 @@ import PaginationControls from "@/components/PaginationControls";
 import Spinner from "@/components/Spinner";
 import VerticalCard from "@/components/VerticalCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { MarkedArticle, ReadHistory } from "@/lib/data/user";
+import type {
+	MarkedArticle,
+	ReadHistory,
+} from "@/lib/actions/articles-with-user";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useState } from "react";

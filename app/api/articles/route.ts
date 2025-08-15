@@ -1,4 +1,4 @@
-import { createArticle, deleteArticles } from "@/lib/data/article";
+import { createArticle, deleteArticles } from "@/lib/actions/article";
 import { prisma } from "@/lib/prisma";
 import { CategoryName } from "@prisma/client";
 import { NextResponse } from "next/server";

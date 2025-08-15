@@ -11,13 +11,13 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { authClient } from "@/lib/auth/auth-client";
-import { EmailOTPResponse, sendEmailOTP } from "@/lib/auth/sign-in";
 import {
 	deleteSendEmailTime,
 	getSendEmailTime,
 	updateSendEmailTime,
-} from "@/lib/data/email-check";
+} from "@/lib/actions/email-check";
+import { authClient } from "@/lib/auth/auth-client";
+import { EmailOTPResponse, sendEmailOTP } from "@/lib/auth/sign-in";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

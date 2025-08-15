@@ -1,17 +1,17 @@
 import HorizontalCard from "@/components/HorizontalCard";
 import VerticalCard from "@/components/VerticalCard";
 import { Button } from "@/components/ui/button";
+import type { ReadHistory } from "@/lib/actions/articles-with-user";
 import Link from "next/link";
-import type { ReadHistory } from "@/lib/data/user";
 
 interface RecentlyReadSectionProps {
 	recentlyReadArticles: ReadHistory[];
 	isLoggedIn: boolean;
 }
 
-export default function RecentlyReadSection({ 
-	recentlyReadArticles, 
-	isLoggedIn 
+export default function RecentlyReadSection({
+	recentlyReadArticles,
+	isLoggedIn,
 }: RecentlyReadSectionProps) {
 	return (
 		<div className="max-w-[2000px] mx-auto px-2 sm:px-4 lg:px-8 xl:px-16 2xl:px-32 py-2 sm:py-2 lg:py-4">
@@ -66,7 +66,8 @@ export default function RecentlyReadSection({
 			) : (
 				<div className="text-center py-12">
 					<p className="text-gray-600 text-lg mb-4">
-						Sign in to see your reading history and personalized recommendations.
+						Sign in to see your reading history and personalized
+						recommendations.
 					</p>
 					<Link href="/auth/signin">
 						<Button>Sign In</Button>

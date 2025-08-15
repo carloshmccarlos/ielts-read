@@ -55,9 +55,7 @@ export async function toggleMarkArticle(articleId: number) {
  * Increment the read count for an article by the current user
  */
 export async function increaseFinishTime(articleId: number) {
-	const session = await auth.api.getSession({
-		headers: await headers(),
-	});
+	const session = await getUserSession(await headers());
 
 	if (!session?.user?.id) {
 		throw new Error("You must be logged in to track read times");

@@ -2,7 +2,7 @@ import {
 	deleteArticle,
 	getArticleById,
 	updateArticle,
-} from "@/lib/data/article";
+} from "@/lib/actions/article";
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";

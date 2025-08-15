@@ -1,14 +1,11 @@
-import { auth } from "@/lib/auth/auth";
+import { getUserSession } from "@/lib/auth/getUserSession";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { cache } from "react";
 
 // Cache user profile data
 export const getUserProfile = async () => {
-	const session = await auth.api.getSession({
-		headers: await headers(),
-	});
+	const session = await getUserSession(await headers());
 
 	if (!session?.user?.id) {
 		redirect("/auth/login");

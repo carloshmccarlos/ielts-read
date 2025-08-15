@@ -4,13 +4,13 @@ import LoginButton from "@/components/LoginButton";
 import Menu from "@/components/nav/Menu";
 import ProfileDropdown from "@/components/nav/ProfileDropdown";
 import { useCurrentUser } from "@/hooks/useSession";
-import { getRoleByUserId } from "@/lib/data/user";
+import { getRoleByUserId } from "@/lib/actions/articles-with-user";
 import type { Category } from "@prisma/client";
+import { useQuery } from "@tanstack/react-query";
 import type { Session } from "better-auth";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import RegisterButton from "../RegisterButton";
 import Spinner from "../Spinner";
 

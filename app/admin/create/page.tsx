@@ -1,6 +1,6 @@
 import { ArticleForm } from "@/components/ArticleForm";
+import { getRoleByUserId } from "@/lib/actions/articles-with-user";
 import { getUserSession } from "@/lib/auth/getUserSession";
-import { getRoleByUserId } from "@/lib/data/user";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 

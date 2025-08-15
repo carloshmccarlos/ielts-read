@@ -9,13 +9,13 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { authClient } from "@/lib/auth/auth-client";
+import { checkUserExist } from "@/lib/actions/articles-with-user";
 import {
 	deleteSendEmailTime,
 	getSendEmailTime,
 	updateSendEmailTime,
-} from "@/lib/data/email-check";
-import { checkUserExist } from "@/lib/data/user";
+} from "@/lib/actions/email-check";
+import { authClient } from "@/lib/auth/auth-client";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";

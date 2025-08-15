@@ -95,9 +95,7 @@ export async function searchArticles(query: string) {
 }
 
 export async function getLatestArticles() {
-	const session = await auth.api.getSession({
-		headers: await headers(),
-	});
+	const session = await getUserSession(await headers());
 
 	const userId = session?.user?.id;
 
@@ -129,9 +127,7 @@ export async function getLatestArticles() {
 }
 
 export async function getHottestArticles() {
-	const session = await auth.api.getSession({
-		headers: await headers(),
-	});
+	const session = await getUserSession(await headers());
 
 	const userId = session?.user?.id;
 
@@ -216,7 +212,7 @@ export async function getFeaturedArticles(limit = 20) {
 								},
 							},
 						},
-				  }
+					}
 				: {}),
 		},
 		include: {
@@ -237,7 +233,10 @@ export async function getFeaturedArticles(limit = 20) {
 }
 
 // Get articles by multiple categories for showcase
-export async function getArticlesByCategories(categories: CategoryName[], articlesPerCategory = 6) {
+export async function getArticlesByCategories(
+	categories: CategoryName[],
+	articlesPerCategory = 6,
+) {
 	const session = await getUserSession(await headers());
 	const userId = session?.user?.id;
 
@@ -258,7 +257,7 @@ export async function getArticlesByCategories(categories: CategoryName[], articl
 										},
 									},
 								},
-						  }
+							}
 						: {}),
 				},
 				include: {
@@ -274,10 +273,10 @@ export async function getArticlesByCategories(categories: CategoryName[], articl
 				categoryName,
 				articles,
 			};
-		})
+		}),
 	);
 
-	return results.filter(result => result.articles.length > 0);
+	return results.filter((result) => result.articles.length > 0);
 }
 
 // Get latest articles from each category
@@ -287,7 +286,7 @@ export async function getLatestArticlesFromEachCategory() {
 
 	// Get all categories
 	const categories = await prisma.category.findMany();
-	
+
 	// Get latest article from each category
 	const latestArticles = await Promise.all(
 		categories.map(async (category) => {
@@ -306,7 +305,7 @@ export async function getLatestArticlesFromEachCategory() {
 										},
 									},
 								},
-						  }
+							}
 						: {}),
 				},
 				include: {
@@ -316,11 +315,11 @@ export async function getLatestArticlesFromEachCategory() {
 					createdAt: "desc",
 				},
 			});
-		})
+		}),
 	);
 
 	// Filter out null results and return
-	return latestArticles.filter(article => article !== null);
+	return latestArticles.filter((article) => article !== null);
 }
 
 // Get more hottest articles
@@ -342,7 +341,7 @@ export async function getMoreHottestArticles(limit = 30) {
 								},
 							},
 						},
-				  }
+					}
 				: {}),
 		},
 		include: {

@@ -1,6 +1,6 @@
 import { authClient } from "@/lib/auth/auth-client";
 
-import { updateUserRoleByEmail } from "@/lib/data/user";
+import { updateUserRoleByEmail } from "@/lib/actions/articles-with-user";
 import type { Role } from "@prisma/client";
 import { toast } from "sonner";
 

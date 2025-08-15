@@ -1,10 +1,10 @@
-import { auth } from "@/lib/auth/auth";
-import { getUserSession } from "@/lib/auth/getUserSession";
 import {
 	addMasteredArticle,
 	getPaginatedUserMasteredArticles,
 	isArticleMastered,
-} from "@/lib/data/user";
+} from "@/lib/actions/articles-with-user";
+import { auth } from "@/lib/auth/auth";
+import { getUserSession } from "@/lib/auth/getUserSession";
 import { getCookieCache } from "better-auth/cookies";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";

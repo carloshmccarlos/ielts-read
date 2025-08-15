@@ -1,6 +1,6 @@
-import { createArticle, updateArticleImageUrl } from "@/lib/data/article";
+import { createArticle, updateArticleImageUrl } from "@/lib/actions/article";
 
-import { updateCategory } from "@/lib/data/category";
+import { updateCategory } from "@/lib/actions/category";
 import { prisma } from "@/lib/prisma";
 import wordsDataJson from "@/prisma/static-data/words.json";
 import type { CategoryName } from "@prisma/client";

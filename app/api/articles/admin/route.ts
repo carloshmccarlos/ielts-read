@@ -1,4 +1,4 @@
-import { getAllArticles } from "@/lib/data/article";
+import { getAllArticles } from "@/lib/actions/article";
 import { NextResponse } from "next/server";
 
 export async function GET() {

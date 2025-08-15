@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth/auth";
+import { getUserSession } from "@/lib/auth/getUserSession";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -6,9 +7,7 @@ import { cache } from "react";
 
 // Cache admin stats for better performance
 export const getAdminStats = cache(async () => {
-	const session = await auth.api.getSession({
-		headers: await headers(),
-	});
+	const session = await getUserSession(await headers());
 
 	if (!session?.user?.id) {
 		redirect("/auth/login");
@@ -41,43 +40,4 @@ export const getAdminStats = cache(async () => {
 			{ name: "Total Marked", value: totalMarked },
 		],
 	};
-});
-
-// Cache articles with categories
-export const getArticlesWithCategories = cache(async () => {
-	const session = await auth.api.getSession({
-		headers: await headers(),
-	});
-
-	if (!session?.user?.id) {
-		redirect("/auth/login");
-	}
-
-	// Check if user is admin
-	const user = await prisma.user.findUnique({
-		where: { id: session.user.id },
-		select: { role: true },
-	});
-
-	if (user?.role !== "ADMIN") {
-		redirect("/");
-	}
-
-	return await prisma.article.findMany({
-		include: {
-			Category: true,
-		},
-		orderBy: {
-			createdAt: "desc",
-		},
-	});
-});
-
-// Cache categories
-export const getCategories = cache(async () => {
-	return await prisma.category.findMany({
-		orderBy: {
-			name: "asc",
-		},
-	});
 });

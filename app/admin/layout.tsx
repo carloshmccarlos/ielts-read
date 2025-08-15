@@ -1,6 +1,6 @@
+import { getRoleByUserId } from "@/lib/actions/articles-with-user";
 import { auth } from "@/lib/auth/auth";
 import { getUserSession } from "@/lib/auth/getUserSession";
-import { getRoleByUserId } from "@/lib/data/user";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import type React from "react";

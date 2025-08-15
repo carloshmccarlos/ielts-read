@@ -1,4 +1,4 @@
-import { getSendEmailTime } from "@/lib/data/email-check";
+import { getSendEmailTime } from "@/lib/actions/email-check";
 import { Resend } from "resend";
 
 interface Props {
@@ -12,7 +12,9 @@ export async function sendEmail({ to, subject, text }: Props) {
 	const resendAPI = process.env.RESEND_API || "";
 
 	if (!resendAPI) {
-		throw new Error("Email service configuration is missing. Please contact support at official@ielts-read.space");
+		throw new Error(
+			"Email service configuration is missing. Please contact support at official@ielts-read.space",
+		);
 	}
 
 	const resend = new Resend(resendAPI);
@@ -24,14 +26,16 @@ export async function sendEmail({ to, subject, text }: Props) {
 			subject: subject,
 			html: text,
 		});
-		
+
 		return {
 			success: true,
 			message: "Email sent successfully",
-			data: response
+			data: response,
 		};
 	} catch (error) {
 		console.error("Failed to send email:", error);
-		throw new Error("Failed to send email. Please try again later or contact support at official@ielts-read.space");
+		throw new Error(
+			"Failed to send email. Please try again later or contact support at official@ielts-read.space",
+		);
 	}
 }

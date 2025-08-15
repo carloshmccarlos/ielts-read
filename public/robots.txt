@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# Allow crawling of all content
+Allow: /article/
+Allow: /category/
+Allow: /auth/
+Allow: /user/
+
+# Disallow admin and API routes
+Disallow: /admin/
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://ielts-read.vercel.app/sitemap.xml

@@ -1,4 +1,4 @@
-import { getAllCategories } from "@/lib/data/category";
+import { getAllCategories } from "@/lib/actions/category";
 import { NextResponse } from "next/server";
 
 export async function GET() {

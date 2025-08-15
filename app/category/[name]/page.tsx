@@ -10,9 +10,9 @@ import VerticalCard from "@/components/VerticalCard";
 import {
 	countArticlesByCategory,
 	getArticlesByCategory,
-} from "@/lib/data/article";
+} from "@/lib/actions/article";
 
-import { getCategoryByName } from "@/lib/data/category";
+import { getCategoryByName } from "@/lib/actions/category";
 import { pathToCategory, transformCategoryName } from "@/lib/utils";
 import { CategoryName } from "@prisma/client";
 import Link from "next/link";

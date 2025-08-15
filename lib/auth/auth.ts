@@ -1,5 +1,5 @@
+import { getRoleByUserId } from "@/lib/actions/articles-with-user";
 import { sendEmail } from "@/lib/auth/send-email";
-import { getRoleByUserId } from "@/lib/data/user";
 import { prisma } from "@/lib/prisma";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";

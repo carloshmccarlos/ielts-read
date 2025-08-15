@@ -1,5 +1,5 @@
+import { getPaginatedUserMarkedArticles } from "@/lib/actions/articles-with-user";
 import { getUserSession } from "@/lib/auth/getUserSession";
-import { getPaginatedUserMarkedArticles } from "@/lib/data/user";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
