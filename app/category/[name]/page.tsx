@@ -74,7 +74,7 @@ export default async function ArticleByCategory({
 						{transformCategoryName(categoryName)}
 					</Link>
 				</h2>
-				<p className="text-white font-serif text-lg font-bold mb-6 w-1/2">
+				<p className="text-white font-serif text-lg font-bold mb-6 lg:w-1/2 w-full">
 					{category?.description || "No description available"}
 				</p>
 				<div className="grid grid-cols-1 lg:grid-cols-6 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12 items-stretch">
