@@ -102,7 +102,7 @@ export async function getLatestArticles() {
 	const userId = session?.user?.id;
 
 	return prisma.article.findMany({
-		take: 9,
+		take: 18,
 		where: {
 			imageUrl: {
 				gt: "",
@@ -194,6 +194,164 @@ export async function getAllArticles() {
 		orderBy: {
 			createdAt: "desc",
 		},
+	});
+}
+
+// Get featured articles (most marked articles)
+export async function getFeaturedArticles(limit = 20) {
+	const session = await getUserSession(await headers());
+	const userId = session?.user?.id;
+
+	return prisma.article.findMany({
+		where: {
+			imageUrl: {
+				gt: "",
+			},
+			...(userId
+				? {
+						NOT: {
+							MasteredArticle: {
+								some: {
+									userId: userId,
+								},
+							},
+						},
+				  }
+				: {}),
+		},
+		include: {
+			Category: true,
+			_count: {
+				select: {
+					MarkedArticles: true,
+				},
+			},
+		},
+		orderBy: {
+			MarkedArticles: {
+				_count: "desc",
+			},
+		},
+		take: limit,
+	});
+}
+
+// Get articles by multiple categories for showcase
+export async function getArticlesByCategories(categories: CategoryName[], articlesPerCategory = 6) {
+	const session = await getUserSession(await headers());
+	const userId = session?.user?.id;
+
+	const results = await Promise.all(
+		categories.map(async (categoryName) => {
+			const articles = await prisma.article.findMany({
+				where: {
+					categoryName,
+					imageUrl: {
+						gt: "",
+					},
+					...(userId
+						? {
+								NOT: {
+									MasteredArticle: {
+										some: {
+											userId: userId,
+										},
+									},
+								},
+						  }
+						: {}),
+				},
+				include: {
+					Category: true,
+				},
+				orderBy: {
+					createdAt: "desc",
+				},
+				take: articlesPerCategory,
+			});
+
+			return {
+				categoryName,
+				articles,
+			};
+		})
+	);
+
+	return results.filter(result => result.articles.length > 0);
+}
+
+// Get latest articles from each category
+export async function getLatestArticlesFromEachCategory() {
+	const session = await getUserSession(await headers());
+	const userId = session?.user?.id;
+
+	// Get all categories
+	const categories = await prisma.category.findMany();
+	
+	// Get latest article from each category
+	const latestArticles = await Promise.all(
+		categories.map(async (category) => {
+			return prisma.article.findFirst({
+				where: {
+					categoryName: category.name,
+					imageUrl: {
+						gt: "",
+					},
+					...(userId
+						? {
+								NOT: {
+									MasteredArticle: {
+										some: {
+											userId: userId,
+										},
+									},
+								},
+						  }
+						: {}),
+				},
+				include: {
+					Category: true,
+				},
+				orderBy: {
+					createdAt: "desc",
+				},
+			});
+		})
+	);
+
+	// Filter out null results and return
+	return latestArticles.filter(article => article !== null);
+}
+
+// Get more hottest articles
+export async function getMoreHottestArticles(limit = 30) {
+	const session = await getUserSession(await headers());
+	const userId = session?.user?.id;
+
+	return prisma.article.findMany({
+		where: {
+			imageUrl: {
+				gt: "",
+			},
+			...(userId
+				? {
+						NOT: {
+							MasteredArticle: {
+								some: {
+									userId: userId,
+								},
+							},
+						},
+				  }
+				: {}),
+		},
+		include: {
+			Category: true,
+		},
+		orderBy: {
+			readTimes: "desc",
+		},
+		take: limit,
 	});
 }
 

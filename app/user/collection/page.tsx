@@ -5,12 +5,10 @@ import PaginationControls from "@/components/PaginationControls";
 import Spinner from "@/components/Spinner";
 import VerticalCard from "@/components/VerticalCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { authClient } from "@/lib/auth/auth-client";
 import type { MarkedArticle, ReadHistory } from "@/lib/data/user";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const LIMIT = 8;
 
