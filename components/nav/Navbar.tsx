@@ -17,7 +17,7 @@ interface Props {
 }
 
 function NavBar({ categories }: Props) {
-	const { user } = useCurrentUser();
+	const { user, isLoading } = useCurrentUser();
 
 	if (!categories) {
 		return null;
@@ -83,7 +83,7 @@ function NavBar({ categories }: Props) {
 						</Link>
 					</div>
 
-					{user?.id ? (
+					{isLoading ? null : user?.id ? (
 						<div className=" lg:flex items-center gap-2 md:gap-4 absolute right-0 sm:right-4">
 							<ProfileDropdown role={role} />
 						</div>
