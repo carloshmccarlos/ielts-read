@@ -69,6 +69,7 @@
     "zod": "^3.25.71"
   },
   "devDependencies": {
+    "@babel/plugin-syntax-import-assertions": "^7.27.1",
     "@babel/plugin-syntax-import-attributes": "^7.27.1",
     "@babel/preset-env": "^7.27.2",
     "@babel/preset-react": "^7.27.1",

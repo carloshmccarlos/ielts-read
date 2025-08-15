@@ -22,8 +22,16 @@ const nextConfig: NextConfig = {
 		contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
 	},
 
-	// Note: Compiler options disabled due to custom Babel configuration
-	// Remove babel.config.js to enable SWC compiler optimizations
+	// Performance optimizations
+	compiler: {
+		// Remove console.log in production
+		removeConsole:
+			process.env.NODE_ENV === "production"
+				? {
+						exclude: ["error", "warn"],
+					}
+				: false,
+	},
 
 	// Webpack optimizations
 	webpack: (config, { isServer, dev }) => {
@@ -65,21 +73,17 @@ const nextConfig: NextConfig = {
 		return config;
 	},
 
-	// Server external packages (moved from experimental)
-	serverExternalPackages: ["@prisma/client"],
-
-	// Experimental features
+	// Experimental features (adjusted for Node.js compatibility)
 	experimental: {
-		// Enable cache directive for server actions
-		useCache: true,
 		// Enable optimized package imports
 		optimizePackageImports: [
 			"@radix-ui/react-icons",
 			"lucide-react",
 			"@tanstack/react-query",
-			"react-hook-form",
-			"date-fns",
 		],
+
+		useCache: true,
+		// Removed experimental features that cause syntax errors
 	},
 
 	// Output configuration
@@ -120,6 +124,37 @@ const nextConfig: NextConfig = {
 					{
 						key: "Cache-Control",
 						value: "public, max-age=31536000, immutable",
+					},
+				],
+			},
+			{
+				source: "/images/:path*",
+				headers: [
+					{
+						key: "Cache-Control",
+						value: "public, max-age=2592000, stale-while-revalidate=86400",
+					},
+					{
+						key: "X-Content-Type-Options",
+						value: "nosniff",
+					},
+				],
+			},
+			{
+				source: "/fonts/:path*",
+				headers: [
+					{
+						key: "Cache-Control",
+						value: "public, max-age=31536000, immutable",
+					},
+				],
+			},
+			{
+				source: "/sitemap.xml",
+				headers: [
+					{
+						key: "Cache-Control",
+						value: "public, max-age=86400, stale-while-revalidate=43200",
 					},
 				],
 			},

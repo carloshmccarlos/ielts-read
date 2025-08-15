@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useRef } from "react";
-import { useIntersectionObserver } from "./LazyComponents";
+import { useState, useCallback } from "react";
+import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor";
 
 interface OptimizedImageProps {
 	src: string;
@@ -11,10 +11,11 @@ interface OptimizedImageProps {
 	height?: number;
 	className?: string;
 	priority?: boolean;
-	sizes?: string;
-	quality?: number;
 	placeholder?: "blur" | "empty";
 	blurDataURL?: string;
+	sizes?: string;
+	quality?: number;
+	loading?: "lazy" | "eager";
 }
 
 export default function OptimizedImage({
@@ -22,83 +23,94 @@ export default function OptimizedImage({
 	alt,
 	width = 800,
 	height = 600,
-	className,
+	className = "",
 	priority = false,
+	placeholder = "empty",
+	blurDataURL,
 	sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw",
 	quality = 85,
-	placeholder = "blur",
-	blurDataURL = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=",
+	loading = "lazy",
 	...props
 }: OptimizedImageProps) {
-	const [isLoaded, setIsLoaded] = useState(false);
+	const [isLoading, setIsLoading] = useState(true);
 	const [hasError, setHasError] = useState(false);
-	const imageRef = useRef<HTMLDivElement>(null);
-	const isInView = useIntersectionObserver(imageRef as React.RefObject<Element>, {
-		threshold: 0.1,
-		rootMargin: "50px",
-	});
+	const { measureInteraction } = usePerformanceMonitor("OptimizedImage");
 
-	const handleLoad = () => {
-		setIsLoaded(true);
-	};
+	const handleLoad = useCallback(() => {
+		const endMeasure = measureInteraction("image-load");
+		setIsLoading(false);
+		endMeasure();
+	}, [measureInteraction]);
 
-	const handleError = () => {
+	const handleError = useCallback(() => {
 		setHasError(true);
-		console.warn(`Failed to load image: ${src}`);
-	};
+		setIsLoading(false);
+	}, []);
 
-	// Generate optimized blur data URL for better placeholder
+	// Generate blur placeholder for better loading experience
 	const generateBlurDataURL = (w: number, h: number) => {
-		const canvas = document.createElement("canvas");
-		canvas.width = w;
-		canvas.height = h;
-		const ctx = canvas.getContext("2d");
-		if (ctx) {
-			ctx.fillStyle = "#f3f4f6";
-			ctx.fillRect(0, 0, w, h);
-		}
-		return canvas.toDataURL();
+		return `data:image/svg+xml;base64,${Buffer.from(
+			`<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
+				<defs>
+					<linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+						<stop offset="0%" style="stop-color:#f3f4f6;stop-opacity:1" />
+						<stop offset="100%" style="stop-color:#e5e7eb;stop-opacity:1" />
+					</linearGradient>
+				</defs>
+				<rect width="100%" height="100%" fill="url(#grad)" />
+			</svg>`
+		).toString("base64")}`;
 	};
 
 	if (hasError) {
 		return (
 			<div
-				className={`bg-gray-200 flex items-center justify-center ${className}`}
+				className={`flex items-center justify-center bg-gray-100 text-gray-400 ${className}`}
 				style={{ width, height }}
 			>
-				<span className="text-gray-500 text-sm">Image not available</span>
+				<svg
+					className="w-8 h-8"
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+				>
+					<path
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						strokeWidth={2}
+						d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+					/>
+				</svg>
 			</div>
 		);
 	}
 
 	return (
-		<div
-			ref={imageRef}
-			className={`relative overflow-hidden ${className}`}
-			style={{ width, height }}
-		>
-			{(isInView || priority) && (
-				<Image
-					src={src}
-					alt={alt}
-					width={width}
-					height={height}
-					className={`transition-opacity duration-300 ${
-						isLoaded ? "opacity-100" : "opacity-0"
-					}`}
-					priority={priority}
-					sizes={sizes}
-					quality={quality}
-					placeholder={placeholder}
-					blurDataURL={blurDataURL || generateBlurDataURL(width, height)}
-					onLoad={handleLoad}
-					onError={handleError}
-					{...props}
+		<div className={`relative overflow-hidden ${className}`}>
+			{isLoading && (
+				<div
+					className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse"
+					style={{ width, height }}
 				/>
 			)}
-			{!isLoaded && (isInView || priority) && (
-				<div className="absolute inset-0 bg-gray-200 animate-pulse" />
-			)}
+			<Image
+				src={src}
+				alt={alt}
+				width={width}
+				height={height}
+				priority={priority}
+				placeholder={placeholder}
+				blurDataURL={blurDataURL || generateBlurDataURL(width, height)}
+				sizes={sizes}
+				quality={quality}
+				loading={loading}
+				onLoad={handleLoad}
+				onError={handleError}
+				className={`transition-opacity duration-300 ${
+					isLoading ? "opacity-0" : "opacity-100"
+				}`}
+				{...props}
+			/>
 		</div>
 	);
 }

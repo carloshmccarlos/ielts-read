@@ -1,5 +1,3 @@
-import Script from "next/script";
-
 interface StructuredDataProps {
 	data: object | object[];
 }
@@ -10,7 +8,7 @@ export default function StructuredData({ data }: StructuredDataProps) {
 	return (
 		<>
 			{jsonLd.map((item, index) => (
-				<Script
+				<script
 					// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 					key={index}
 					id={`structured-data-${index}`}
