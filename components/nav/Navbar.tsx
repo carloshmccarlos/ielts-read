@@ -4,9 +4,7 @@ import LoginButton from "@/components/LoginButton";
 import Menu from "@/components/nav/Menu";
 import ProfileDropdown from "@/components/nav/ProfileDropdown";
 import { useCurrentUser } from "@/hooks/useSession";
-import { getRoleByUserId } from "@/lib/actions/articles-with-user";
 import type { Category } from "@prisma/client";
-import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -27,19 +25,6 @@ function NavBar({ categories }: Props) {
 	const pathname = usePathname();
 
 	const type = pathname.startsWith("/admin") ? "admin" : "col";
-
-	// Use TanStack Query to fetch user role
-	const { data: roleData } = useQuery({
-		queryKey: ["userRole", user?.id],
-		queryFn: async () => {
-			if (!user?.id) return null;
-			return await getRoleByUserId(user.id);
-		},
-		enabled: !!user?.id,
-		staleTime: 5 * 60 * 1000, // 5 minutes
-	});
-
-	const role = roleData?.role || "USER";
 
 	useEffect(() => {
 		const handleScroll = () => {
@@ -85,7 +70,7 @@ function NavBar({ categories }: Props) {
 
 					{isLoading ? null : user?.id ? (
 						<div className=" lg:flex items-center gap-2 md:gap-4 absolute right-0 sm:right-4">
-							<ProfileDropdown role={role} />
+							<ProfileDropdown />
 						</div>
 					) : (
 						<div className="hidden lg:flex items-center gap-2 md:gap-4 absolute right-0 sm:right-4">
