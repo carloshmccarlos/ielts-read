@@ -5,6 +5,7 @@ import BigCard from "@/components/BigCard";
 import HorizontalCard from "@/components/HorizontalCard";
 import VerticalCard from "@/components/VerticalCard";
 import LatestSectionSkeleton from "@/components/skeletons/LatestSectionSkeleton";
+import { ArticleWithDetails } from "@/lib/types";
 
 export default function LatestSection() {
 	const { data: articles, isLoading, isError } = useLatestArticles();
@@ -44,7 +45,7 @@ export default function LatestSection() {
 
 			{/* Vertical Card Section for small mobile */}
 			<div className="sm:hidden lg:col-span-2 grid grid-cols-1 gap-6 mb-12">
-				{articles.slice(3, 9).map((article) => (
+				{articles.slice(3, 9).map((article: ArticleWithDetails) => (
 					<HorizontalCard
 						key={`${article.title}-mobile`}
 						article={article}
@@ -54,7 +55,7 @@ export default function LatestSection() {
 
 			{/* Vertical Card Section for larger screens */}
 			<div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 mb-12">
-				{articles.slice(3, 15).map((article) => (
+				{articles.slice(3, 15).map((article: ArticleWithDetails) => (
 					<VerticalCard
 						key={`${article.title}-desktop`}
 						article={article}

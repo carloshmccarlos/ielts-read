@@ -3,11 +3,11 @@
 import BigCard from "@/components/BigCard";
 import HorizontalCard from "@/components/HorizontalCard";
 import VerticalCard from "@/components/VerticalCard";
-import { Button } from "@/components/ui/button";
 
 import { useFeaturedArticles } from "@/hooks/use-article-queries";
 import Link from "next/link";
 import FeaturedSectionSkeleton from "../skeletons/FeaturedSectionSkeleton";
+import { ArticleWithDetails } from "@/lib/types";
 
 export default function FeaturedSection() {
 	const { data: articles, isLoading, isError } = useFeaturedArticles();
@@ -37,7 +37,7 @@ export default function FeaturedSection() {
 
 				{/* Side Featured Articles */}
 				<div className="space-y-4">
-					{articles.slice(1, 4).map((article) => (
+					{articles.slice(1, 4).map((article: ArticleWithDetails) => (
 						<HorizontalCard
 							key={`featured-side-${article.id}`}
 							article={article}
@@ -48,7 +48,7 @@ export default function FeaturedSection() {
 
 			{/* Additional Featured Articles Grid */}
 			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-				{articles.slice(4, 16).map((article) => (
+				{articles.slice(4, 16).map((article: ArticleWithDetails) => (
 					<VerticalCard key={`featured-grid-${article.id}`} article={article} />
 				))}
 			</div>

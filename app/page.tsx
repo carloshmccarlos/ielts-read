@@ -1,30 +1,33 @@
 import Footer from "@/components/Footer";
 
-
 import type React from "react";
 
-import dynamic from "next/dynamic";
-import { ArticleSkeleton, CategorySkeleton } from "@/components/performance/LazyLoader";
+import {
+	ArticleSkeleton,
+	CategorySkeleton,
+} from "@/components/performance/LazyLoader";
 import LatestSection from "@/components/sections/LatestSection";
 
+import dynamic from "next/dynamic";
+
 const FeaturedSection = dynamic(
-    () => import("@/components/sections/FeaturedSection"),
-    { loading: () => <ArticleSkeleton /> }
+	() => import("@/components/sections/FeaturedSection"),
+	{ loading: () => <ArticleSkeleton /> },
 );
 
 const HottestSection = dynamic(
-    () => import("@/components/sections/HottestSection"),
-    { loading: () => <ArticleSkeleton /> }
+	() => import("@/components/sections/HottestSection"),
+	{ loading: () => <ArticleSkeleton /> },
 );
 
 const CategoryShowcaseSection = dynamic(
-    () => import("@/components/sections/CategoryShowcaseSection"),
-    { loading: () => <CategorySkeleton /> }
+	() => import("@/components/sections/CategoryShowcaseSection"),
+	{ loading: () => <CategorySkeleton /> },
 );
 
 const RecentlyReadSection = dynamic(
-    () => import("@/components/sections/RecentlyReadSection"),
-    { loading: () => <ArticleSkeleton /> }
+	() => import("@/components/sections/RecentlyReadSection"),
+	{ loading: () => <ArticleSkeleton /> },
 );
 
 export default function Home() {

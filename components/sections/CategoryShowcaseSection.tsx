@@ -8,6 +8,7 @@ import { CategoryName } from "@prisma/client";
 import Link from "next/link";
 import { useMemo } from "react";
 import CategoryShowcaseSectionSkeleton from "../skeletons/CategoryShowcaseSectionSkeleton";
+import { ArticleWithDetails } from "@/lib/types";
 
 export default function CategoryShowcaseSection() {
 	const categories = useMemo(
@@ -39,7 +40,7 @@ export default function CategoryShowcaseSection() {
 				Explore by Category
 			</h2>
 
-			{categoryArticles.map(({ categoryName, articles }) => (
+			{categoryArticles.map(({ categoryName, articles }: { categoryName: string; articles: ArticleWithDetails[] }) => (
 				<div key={categoryName} className="mb-12">
 					<div className="flex items-center justify-between mb-6">
 						<h3 className="font-serif text-2xl lg:text-3xl font-semibold capitalize">
@@ -49,7 +50,7 @@ export default function CategoryShowcaseSection() {
 
 					{/* Mobile Layout */}
 					<div className="sm:hidden space-y-4">
-						{articles.slice(0, 3).map((article) => (
+						{articles.slice(0, 3).map((article: ArticleWithDetails) => (
 							<HorizontalCard
 								key={`${categoryName}-mobile-${article.id}`}
 								article={article}
@@ -59,7 +60,7 @@ export default function CategoryShowcaseSection() {
 
 					{/* Desktop Layout */}
 					<div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-						{articles.slice(0, 6).map((article) => (
+						{articles.slice(0, 6).map((article: ArticleWithDetails) => (
 							<VerticalCard
 								key={`${categoryName}-desktop-${article.id}`}
 								article={article}
