@@ -9,7 +9,7 @@ import Link from "next/link";
 export default async function RecentlyReadSection() {
 	const session = await getUserSession(await headers());
 	const isLoggedIn = !!session?.user?.id;
-	
+
 	const recentlyReadArticles = isLoggedIn
 		? await getUserRecentlyReadArticles(session.user.id, 6)
 		: [];
@@ -69,7 +69,7 @@ export default async function RecentlyReadSection() {
 						Sign in to see your reading history and personalized
 						recommendations.
 					</p>
-					<Link href="/auth/signin">
+					<Link href="/auth/login">
 						<Button>Sign In</Button>
 					</Link>
 				</div>
