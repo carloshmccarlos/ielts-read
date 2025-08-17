@@ -3,7 +3,6 @@ import { getUserSession } from "@/lib/auth/getUserSession";
 import { prisma } from "@/lib/prisma";
 import { deleteArticleImage } from "@/script/image-operation";
 import type { CategoryName } from "@prisma/client";
-import type { IeltsWordsCount } from "@prisma/client";
 import { headers } from "next/headers";
 
 export async function getArticleById(id: number) {
@@ -50,47 +49,6 @@ export async function getArticlesByCategory(
 		},
 		skip,
 		take,
-	});
-}
-
-export async function searchArticles(query: string) {
-	const session = await auth.api.getSession({
-		headers: await headers(),
-	});
-
-	const userId = session?.user?.id;
-
-	return prisma.article.findMany({
-		where: {
-			OR: [
-				{
-					title: {
-						contains: query,
-						mode: "insensitive",
-					},
-				},
-			],
-			imageUrl: {
-				gt: "",
-			},
-			...(userId
-				? {
-						NOT: {
-							MasteredArticle: {
-								some: {
-									userId: userId,
-								},
-							},
-						},
-					}
-				: {}),
-		},
-		include: {
-			Category: true,
-		},
-		orderBy: {
-			createdAt: "desc",
-		},
 	});
 }
 
