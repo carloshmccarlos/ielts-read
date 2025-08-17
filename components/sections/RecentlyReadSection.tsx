@@ -10,7 +10,8 @@ import RecentlyReadSectionSkeleton from "../skeletons/RecentlyReadSectionSkeleto
 
 export default function RecentlyReadSection() {
 	const { isLoggedIn, isLoading: isSessionLoading } = useCurrentUser();
-	const { data: recentlyReadArticles, isLoading: isArticlesLoading } = useRecentlyReadArticles();
+	const { data: recentlyReadArticles, isLoading: isArticlesLoading } =
+		useRecentlyReadArticles();
 
 	if (isSessionLoading) {
 		return <RecentlyReadSectionSkeleton />;
@@ -25,9 +26,10 @@ export default function RecentlyReadSection() {
 			{!isLoggedIn ? (
 				<div className="text-center py-12">
 					<p className="text-gray-600 text-lg mb-4">
-						Sign in to see your reading history and personalized recommendations.
+						Sign in to see your reading history and personalized
+						recommendations.
 					</p>
-					<Link href="/auth/signin">
+					<Link href="/auth/login">
 						<Button>Sign In</Button>
 					</Link>
 				</div>
