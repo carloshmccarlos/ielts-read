@@ -1,7 +1,7 @@
 User-agent: *
 Allow: /
 
-# Allow crawling of all content
+# Allow crawling of educational content
 Allow: /article/
 Allow: /category/
 Allow: /auth/
@@ -10,8 +10,17 @@ Allow: /user/
 # Disallow admin and API routes
 Disallow: /admin/
 Disallow: /api/
+Disallow: /user/profile
+Disallow: /user/collection
+
+# Crawl delay for respectful crawling
+Crawl-delay: 1
 
 # Sitemap location
 Sitemap: https://ielts-read.vercel.app/sitemap.xml
 
-# This site helps users memorize IELTS vocabulary through contextual reading practice
+# About this site:
+# IELTS Vocabulary Memorization & Reading Improvement Platform
+# Learn 3000+ essential IELTS words through contextual reading practice
+# Improve reading comprehension and memory retention for better band scores
+# Free educational platform for IELTS test preparation

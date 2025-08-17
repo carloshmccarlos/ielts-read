@@ -11,20 +11,28 @@ import { getAllCategories } from "@/lib/actions/category";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = generateSEOMetadata({
-	title: "IELTS Vocabulary Memorization Through Reading - Master IELTS Words",
+	title: "IELTS Vocabulary Memorization & Reading Improvement - Master English Words Fast",
 	description:
-		"Memorize IELTS vocabulary effectively through contextual reading practice. Learn and retain essential IELTS words naturally with our curated articles designed for vocabulary building and retention.",
+		"Boost your IELTS score with our proven vocabulary memorization system. Learn 3000+ essential IELTS words through contextual reading practice. Improve reading comprehension, memory retention, and achieve your target band score faster with scientifically-designed learning methods.",
 	keywords: [
-		"IELTS vocabulary",
-		"IELTS words memorization",
+		"IELTS vocabulary memorization",
+		"IELTS reading improvement",
+		"English words memory techniques",
+		"IELTS band score improvement",
 		"vocabulary through reading",
 		"IELTS word practice",
 		"contextual vocabulary learning",
-		"IELTS preparation",
+		"IELTS preparation online",
 		"English vocabulary building",
-		"IELTS academic words",
-		"vocabulary retention",
+		"IELTS academic words list",
+		"vocabulary retention techniques",
+		"IELTS reading comprehension",
+		"memory improvement for IELTS",
 		"free IELTS vocabulary practice",
+		"IELTS study materials",
+		"English learning platform",
+		"spaced repetition IELTS",
+		"IELTS vocabulary app",
 	],
 });
 

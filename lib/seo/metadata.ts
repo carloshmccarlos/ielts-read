@@ -15,20 +15,28 @@ export interface SEOConfig {
 }
 
 const DEFAULT_SEO: SEOConfig = {
-	title: "IELTS Vocabulary Memorization Through Reading - Master IELTS Words",
+	title: "IELTS Vocabulary Memorization & Reading Improvement - Master English Words Fast",
 	description:
-		"Memorize IELTS vocabulary effectively through contextual reading practice. Our curated articles help you learn and retain essential IELTS words naturally through engaging content.",
+		"Boost your IELTS score with our proven vocabulary memorization system. Learn 3000+ essential IELTS words through contextual reading practice. Improve reading comprehension, memory retention, and achieve your target band score faster.",
 	keywords: [
-		"IELTS vocabulary",
-		"IELTS words memorization",
+		"IELTS vocabulary memorization",
+		"IELTS reading improvement",
+		"English words memory techniques",
+		"IELTS band score improvement",
 		"vocabulary through reading",
 		"IELTS word practice",
 		"contextual vocabulary learning",
-		"IELTS preparation",
+		"IELTS preparation online",
 		"English vocabulary building",
-		"IELTS academic words",
-		"vocabulary retention",
-		"IELTS word list practice",
+		"IELTS academic words list",
+		"vocabulary retention techniques",
+		"IELTS reading comprehension",
+		"memory improvement for IELTS",
+		"free IELTS vocabulary practice",
+		"IELTS study materials",
+		"English learning platform",
+		"IELTS vocabulary app",
+		"spaced repetition IELTS",
 	],
 	image: "/og-image.jpg",
 	type: "website",
@@ -138,8 +146,8 @@ export function generateArticleMetadata(
 	];
 
 	return generateMetadata({
-		title: `${article.title} - IELTS Vocabulary Practice Through Reading`,
-		description,
+		title: `${article.title} | IELTS Vocabulary Memorization & Reading Practice`,
+		description: `Master IELTS vocabulary through contextual reading. ${description} Improve your English word memory and reading comprehension for better IELTS band scores.`,
 		keywords,
 		url: `/article/${article.id}-${articleSlug}`,
 		type: "article",
@@ -157,19 +165,23 @@ export function generateCategoryMetadata(category: {
 }): Metadata {
 	const description =
 		category.description ||
-		`Master IELTS vocabulary in ${category.name} through contextual reading. Memorize essential IELTS words naturally with our curated ${category.name.toLowerCase()} articles designed for effective vocabulary retention.`;
+		`Boost your IELTS band score with ${category.name} vocabulary memorization. Learn essential English words through contextual reading practice. Improve memory retention and reading comprehension with our proven ${category.name.toLowerCase()} learning system.`;
 
 	return generateMetadata({
-		title: `${category.name} IELTS Vocabulary - Learn Words Through Reading`,
+		title: `${category.name} IELTS Vocabulary Memorization | Reading Improvement Practice`,
 		description,
 		keywords: [
-			"IELTS vocabulary",
-			category.name,
-			"vocabulary memorization",
-			"IELTS words practice",
+			"IELTS vocabulary memorization",
+			`${category.name} IELTS words`,
+			"IELTS reading improvement",
+			"English words memory techniques",
+			"IELTS band score improvement",
+			"vocabulary through reading",
 			"contextual vocabulary learning",
-			"IELTS preparation",
+			"IELTS preparation online",
 			"English vocabulary building",
+			"memory retention techniques",
+			"IELTS reading comprehension",
 		],
 		url: `/category/${category.slug}`,
 	});
