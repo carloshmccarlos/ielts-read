@@ -1,5 +1,4 @@
 import fs from "node:fs";
-import path from "node:path";
 import {
 	DeleteObjectCommand,
 	PutObjectCommand,
@@ -39,7 +38,7 @@ export async function uploadArticleImage(
 ): Promise<string | null> {
 	try {
 		// Determine the file's MIME type based on extension
-		const fileExtension = path.extname(fileName).toLowerCase();
+		const fileExtension = fileName.slice(fileName.lastIndexOf('.')).toLowerCase();
 		let contentType = "application/octet-stream"; // default
 
 		if (fileExtension === ".png") contentType = "image/png";

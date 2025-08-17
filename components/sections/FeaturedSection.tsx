@@ -1,16 +1,24 @@
+"use client";
+
 import BigCard from "@/components/BigCard";
 import HorizontalCard from "@/components/HorizontalCard";
 import VerticalCard from "@/components/VerticalCard";
 import { Button } from "@/components/ui/button";
-import type { ArticleWithCategory } from "@/types/interface";
+
+import { useFeaturedArticles } from "@/hooks/use-article-queries";
 import Link from "next/link";
+import FeaturedSectionSkeleton from "../skeletons/FeaturedSectionSkeleton";
 
-interface FeaturedSectionProps {
-	articles: ArticleWithCategory[];
-}
+export default function FeaturedSection() {
+	const { data: articles, isLoading, isError } = useFeaturedArticles();
 
-export default function FeaturedSection({ articles }: FeaturedSectionProps) {
-	if (!articles || articles.length === 0) return null;
+	if (isLoading) {
+		return <FeaturedSectionSkeleton />;
+	}
+
+	if (isError || !articles || articles.length === 0) {
+		return null;
+	}
 
 	return (
 		<div className="max-w-[2000px] mx-auto px-2 sm:px-4 lg:px-8 xl:px-16 2xl:px-32 py-2 sm:py-2 lg:py-4">

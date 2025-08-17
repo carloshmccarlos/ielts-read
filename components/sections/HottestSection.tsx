@@ -1,14 +1,21 @@
+"use client";
+
 import BigCard from "@/components/BigCard";
 import NoImageCard from "@/components/NoImageCard";
 import VerticalCard from "@/components/VerticalCard";
-import type { ArticleWithCategory } from "@/types/interface";
+import { useHottestArticles } from "@/hooks/use-article-queries";
+import HottestSectionSkeleton from "../skeletons/HottestSectionSkeleton";
 
-interface HottestSectionProps {
-	articles: ArticleWithCategory[];
-}
+export default function HottestSection() {
+	const { data: articles, isLoading, isError } = useHottestArticles();
 
-export default function HottestSection({ articles }: HottestSectionProps) {
-	if (!articles || articles.length === 0) return null;
+	if (isLoading) {
+		return <HottestSectionSkeleton />;
+	}
+
+	if (isError || !articles || articles.length === 0) {
+		return null;
+	}
 
 	return (
 		<div className="max-w-[2000px] mx-auto px-2 sm:px-4 lg:px-8 xl:px-16 2xl:px-32 py-2 sm:py-2 lg:py-4">

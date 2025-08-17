@@ -1,14 +1,26 @@
+"use client";
+
+import { useLatestArticles } from "@/hooks/use-article-queries";
 import BigCard from "@/components/BigCard";
 import HorizontalCard from "@/components/HorizontalCard";
 import VerticalCard from "@/components/VerticalCard";
-import type { ArticleWithCategory } from "@/types/interface";
+import LatestSectionSkeleton from "@/components/skeletons/LatestSectionSkeleton";
 
-interface LatestSectionProps {
-	articles: ArticleWithCategory[];
-}
+export default function LatestSection() {
+	const { data: articles, isLoading, isError } = useLatestArticles();
 
-export default function LatestSection({ articles }: LatestSectionProps) {
-	if (!articles || articles.length === 0) return null;
+	if (isLoading) {
+		return <LatestSectionSkeleton />;
+	}
+
+	if (isError || !articles || articles.length === 0) {
+		// Optionally, render a specific error component
+		return null;
+	}
+
+	const mainArticle = articles[0];
+	const topArticles = articles.slice(1, 3);
+	const sideArticles = articles.slice(3, 15);
 
 	return (
 		<div className="max-w-[2000px] mx-auto px-2 sm:px-4 lg:px-8 xl:px-16 2xl:px-32 py-2 sm:py-2 lg:py-4">

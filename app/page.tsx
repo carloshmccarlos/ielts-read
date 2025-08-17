@@ -1,64 +1,52 @@
 import Footer from "@/components/Footer";
-import CategoryShowcaseSection from "@/components/sections/CategoryShowcaseSection";
-import FeaturedSection from "@/components/sections/FeaturedSection";
-import HottestSection from "@/components/sections/HottestSection";
-import LatestSection from "@/components/sections/LatestSection";
-import RecentlyReadSection from "@/components/sections/RecentlyReadSection";
-import {
-	getArticlesByCategories,
-	getFeaturedArticles,
-	getLatestArticlesFromEachCategory,
-	getMoreHottestArticles,
-} from "@/lib/actions/article";
-import { getUserRecentlyReadArticles } from "@/lib/actions/articles-with-user";
-import { getUserSession } from "@/lib/auth/getUserSession";
-import { CategoryName } from "@prisma/client";
-import { headers } from "next/headers";
+
+
 import type React from "react";
 
-export default async function Home() {
-	// Fetch enhanced data for multiple sections
-	const [latestArticles, hottestArticles, featuredArticles, categoryArticles] =
-		await Promise.all([
-			getLatestArticlesFromEachCategory(),
-			getMoreHottestArticles(30),
-			getFeaturedArticles(20),
-			getArticlesByCategories(
-				[
-					CategoryName.nature_geography,
-					CategoryName.technology_invention,
-					CategoryName.culture_history,
-				],
-				6,
-			),
-		]);
+import dynamic from "next/dynamic";
+import { ArticleSkeleton, CategorySkeleton } from "@/components/performance/LazyLoader";
+import LatestSection from "@/components/sections/LatestSection";
 
-	const session = await getUserSession(await headers());
+const FeaturedSection = dynamic(
+    () => import("@/components/sections/FeaturedSection"),
+    { loading: () => <ArticleSkeleton /> }
+);
 
-	const recentlyReadArticles = session?.user?.id
-		? await getUserRecentlyReadArticles(session?.user.id, 6)
-		: [];
+const HottestSection = dynamic(
+    () => import("@/components/sections/HottestSection"),
+    { loading: () => <ArticleSkeleton /> }
+);
+
+const CategoryShowcaseSection = dynamic(
+    () => import("@/components/sections/CategoryShowcaseSection"),
+    { loading: () => <CategorySkeleton /> }
+);
+
+const RecentlyReadSection = dynamic(
+    () => import("@/components/sections/RecentlyReadSection"),
+    { loading: () => <ArticleSkeleton /> }
+);
+
+export default function Home() {
+	// All data fetching is now handled by the individual section components.
 
 	return (
 		<>
 			<main className="min-h-screen">
-				{/* Latest Articles Section */}
-				<LatestSection articles={latestArticles} />
+				{/* Latest Articles Section - Loaded immediately */}
+				<LatestSection />
 
-				{/* Featured Articles Section */}
-				<FeaturedSection articles={featuredArticles} />
+				{/* Featured Articles Section - Lazy Loaded */}
+				<FeaturedSection />
 
-				{/* Hottest Articles Section */}
-				<HottestSection articles={hottestArticles} />
+				{/* Hottest Articles Section - Lazy Loaded */}
+				<HottestSection />
 
-				{/* Category Showcase Section */}
-				<CategoryShowcaseSection categoryArticles={categoryArticles} />
+				{/* Category Showcase Section - Lazy Loaded */}
+				<CategoryShowcaseSection />
 
-				{/* Recently Reading Section */}
-				<RecentlyReadSection
-					recentlyReadArticles={recentlyReadArticles}
-					isLoggedIn={!!session?.user?.id}
-				/>
+				{/* Recently Reading Section - Lazy Loaded */}
+				<RecentlyReadSection />
 			</main>
 			<Footer />
 		</>

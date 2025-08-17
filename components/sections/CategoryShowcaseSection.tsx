@@ -1,20 +1,37 @@
+"use client";
 import HorizontalCard from "@/components/HorizontalCard";
 import VerticalCard from "@/components/VerticalCard";
 import { Button } from "@/components/ui/button";
-import type { ArticleWithCategory } from "@/types/interface";
+
+import { useCategoryShowcaseArticles } from "@/hooks/use-article-queries";
+import { CategoryName } from "@prisma/client";
 import Link from "next/link";
+import { useMemo } from "react";
+import CategoryShowcaseSectionSkeleton from "../skeletons/CategoryShowcaseSectionSkeleton";
 
-interface CategoryShowcaseSectionProps {
-	categoryArticles: {
-		categoryName: string;
-		articles: ArticleWithCategory[];
-	}[];
-}
+export default function CategoryShowcaseSection() {
+	const categories = useMemo(
+		() => [
+			CategoryName.nature_geography,
+			CategoryName.technology_invention,
+			CategoryName.culture_history,
+		],
+		[],
+	);
 
-export default function CategoryShowcaseSection({
-	categoryArticles,
-}: CategoryShowcaseSectionProps) {
-	if (!categoryArticles || categoryArticles.length === 0) return null;
+	const {
+		data: categoryArticles,
+		isLoading,
+		isError,
+	} = useCategoryShowcaseArticles(categories);
+
+	if (isLoading) {
+		return <CategoryShowcaseSectionSkeleton />;
+	}
+
+	if (isError || !categoryArticles || categoryArticles.length === 0) {
+		return null;
+	}
 
 	return (
 		<div className="max-w-[2000px] mx-auto px-2 sm:px-4 lg:px-8 xl:px-16 2xl:px-32 py-2 sm:py-2 lg:py-4">
