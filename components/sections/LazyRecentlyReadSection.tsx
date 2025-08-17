@@ -3,7 +3,7 @@
 import LazyHorizontalCard from "@/components/cards/LazyHorizontalCard";
 import LazyVerticalCard from "@/components/cards/LazyVerticalCard";
 import { Button } from "@/components/ui/button";
-import { getUserRecentlyReadArticles } from "@/lib/actions/articles-with-user";
+import { fetchUserReadingHistory } from "@/lib/api/articles";
 import { useCurrentUser } from "@/hooks/useSession";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
@@ -12,12 +12,12 @@ import { memo } from "react";
 function LazyRecentlyReadSection() {
 	const { user, isLoggedIn } = useCurrentUser();
 	
-	const { data: recentlyReadArticles, isLoading, error } = useQuery({
-		queryKey: ['recently-read-articles', user?.id],
-		queryFn: () => user?.id ? getUserRecentlyReadArticles(user.id, 6) : Promise.resolve([]),
+	const { data: readHistory, isLoading, error } = useQuery({
+		queryKey: ['user-reading-history', user?.id],
+		queryFn: () => fetchUserReadingHistory(6),
 		enabled: !!user?.id,
-		staleTime: 2 * 60 * 1000, // 2 minutes
-		gcTime: 5 * 60 * 1000, // 5 minutes
+		staleTime: 5 * 60 * 1000, // 5 minutes
+		gcTime: 10 * 60 * 1000, // 10 minutes
 	});
 
 	if (isLoading && isLoggedIn) {
@@ -55,11 +55,11 @@ function LazyRecentlyReadSection() {
 			</h2>
 
 			{isLoggedIn ? (
-				recentlyReadArticles && recentlyReadArticles.length > 0 ? (
+				readHistory && readHistory.length > 0 ? (
 					<>
 						{/* Horizontal cards for mobile */}
 						<div className="sm:hidden space-y-4">
-							{recentlyReadArticles.slice(0, 3).map((item) => (
+							{readHistory.slice(0, 3).map((item: any) => (
 								<LazyHorizontalCard
 									key={`mobile-${item.article.id}`}
 									article={item.article}
@@ -70,7 +70,7 @@ function LazyRecentlyReadSection() {
 
 						{/* Vertical cards for larger screens */}
 						<div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-							{recentlyReadArticles.map((item) => (
+							{readHistory.map((item: any) => (
 								<LazyVerticalCard
 									key={`desktop-${item.article.id}`}
 									article={item.article}

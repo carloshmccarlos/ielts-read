@@ -3,14 +3,14 @@
 import LazyBigCard from "@/components/cards/LazyBigCard";
 import LazyHorizontalCard from "@/components/cards/LazyHorizontalCard";
 import LazyVerticalCard from "@/components/cards/LazyVerticalCard";
-import { getFeaturedArticles } from "@/lib/actions/article";
+import { fetchFeaturedArticles } from "@/lib/api/articles";
 import { useQuery } from "@tanstack/react-query";
 import { memo } from "react";
 
 function LazyFeaturedSection() {
 	const { data: articles, isLoading, error } = useQuery({
 		queryKey: ['featured-articles'],
-		queryFn: () => getFeaturedArticles(20),
+		queryFn: () => fetchFeaturedArticles(20),
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		gcTime: 10 * 60 * 1000, // 10 minutes
 	});

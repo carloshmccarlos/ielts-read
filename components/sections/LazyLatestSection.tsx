@@ -3,14 +3,14 @@
 import LazyBigCard from "@/components/cards/LazyBigCard";
 import LazyHorizontalCard from "@/components/cards/LazyHorizontalCard";
 import LazyVerticalCard from "@/components/cards/LazyVerticalCard";
-import { getLatestArticlesFromEachCategory } from "@/lib/actions/article";
+import { fetchLatestArticles } from "@/lib/api/articles";
 import { useQuery } from "@tanstack/react-query";
 import { memo } from "react";
 
 function LazyLatestSection() {
 	const { data: articles, isLoading, error } = useQuery({
 		queryKey: ['latest-articles'],
-		queryFn: getLatestArticlesFromEachCategory,
+		queryFn: fetchLatestArticles,
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		gcTime: 10 * 60 * 1000, // 10 minutes
 	});

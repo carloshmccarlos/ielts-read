@@ -3,14 +3,14 @@
 import LazyBigCard from "@/components/cards/LazyBigCard";
 import NoImageCard from "@/components/NoImageCard";
 import LazyVerticalCard from "@/components/cards/LazyVerticalCard";
-import { getMoreHottestArticles } from "@/lib/actions/article";
+import { fetchHottestArticles } from "@/lib/api/articles";
 import { useQuery } from "@tanstack/react-query";
 import { memo } from "react";
 
 function LazyHottestSection() {
 	const { data: articles, isLoading, error } = useQuery({
 		queryKey: ['hottest-articles'],
-		queryFn: () => getMoreHottestArticles(30),
+		queryFn: () => fetchHottestArticles(30),
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		gcTime: 10 * 60 * 1000, // 10 minutes
 	});
