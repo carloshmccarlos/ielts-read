@@ -27,11 +27,8 @@ export function middleware(request: NextRequest) {
 
 	// Add early hints for article pages
 	if (url.startsWith("/article/")) {
-		response.headers.set(
-			"Link",
-			response.headers.get("Link") + 
-			', </api/article/related>; rel=prefetch'
-		);
+		// Note: Removed /api/article/related prefetch as it requires articleId or categoryName parameters
+		// The prefetch will be handled by the component when it has the necessary context
 	}
 
 	return response;
