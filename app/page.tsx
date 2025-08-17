@@ -1,41 +1,64 @@
 import Footer from "@/components/Footer";
-import LazySection, { withLazySection } from "@/components/sections/LazySection";
-import LazyLatestSection from "@/components/sections/LazyLatestSection";
-import LazyFeaturedSection from "@/components/sections/LazyFeaturedSection";
-import LazyHottestSection from "@/components/sections/LazyHottestSection";
-import LazyCategoryShowcaseSection from "@/components/sections/LazyCategoryShowcaseSection";
-import LazyRecentlyReadSection from "@/components/sections/LazyRecentlyReadSection";
+import CategoryShowcaseSection from "@/components/sections/CategoryShowcaseSection";
+import FeaturedSection from "@/components/sections/FeaturedSection";
+import HottestSection from "@/components/sections/HottestSection";
+import LatestSection from "@/components/sections/LatestSection";
+import RecentlyReadSection from "@/components/sections/RecentlyReadSection";
+import {
+	getArticlesByCategories,
+	getFeaturedArticles,
+	getLatestArticlesFromEachCategory,
+	getMoreHottestArticles,
+} from "@/lib/actions/article";
+import { getUserRecentlyReadArticles } from "@/lib/actions/articles-with-user";
+import { getUserSession } from "@/lib/auth/getUserSession";
+import { CategoryName } from "@prisma/client";
+import { headers } from "next/headers";
 import type React from "react";
 
-export default function Home() {
+export default async function Home() {
+	// Fetch enhanced data for multiple sections
+	const [latestArticles, hottestArticles, featuredArticles, categoryArticles] =
+		await Promise.all([
+			getLatestArticlesFromEachCategory(),
+			getMoreHottestArticles(30),
+			getFeaturedArticles(20),
+			getArticlesByCategories(
+				[
+					CategoryName.nature_geography,
+					CategoryName.technology_invention,
+					CategoryName.culture_history,
+				],
+				6,
+			),
+		]);
+
+	const session = await getUserSession(await headers());
+
+	const recentlyReadArticles = session?.user?.id
+		? await getUserRecentlyReadArticles(session?.user.id, 6)
+		: [];
 
 	return (
 		<>
 			<main className="min-h-screen">
-				{/* Latest Articles Section - Priority loading (above the fold) */}
-				<LazySection sectionName="Latest" priority={true}>
-					<LazyLatestSection />
-				</LazySection>
+				{/* Latest Articles Section */}
+				<LatestSection articles={latestArticles} />
 
-				{/* Featured Articles Section - Lazy load when approaching viewport */}
-				<LazySection sectionName="Featured" threshold={0.1} rootMargin="200px">
-					<LazyFeaturedSection />
-				</LazySection>
+				{/* Featured Articles Section */}
+				<FeaturedSection articles={featuredArticles} />
 
-				{/* Hottest Articles Section - Lazy load when approaching viewport */}
-				<LazySection sectionName="Hottest" threshold={0.1} rootMargin="150px">
-					<LazyHottestSection />
-				</LazySection>
+				{/* Hottest Articles Section */}
+				<HottestSection articles={hottestArticles} />
 
-				{/* Category Showcase Section - Lazy load when closer to viewport */}
-				<LazySection sectionName="CategoryShowcase" threshold={0.05} rootMargin="100px">
-					<LazyCategoryShowcaseSection />
-				</LazySection>
+				{/* Category Showcase Section */}
+				<CategoryShowcaseSection categoryArticles={categoryArticles} />
 
-				{/* Recently Reading Section - Lazy load when very close to viewport */}
-				<LazySection sectionName="RecentlyRead" threshold={0.05} rootMargin="50px">
-					<LazyRecentlyReadSection />
-				</LazySection>
+				{/* Recently Reading Section */}
+				<RecentlyReadSection
+					recentlyReadArticles={recentlyReadArticles}
+					isLoggedIn={!!session?.user?.id}
+				/>
 			</main>
 			<Footer />
 		</>

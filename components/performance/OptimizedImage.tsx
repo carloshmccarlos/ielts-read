@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useCallback, useRef, useEffect } from "react";
-import { useImageLazyLoadingPerformance } from "@/hooks/useLazyLoadingPerformance";
+import { useState, useCallback } from "react";
+import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor";
 
 interface OptimizedImageProps {
 	src: string;
@@ -16,12 +16,6 @@ interface OptimizedImageProps {
 	sizes?: string;
 	quality?: number;
 	loading?: "lazy" | "eager";
-	fill?: boolean;
-	onLoad?: () => void;
-	onError?: () => void;
-	trackPerformance?: boolean;
-	lazyThreshold?: number;
-	[key: string]: any; // For additional Next.js Image props
 }
 
 export default function OptimizedImage({
@@ -36,62 +30,22 @@ export default function OptimizedImage({
 	sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw",
 	quality = 85,
 	loading = "lazy",
-	fill = false,
-	onLoad,
-	onError,
-	trackPerformance = true,
-	lazyThreshold = 0.1,
 	...props
 }: OptimizedImageProps) {
 	const [isLoading, setIsLoading] = useState(true);
 	const [hasError, setHasError] = useState(false);
-	const [isIntersecting, setIsIntersecting] = useState(priority);
-	const imageRef = useRef<HTMLDivElement>(null);
-	
-	const {
-		imageMetrics,
-		handleImageLoadStart,
-		handleImageLoad: performanceImageLoad,
-		handleImageError: performanceImageError
-	} = useImageLazyLoadingPerformance(`${alt || 'image'}-${src.split('/').pop()}`);
-
-	// Intersection Observer for lazy loading
-	useEffect(() => {
-		if (priority || !trackPerformance) {
-			setIsIntersecting(true);
-			return;
-		}
-
-		const observer = new IntersectionObserver(
-			([entry]) => {
-				if (entry.isIntersecting) {
-					setIsIntersecting(true);
-					handleImageLoadStart();
-					observer.disconnect();
-				}
-			},
-			{ threshold: lazyThreshold, rootMargin: '50px' }
-		);
-
-		if (imageRef.current) {
-			observer.observe(imageRef.current);
-		}
-
-		return () => observer.disconnect();
-	}, [priority, trackPerformance, lazyThreshold, handleImageLoadStart]);
+	const { measureInteraction } = usePerformanceMonitor("OptimizedImage");
 
 	const handleLoad = useCallback(() => {
+		const endMeasure = measureInteraction("image-load");
 		setIsLoading(false);
-		performanceImageLoad();
-		onLoad?.();
-	}, [performanceImageLoad, onLoad]);
+		endMeasure();
+	}, [measureInteraction]);
 
 	const handleError = useCallback(() => {
 		setHasError(true);
 		setIsLoading(false);
-		performanceImageError();
-		onError?.();
-	}, [performanceImageError, onError]);
+	}, []);
 
 	// Generate blur placeholder for better loading experience
 	const generateBlurDataURL = (w: number, h: number) => {
@@ -131,41 +85,22 @@ export default function OptimizedImage({
 		);
 	}
 
-	// Don't render image until it's intersecting (for non-priority images)
-	if (!isIntersecting && !priority) {
-		return (
-			<div
-				ref={imageRef}
-				className={`relative overflow-hidden ${className}`}
-				style={fill ? {} : { width, height }}
-			>
-				<div
-					className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse"
-					style={fill ? { width: '100%', height: '100%' } : { width, height }}
-				/>
-			</div>
-		);
-	}
-
 	return (
-		<div 
-			ref={imageRef}
-			className={`relative overflow-hidden ${className}`}
-			style={fill ? {} : { width, height }}
-		>
+		<div className={`relative overflow-hidden ${className}`}>
 			{isLoading && (
 				<div
 					className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 animate-pulse"
-					style={fill ? { width: '100%', height: '100%' } : { width, height }}
+					style={{ width, height }}
 				/>
 			)}
 			<Image
 				src={src}
 				alt={alt}
-				{...(fill ? { fill: true } : { width, height })}
+				width={width}
+				height={height}
 				priority={priority}
 				placeholder={placeholder}
-				blurDataURL={blurDataURL || generateBlurDataURL(fill ? 800 : width, fill ? 600 : height)}
+				blurDataURL={blurDataURL || generateBlurDataURL(width, height)}
 				sizes={sizes}
 				quality={quality}
 				loading={loading}
