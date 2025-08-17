@@ -1,17 +1,18 @@
 import { prisma } from "@/lib/prisma";
-import { NextRequest, NextResponse } from "next/server";
+
+import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
 	try {
 		const { searchParams } = new URL(request.url);
 		const articleId = searchParams.get("articleId");
 		const categoryName = searchParams.get("categoryName");
-		const limit = parseInt(searchParams.get("limit") || "6");
+		const limit = Number.parseInt(searchParams.get("limit") || "6");
 
 		if (!articleId && !categoryName) {
 			return NextResponse.json(
 				{ error: "Either articleId or categoryName is required" },
-				{ status: 400 }
+				{ status: 400 },
 			);
 		}
 
@@ -20,12 +21,12 @@ export async function GET(request: NextRequest) {
 		if (articleId) {
 			// Exclude the current article and find related articles
 			whereClause = {
-				id: { not: parseInt(articleId) },
+				id: { not: Number.parseInt(articleId) },
 			};
 
 			// Get the current article's category to find related articles
 			const currentArticle = await prisma.article.findUnique({
-				where: { id: parseInt(articleId) },
+				where: { id: Number.parseInt(articleId) },
 				select: { categoryName: true },
 			});
 
@@ -68,7 +69,7 @@ export async function GET(request: NextRequest) {
 		console.error("Error fetching related articles:", error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }

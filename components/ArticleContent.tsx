@@ -1,8 +1,6 @@
 "use client";
 
-import ArticleDialog from "@/components/ArticleDialog";
 import MarkdownRenderer from "@/components/MarkdownRender";
-import { Button } from "@/components/ui/button";
 import { useArticleMutations } from "@/hooks/useArticleMutations";
 import { useCurrentUser } from "@/hooks/useSession";
 import { getUserArticleStats } from "@/lib/actions/article-stats";
@@ -10,9 +8,22 @@ import { getNotices, updateNotices } from "@/lib/actions/articles-with-user";
 import { transformCategoryName } from "@/lib/utils";
 import type { ArticleWithCategory } from "@/types/interface";
 import { useQuery } from "@tanstack/react-query";
-import { GraduationCap, SmilePlus, Star } from "lucide-react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { toast } from "sonner";
+
+// Dynamic import for ArticleActionButtons
+const ArticleActionButtons = dynamic(
+	() => import("@/components/ArticleActionButtons"),
+	{
+		loading: () => (
+			<div className="flex flex-col gap-2 py-16 items-end">
+				<div className="animate-pulse bg-gray-200 h-10 w-32 rounded"></div>
+			</div>
+		),
+		ssr: false,
+	},
+);
 
 interface Props {
 	article: ArticleWithCategory;
@@ -30,26 +41,54 @@ function ArticleContent({ article }: Props) {
 	const showCategoryName = transformCategoryName(article.Category?.name || "");
 	const userId = user?.id;
 
-	// Use TanStack Query to fetch user notices
-	const { data: noticesData } = useQuery({
+	// Optimized parallel data fetching with better error handling
+	const { data: noticesData, error: noticesError, isLoading: isLoadingNotices } = useQuery({
 		queryKey: ["userNotices", userId],
 		queryFn: async () => {
 			if (!userId) return null;
-			return (await getNotices(userId)) as UserNotices | null;
+			try {
+				return (await getNotices(userId)) as UserNotices | null;
+			} catch (error) {
+				console.error("Failed to fetch user notices:", error);
+				throw error;
+			}
 		},
 		enabled: isLoggedIn && !!userId,
 		staleTime: 5 * 60 * 1000, // 5 minutes
+		gcTime: 10 * 60 * 1000, // 10 minutes
+		retry: 2,
+		retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
 	});
 
-	const markNotice = noticesData?.markNotice || false;
-	const masterNotice = noticesData?.masterNotice || false;
-	const finishNotice = noticesData?.finishNotice || false;
-
-	const { data: stats, isLoading: isLoadingStats } = useQuery({
-		queryKey: ["articleStats", article.id],
-		queryFn: () => getUserArticleStats(article.id),
-		enabled: isLoggedIn,
+	const { data: stats, error: statsError, isLoading: isLoadingStats } = useQuery({
+		queryKey: ["articleStats", article.id, userId],
+		queryFn: async () => {
+			try {
+				return await getUserArticleStats(article.id);
+			} catch (error) {
+				console.error("Failed to fetch article stats:", error);
+				throw error;
+			}
+		},
+		enabled: isLoggedIn && !!userId,
+		staleTime: 2 * 60 * 1000, // 2 minutes (more frequent updates for stats)
+		gcTime: 5 * 60 * 1000, // 5 minutes
+		retry: 2,
+		retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
 	});
+
+	// Derived state with fallbacks
+	const markNotice = noticesData?.markNotice ?? false;
+	const masterNotice = noticesData?.masterNotice ?? false;
+	const finishNotice = noticesData?.finishNotice ?? false;
+
+	// Handle errors gracefully
+	if (noticesError) {
+		console.warn("User notices unavailable:", noticesError);
+	}
+	if (statsError) {
+		console.warn("Article stats unavailable:", statsError);
+	}
 
 	// Use optimized mutations with optimistic updates
 	const { toggleMark, toggleMaster, incrementRead, isAnyPending } =
@@ -57,17 +96,24 @@ function ArticleContent({ article }: Props) {
 			enableOptimistic: true,
 		});
 
+	// Optimized mutation handlers with better error handling
 	const handleToggleMark = async () => {
 		if (!isLoggedIn) {
 			toast.error("You must be logged in to mark articles");
 			return;
 		}
 
-		if (!markNotice && userId) {
-			await updateNotices(userId, "markNotice");
+		try {
+			// Update notice first if needed
+			if (!markNotice && userId) {
+				await updateNotices(userId, "markNotice");
+			}
+			// Execute mutation
+			toggleMark.mutate();
+		} catch (error) {
+			console.error("Failed to toggle mark:", error);
+			toast.error("Failed to update article. Please try again.");
 		}
-
-		toggleMark.mutate();
 	};
 
 	const handleToggleMaster = async () => {
@@ -76,11 +122,17 @@ function ArticleContent({ article }: Props) {
 			return;
 		}
 
-		if (!masterNotice && userId) {
-			await updateNotices(userId, "masterNotice");
+		try {
+			// Update notice first if needed
+			if (!masterNotice && userId) {
+				await updateNotices(userId, "masterNotice");
+			}
+			// Execute mutation
+			toggleMaster.mutate();
+		} catch (error) {
+			console.error("Failed to toggle master:", error);
+			toast.error("Failed to update article. Please try again.");
 		}
-
-		toggleMaster.mutate();
 	};
 
 	const handleIncreaseFinishTime = async () => {
@@ -89,16 +141,30 @@ function ArticleContent({ article }: Props) {
 			return;
 		}
 
-		if (!finishNotice && userId) {
-			await updateNotices(userId, "finishNotice");
+		try {
+			// Update notice first if needed
+			if (!finishNotice && userId) {
+				await updateNotices(userId, "finishNotice");
+			}
+			// Execute mutation
+			incrementRead.mutate();
+		} catch (error) {
+			console.error("Failed to increment read time:", error);
+			toast.error("Failed to update read count. Please try again.");
 		}
-		incrementRead.mutate();
 	};
 
-	const isMarked = stats?.marked || false;
-	const readTimes = stats?.readTimes || 0;
-	const isMastered = stats?.mastered || false;
-	const isLoading = isAnyPending;
+	// Derived state with better fallbacks and loading states
+	const isMarked = stats?.marked ?? false;
+	const readTimes = stats?.readTimes ?? 0;
+	const isMastered = stats?.mastered ?? false;
+	const isLoading = isAnyPending || isLoadingStats || isLoadingNotices;
+
+	// Show loading state for critical data
+	const isDataLoading = isLoggedIn && (isLoadingStats || isLoadingNotices);
+
+	// Determine if we should show action buttons
+	const shouldShowActions = isLoggedIn && !isDataLoading;
 
 	return (
 		<article className="py-8 px-4 md:px-8 lg:px-16 max-w-7xl mx-auto relative">
@@ -145,89 +211,43 @@ function ArticleContent({ article }: Props) {
 
 			<MarkdownRenderer content={article.content} />
 
-			<div className={"flex flex-col  gap-2 py-16 items-end"}>
-				<div className={"flex flex-row gap-2 items-center"}>
-					{!markNotice && userId ? (
-						<ArticleDialog triggerText={"mark"} onClick={handleToggleMark}>
-							<Button
-								variant="outline"
-								className="cursor-pointer flex items-center gap-2"
-								disabled={isLoading || isLoadingStats}
-							>
-								<Star
-									className={`w-4 h-4 ${isMarked ? "fill-yellow-400" : ""}`}
-								/>
-								{isMarked ? "Marked" : "Mark"}
-							</Button>
-						</ArticleDialog>
-					) : (
-						<Button
-							variant="outline"
-							className="cursor-pointer flex items-center gap-2"
-							onClick={handleToggleMark}
-							disabled={isLoading || isLoadingStats}
-						>
-							<Star
-								className={`w-4 h-4 ${isMarked ? "fill-yellow-400" : ""}`}
-							/>
-							{isMarked ? "Marked" : "Mark"}
-						</Button>
-					)}
-
-					{!finishNotice && userId ? (
-						<ArticleDialog
-							triggerText={"finish"}
-							onClick={handleIncreaseFinishTime}
-						>
-							<Button
-								variant="outline"
-								className="cursor-pointer flex items-center gap-2"
-								disabled={isLoading || isLoadingStats}
-							>
-								<SmilePlus className="w-4 h-4" />
-								Finished {readTimes} times
-							</Button>
-						</ArticleDialog>
-					) : (
-						<Button
-							variant="outline"
-							className="cursor-pointer flex items-center gap-2"
-							onClick={handleIncreaseFinishTime}
-							disabled={isLoading || isLoadingStats}
-						>
-							<SmilePlus className="w-4 h-4" />
-							Finished {readTimes} times
-						</Button>
-					)}
-				</div>
-
-				{!masterNotice && userId ? (
-					<ArticleDialog triggerText={"master"} onClick={handleToggleMaster}>
-						<Button
-							variant="outline"
-							className="cursor-pointer flex items-center gap-2"
-							disabled={isLoading || isLoadingStats}
-						>
-							<GraduationCap
-								className={`w-4 h-4 ${isMastered ? "fill-green-400" : ""}`}
-							/>
-							{isMastered ? "Mastered" : "Master"}
-						</Button>
-					</ArticleDialog>
-				) : (
-					<Button
-						variant="outline"
-						className="cursor-pointer flex items-center gap-2"
-						onClick={handleToggleMaster}
-						disabled={isLoading || isLoadingStats}
-					>
-						<GraduationCap
-							className={`w-4 h-4 ${isMastered ? "fill-green-400" : ""}`}
-						/>
-						{isMastered ? "Mastered" : "Master"}
-					</Button>
-				)}
-			</div>
+			{/* Conditionally render action buttons based on auth and loading state */}
+			{shouldShowActions ? (
+				<ArticleActionButtons
+					userId={userId}
+					isMarked={isMarked}
+					isMastered={isMastered}
+					readTimes={readTimes}
+					isLoading={isLoading}
+					isLoadingStats={isLoadingStats}
+					markNotice={markNotice}
+					masterNotice={masterNotice}
+					finishNotice={finishNotice}
+					handleToggleMark={handleToggleMark}
+					handleToggleMaster={handleToggleMaster}
+					handleIncreaseFinishTime={handleIncreaseFinishTime}
+				/>
+			) : isDataLoading ? (
+				<>
+					{/* Loading skeleton for action buttons */}
+					<div className="flex flex-col gap-2 py-16 items-end">
+						<div className="flex flex-row gap-2 items-center">
+							<div className="animate-pulse bg-gray-200 h-10 w-20 rounded"></div>
+							<div className="animate-pulse bg-gray-200 h-10 w-32 rounded"></div>
+						</div>
+						<div className="animate-pulse bg-gray-200 h-10 w-24 rounded"></div>
+					</div>
+				</>
+			) : !isLoggedIn ? (
+				<>
+					{/* Message for non-logged-in users */}
+					<div className="flex flex-col gap-2 py-16 items-end">
+						<p className="text-sm text-gray-500 italic">
+							Sign in to mark articles, track progress, and more.
+						</p>
+					</div>
+				</>
+			) : null}
 		</article>
 	);
 }
