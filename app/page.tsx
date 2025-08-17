@@ -1,24 +1,42 @@
 import Footer from "@/components/Footer";
-import LatestSection from "@/components/sections/LatestSection";
 import dynamic from "next/dynamic";
 import type React from "react";
 
 // Dynamic imports for better performance
-const FeaturedSection = dynamic(() => import("@/components/sections/FeaturedSection"), {
-	loading: () => <SectionSkeleton title="Featured Articles" />,
-});
+const FeaturedSection = dynamic(
+	() => import("@/components/sections/FeaturedSection"),
+	{
+		loading: () => <SectionSkeleton title="Featured Articles" />,
+	},
+);
 
-const HottestSection = dynamic(() => import("@/components/sections/HottestSection"), {
-	loading: () => <SectionSkeleton title="Hottest Articles" />,
-});
+const HottestSection = dynamic(
+	() => import("@/components/sections/HottestSection"),
+	{
+		loading: () => <SectionSkeleton title="Hottest Articles" />,
+	},
+);
 
-const CategoryShowcaseSection = dynamic(() => import("@/components/sections/CategoryShowcaseSection"), {
-	loading: () => <SectionSkeleton title="Explore by Category" />,
-});
+const CategoryShowcaseSection = dynamic(
+	() => import("@/components/sections/CategoryShowcaseSection"),
+	{
+		loading: () => <SectionSkeleton title="Explore by Category" />,
+	},
+);
 
-const RecentlyReadSection = dynamic(() => import("@/components/sections/RecentlyReadSection"), {
-	loading: () => <SectionSkeleton title="Recently Reading" />,
-});
+const RecentlyReadSection = dynamic(
+	() => import("@/components/sections/RecentlyReadSection"),
+	{
+		loading: () => <SectionSkeleton title="Recently Reading" />,
+	},
+);
+
+const LatestSection = dynamic(
+	() => import("@/components/sections/LatestSection"),
+	{
+		loading: () => <SectionSkeleton title="Recently Reading" />,
+	},
+);
 
 // Simple skeleton component for loading states
 function SectionSkeleton({ title }: { title: string }) {
@@ -36,7 +54,10 @@ function SectionSkeleton({ title }: { title: string }) {
 			</div>
 			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
 				{Array.from({ length: 12 }).map((_, index) => (
-					<div key={index} className="bg-gray-200 animate-pulse rounded-lg h-48 sm:h-56"></div>
+					<div
+						key={index}
+						className="bg-gray-200 animate-pulse rounded-lg h-48 sm:h-56"
+					></div>
 				))}
 			</div>
 		</div>
@@ -44,7 +65,6 @@ function SectionSkeleton({ title }: { title: string }) {
 }
 
 export default function Home() {
-
 	return (
 		<>
 			<main className="min-h-screen">
