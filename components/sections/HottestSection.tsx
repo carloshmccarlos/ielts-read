@@ -1,22 +1,11 @@
-"use client";
-
 import BigCard from "@/components/BigCard";
 import NoImageCard from "@/components/NoImageCard";
 import VerticalCard from "@/components/VerticalCard";
-import { useHottestArticles } from "@/hooks/use-article-queries";
-import HottestSectionSkeleton from "../skeletons/HottestSectionSkeleton";
-import { ArticleWithDetails } from "@/lib/types";
+import { getMoreHottestArticles } from "@/lib/actions/article";
 
-export default function HottestSection() {
-	const { data: articles, isLoading, isError } = useHottestArticles();
-
-	if (isLoading) {
-		return <HottestSectionSkeleton />;
-	}
-
-	if (isError || !articles || articles.length === 0) {
-		return null;
-	}
+export default async function HottestSection() {
+	const articles = await getMoreHottestArticles(30);
+	if (!articles || articles.length === 0) return null;
 
 	return (
 		<div className="max-w-[2000px] mx-auto px-2 sm:px-4 lg:px-8 xl:px-16 2xl:px-32 py-2 sm:py-2 lg:py-4">
@@ -27,7 +16,7 @@ export default function HottestSection() {
 			{/* Hero Section */}
 			<div className="grid grid-cols-1 lg:grid-cols-6 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-12 items-stretch">
 				<div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-rows-2 lg:grid-cols-1 xl:grid-cols-2 gap-4 order-2 lg:order-1">
-					{articles.slice(1, 5).map((article: ArticleWithDetails) => (
+					{articles.slice(1, 5).map((article) => (
 						<NoImageCard
 							key={`${article.title}${article.id}`}
 							article={article}
@@ -41,7 +30,7 @@ export default function HottestSection() {
 
 			{/* Additional Hottest Articles Grid */}
 			<div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 mb-12">
-				{articles.slice(5, 17).map((article: ArticleWithDetails) => (
+				{articles.slice(5, 17).map((article) => (
 					<VerticalCard
 						key={`hottest-${article.title}-${article.id}`}
 						article={article}

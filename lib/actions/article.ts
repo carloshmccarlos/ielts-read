@@ -1,8 +1,9 @@
 import { auth } from "@/lib/auth/auth";
+import { getUserSession } from "@/lib/auth/getUserSession";
 import { prisma } from "@/lib/prisma";
 import { deleteArticleImage } from "@/script/image-operation";
 import type { CategoryName } from "@prisma/client";
-import { ArticleWithDetails } from "../types";
+import { headers } from "next/headers";
 
 export async function getArticleById(id: number) {
 	return prisma.article.findUnique({
@@ -17,8 +18,11 @@ export async function getArticlesByCategory(
 	categoryName: string,
 	skip = 0,
 	take = 16,
-	userId?: string,
-): Promise<ArticleWithDetails[]> {
+) {
+	const session = await getUserSession(await headers());
+
+	const userId = session?.user?.id;
+
 	return prisma.article.findMany({
 		where: {
 			categoryName: categoryName as CategoryName,
@@ -34,16 +38,11 @@ export async function getArticlesByCategory(
 								},
 							},
 						},
-				  }
+					}
 				: {}),
 		},
 		include: {
 			Category: true,
-			_count: {
-				select: {
-					MarkedArticles: true,
-				},
-			},
 		},
 		orderBy: {
 			createdAt: "desc",
@@ -53,48 +52,43 @@ export async function getArticlesByCategory(
 	});
 }
 
-export async function getLatestArticles(userId?: string): Promise<ArticleWithDetails[]> {
-	console.log("[getLatestArticles] Fetching with userId:", userId);
-	try {
-		const articles = await prisma.article.findMany({
-			take: 18,
-			where: {
-				imageUrl: {
-					gt: "",
-				},
-				...(userId
-					? {
-							NOT: {
-								MasteredArticle: {
-									some: {
-										userId: userId,
-									},
+export async function getLatestArticles() {
+	const session = await getUserSession(await headers());
+
+	const userId = session?.user?.id;
+
+	return prisma.article.findMany({
+		take: 18,
+		where: {
+			imageUrl: {
+				gt: "",
+			},
+			...(userId
+				? {
+						NOT: {
+							MasteredArticle: {
+								some: {
+									userId: userId,
 								},
 							},
-					  }
-					: {}),
-			},
-			include: {
-				Category: true,
-				_count: {
-					select: {
-						MarkedArticles: true,
-					},
-				},
-			},
-			orderBy: {
-				createdAt: "desc",
-			},
-		});
-		console.log(`[getLatestArticles] Found ${articles.length} articles.`);
-		return articles;
-	} catch (error) {
-		console.error("[getLatestArticles] Error fetching articles:", error);
-		return []; // Return empty array on error
-	}
+						},
+					}
+				: {}),
+		},
+		include: {
+			Category: true,
+		},
+		orderBy: {
+			createdAt: "desc",
+		},
+	});
 }
 
-export async function getHottestArticles(userId?: string): Promise<ArticleWithDetails[]> {
+export async function getHottestArticles() {
+	const session = await getUserSession(await headers());
+
+	const userId = session?.user?.id;
+
 	return prisma.article.findMany({
 		take: 7,
 		where: {
@@ -110,16 +104,11 @@ export async function getHottestArticles(userId?: string): Promise<ArticleWithDe
 								},
 							},
 						},
-				  }
+					}
 				: {}),
 		},
 		include: {
 			Category: true,
-			_count: {
-				select: {
-					MarkedArticles: true,
-				},
-			},
 		},
 		orderBy: {
 			readTimes: "desc",
@@ -146,31 +135,15 @@ export async function countArticlesByCategory(categoryName: string) {
 	});
 }
 
-export async function getAllArticles(userId?: string): Promise<ArticleWithDetails[]> {
+export async function getAllArticles() {
 	return prisma.article.findMany({
 		where: {
 			imageUrl: {
 				gt: "",
 			},
-			...(userId
-				? {
-						NOT: {
-							MasteredArticle: {
-								some: {
-									userId: userId,
-								},
-							},
-						},
-				  }
-				: {}),
 		},
 		include: {
 			Category: true,
-			_count: {
-				select: {
-					MarkedArticles: true,
-				},
-			},
 		},
 		orderBy: {
 			createdAt: "desc",
@@ -179,7 +152,10 @@ export async function getAllArticles(userId?: string): Promise<ArticleWithDetail
 }
 
 // Get featured articles (most marked articles)
-export async function getFeaturedArticles(limit = 20, userId?: string): Promise<ArticleWithDetails[]> {
+export async function getFeaturedArticles(limit = 20) {
+	const session = await getUserSession(await headers());
+	const userId = session?.user?.id;
+
 	return prisma.article.findMany({
 		where: {
 			imageUrl: {
@@ -194,7 +170,7 @@ export async function getFeaturedArticles(limit = 20, userId?: string): Promise<
 								},
 							},
 						},
-				  }
+					}
 				: {}),
 		},
 		include: {
@@ -218,8 +194,10 @@ export async function getFeaturedArticles(limit = 20, userId?: string): Promise<
 export async function getArticlesByCategories(
 	categories: CategoryName[],
 	articlesPerCategory = 6,
-	userId?: string,
-): Promise<{ categoryName: CategoryName; articles: ArticleWithDetails[] }[]> {
+) {
+	const session = await getUserSession(await headers());
+	const userId = session?.user?.id;
+
 	const results = await Promise.all(
 		categories.map(async (categoryName) => {
 			const articles = await prisma.article.findMany({
@@ -237,16 +215,11 @@ export async function getArticlesByCategories(
 										},
 									},
 								},
-						  }
+							}
 						: {}),
 				},
 				include: {
 					Category: true,
-					_count: {
-						select: {
-							MarkedArticles: true,
-						},
-					},
 				},
 				orderBy: {
 					createdAt: "desc",
@@ -265,7 +238,10 @@ export async function getArticlesByCategories(
 }
 
 // Get latest articles from each category
-export async function getLatestArticlesFromEachCategory(userId?: string): Promise<(ArticleWithDetails | null)[]> {
+export async function getLatestArticlesFromEachCategory() {
+	const session = await getUserSession(await headers());
+	const userId = session?.user?.id;
+
 	// Get all categories
 	const categories = await prisma.category.findMany();
 
@@ -287,16 +263,11 @@ export async function getLatestArticlesFromEachCategory(userId?: string): Promis
 										},
 									},
 								},
-						  }
+							}
 						: {}),
 				},
 				include: {
 					Category: true,
-					_count: {
-						select: {
-							MarkedArticles: true,
-						},
-					},
 				},
 				orderBy: {
 					createdAt: "desc",
@@ -306,11 +277,14 @@ export async function getLatestArticlesFromEachCategory(userId?: string): Promis
 	);
 
 	// Filter out null results and return
-	return latestArticles;
+	return latestArticles.filter((article) => article !== null);
 }
 
 // Get more hottest articles
-export async function getMoreHottestArticles(limit = 30, userId?: string): Promise<ArticleWithDetails[]> {
+export async function getMoreHottestArticles(limit = 30) {
+	const session = await getUserSession(await headers());
+	const userId = session?.user?.id;
+
 	return prisma.article.findMany({
 		where: {
 			imageUrl: {
@@ -325,16 +299,11 @@ export async function getMoreHottestArticles(limit = 30, userId?: string): Promi
 								},
 							},
 						},
-				  }
+					}
 				: {}),
 		},
 		include: {
 			Category: true,
-			_count: {
-				select: {
-					MarkedArticles: true,
-				},
-			},
 		},
 		orderBy: {
 			readTimes: "desc",
@@ -376,11 +345,6 @@ export async function createArticle(articleData: {
 		},
 		include: {
 			Category: true,
-			_count: {
-				select: {
-					MarkedArticles: true,
-				},
-			},
 		},
 	});
 }
@@ -429,11 +393,6 @@ export async function updateArticle(
 		},
 		include: {
 			Category: true,
-			_count: {
-				select: {
-					MarkedArticles: true,
-				},
-			},
 		},
 	});
 }
