@@ -1,13 +1,25 @@
 import { prisma } from "@/lib/prisma";
 import type { Category, CategoryName } from "@prisma/client";
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 
-export async function getAllCategories() {
-	return prisma.category.findMany({
-		orderBy: {
-			name: "asc",
+// Cached version for better performance
+export const getAllCategories = cache(async () => {
+	return unstable_cache(
+		async () => {
+			return prisma.category.findMany({
+				orderBy: {
+					name: "asc",
+				},
+			});
 		},
-	});
-}
+		["categories"],
+		{
+			tags: ["categories"],
+			revalidate: 3600, // Cache for 1 hour
+		}
+	)();
+});
 export async function getCategoryByName(
 	name: CategoryName,
 ): Promise<Category | null> {
