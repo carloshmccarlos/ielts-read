@@ -10,6 +10,15 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth/auth-client";
@@ -45,6 +54,8 @@ export default function ProfileContent({ profileData }: ProfileContentProps) {
 		profileData.user.name || "",
 	);
 	const [isProcessing, setIsProcessing] = useState(false);
+	const [deleteConfirmation, setDeleteConfirmation] = useState("");
+	const [isDeleting, setIsDeleting] = useState(false);
 
 	const { user, totalReadTimes } = profileData;
 
@@ -105,6 +116,28 @@ export default function ProfileContent({ profileData }: ProfileContentProps) {
 		}
 	}
 
+	const handleDeleteAccount = async () => {
+		try {
+			setIsDeleting(true);
+			const result = await fetch("/api/user/delete", {
+				method: "DELETE",
+			});
+
+			if (result.ok) {
+				toast.success("Account deleted successfully");
+				await authClient.signOut();
+				router.push("/");
+			} else {
+				const errorData = await result.json();
+				throw new Error(errorData.error || "Failed to delete account");
+			}
+		} catch (error) {
+			console.error("Failed to delete account:", error);
+			setIsDeleting(false);
+			setDeleteConfirmation("");
+		}
+	};
+
 	return (
 		<div className="container mx-auto py-10 px-4 md:px-8">
 			<h1 className="text-3xl font-bold mb-8">My Profile</h1>
@@ -147,22 +180,54 @@ export default function ProfileContent({ profileData }: ProfileContentProps) {
 						</div>
 					</CardContent>
 					<CardFooter>
-						<Button
-							onClick={() =>
-								authClient.signOut({
-									fetchOptions: {
-										onSuccess: () => {
-											router.push("/");
-										},
-									},
-								})
-							}
-							variant="outline"
-							className="w-full cursor-pointer"
-							type="submit"
-						>
-							Sign Out
-						</Button>
+						<Dialog>
+							<DialogTrigger asChild>
+								<Button
+									variant="destructive"
+									className="w-full cursor-pointer"
+									type="button"
+								>
+									Delete Account
+								</Button>
+							</DialogTrigger>
+							<DialogContent>
+								<DialogHeader>
+									<DialogTitle>Delete Your Account?</DialogTitle>
+									<DialogDescription className="text-destructive">
+										This action is permanent and cannot be undone. All your data
+										will be permanently deleted.
+									</DialogDescription>
+								</DialogHeader>
+
+								<div className="space-y-4 py-4">
+									<p className="text-sm text-muted-foreground">
+										To confirm, type{" "}
+										<span className="font-mono font-bold">Delete</span> below:
+									</p>
+									<Input
+										placeholder="Type 'Delete' to confirm"
+										onChange={(e) => setDeleteConfirmation(e.target.value)}
+										value={deleteConfirmation}
+									/>
+								</div>
+
+								<DialogFooter>
+									<Button
+										variant="outline"
+										onClick={() => setDeleteConfirmation("")}
+									>
+										Cancel
+									</Button>
+									<Button
+										variant="destructive"
+										disabled={deleteConfirmation !== "Delete" || isDeleting}
+										onClick={handleDeleteAccount}
+									>
+										{isDeleting ? "Deleting..." : "Delete Account"}
+									</Button>
+								</DialogFooter>
+							</DialogContent>
+						</Dialog>
 					</CardFooter>
 				</Card>
 

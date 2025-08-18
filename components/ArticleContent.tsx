@@ -7,6 +7,7 @@ import { useArticleMutations } from "@/hooks/useArticleMutations";
 import { useCurrentUser } from "@/hooks/useSession";
 import { getUserArticleStats } from "@/lib/actions/article-stats";
 import { getNotices, updateNotices } from "@/lib/actions/articles-with-user";
+import { authClient } from "@/lib/auth/auth-client";
 import { transformCategoryName } from "@/lib/utils";
 import type { ArticleWithCategory } from "@/types/interface";
 import { useQuery } from "@tanstack/react-query";
@@ -27,6 +28,7 @@ interface UserNotices {
 
 function ArticleContent({ article }: Props) {
 	const { user, isLoggedIn } = useCurrentUser();
+
 	const showCategoryName = transformCategoryName(article.Category?.name || "");
 	const userId = user?.id;
 

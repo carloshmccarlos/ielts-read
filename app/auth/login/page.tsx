@@ -12,9 +12,10 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCurrentUser } from "@/hooks/useSession";
 import { signIn } from "@/lib/auth/sign-in";
-import { useMutation } from "@tanstack/react-query";
+
 import Link from "next/link";
-import { redirect, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 
 export default function LoginPage() {
 	const router = useRouter();
@@ -23,30 +24,33 @@ export default function LoginPage() {
 
 	const { isLoggedIn } = useCurrentUser();
 
-	if (isLoggedIn) {
-		redirect("/");
-	}
+	const [isPending, setIsPending] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
-	const { mutate, isPending, error } = useMutation({
-		mutationFn: signIn,
-		onSuccess: (result) => {
-			if (result.data) {
-				router.push(callbackUrl);
-			}
-		},
-	});
+	const errorMessage = error || undefined;
+
+	/*
+	useEffect(() => {
+		if (isLoggedIn) {
+			router.replace(callbackUrl);
+		}
+	}, [isLoggedIn, callbackUrl, router]);
+*/
 
 	const handleSubmit = async (values: AuthFormSchema) => {
-		mutate({
-			email: values.email,
-			password: values.password,
-		});
+		setIsPending(true);
+		setError(null);
+		try {
+			await signIn({ email: values.email, password: values.password });
+			// Success will be handled by the useEffect that watches isLoggedIn
+		} catch (err) {
+			const errorMessage =
+				err instanceof Error ? err.message : "Failed to sign in";
+			setError(errorMessage);
+		} finally {
+			setIsPending(false);
+		}
 	};
-
-	const errorMessage = error
-		? (error as any).message ||
-		  "Login failed. Please check your email and password."
-		: "";
 
 	return (
 		<div className="flex flex-col items-center py-24 px-4 sm:px-6 lg:px-8">

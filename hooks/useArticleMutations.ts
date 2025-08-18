@@ -4,7 +4,8 @@ import {
 	toggleMarkArticle,
 	toggleMasterArticle,
 } from "@/lib/actions/article-stats";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCurrentUser } from "@/hooks/useSession";
+import { useState } from "react";
 import { toast } from "sonner";
 
 interface ArticleStats {
@@ -23,137 +24,83 @@ export function useArticleMutations(
 	articleId: number,
 	config: MutationConfig = {},
 ) {
-	const queryClient = useQueryClient();
-	const queryKey = ["articleStats", articleId];
+	const { isLoggedIn } = useCurrentUser();
+	const [isToggleMarkPending, setIsToggleMarkPending] = useState(false);
+	const [isToggleMasterPending, setIsToggleMasterPending] = useState(false);
+	const [isIncrementReadPending, setIsIncrementReadPending] = useState(false);
 
-	// Optimistic update helper
-	const updateOptimistically = (
-		updater: (old: ArticleStats | undefined) => ArticleStats | undefined,
-	) => {
-		if (config.enableOptimistic !== false) {
-			queryClient.setQueryData(queryKey, updater);
-		}
+	const toggleMark = {
+		mutate: async () => {
+			if (!isLoggedIn) {
+				toast.error("You must be logged in to mark articles");
+				return;
+			}
+
+			setIsToggleMarkPending(true);
+			try {
+				const result = await toggleMarkArticle(articleId);
+				toast.success(result.marked ? "Article marked!" : "Article unmarked!");
+				config.onSuccess?.(result);
+			} catch (error) {
+				const err = error instanceof Error ? error : new Error("Failed to update article status");
+				toast.error(err.message);
+				config.onError?.(err);
+			} finally {
+				setIsToggleMarkPending(false);
+			}
+		},
+		isPending: isToggleMarkPending,
 	};
 
-	// Revert optimistic update on error
-	const revertOptimistic = (previousData: ArticleStats | undefined) => {
-		if (config.enableOptimistic !== false && previousData) {
-			queryClient.setQueryData(queryKey, previousData);
-		}
+	const toggleMaster = {
+		mutate: async () => {
+			if (!isLoggedIn) {
+				toast.error("You must be logged in to master articles");
+				return;
+			}
+
+			setIsToggleMasterPending(true);
+			try {
+				const result = await toggleMasterArticle(articleId);
+				toast.success(result.mastered ? "Article mastered!" : "Article unmastered!");
+				config.onSuccess?.(result);
+			} catch (error) {
+				const err = error instanceof Error ? error : new Error("Failed to update article status");
+				toast.error(err.message);
+				config.onError?.(err);
+			} finally {
+				setIsToggleMasterPending(false);
+			}
+		},
+		isPending: isToggleMasterPending,
 	};
 
-	const toggleMarkMutation = useMutation({
-		mutationFn: () => toggleMarkArticle(articleId),
-		onMutate: async () => {
-			// Cancel outgoing refetches
-			await queryClient.cancelQueries({ queryKey });
+	const incrementRead = {
+		mutate: async () => {
+			if (!isLoggedIn) {
+				return; // Silently fail for read count if not logged in
+			}
 
-			// Snapshot previous value
-			const previousData = queryClient.getQueryData<ArticleStats>(queryKey);
-
-			// Optimistically update
-			updateOptimistically((old) =>
-				old ? { ...old, marked: !old.marked } : undefined,
-			);
-
-			return { previousData };
+			setIsIncrementReadPending(true);
+			try {
+				const result = await increaseFinishTime(articleId);
+				config.onSuccess?.(result);
+			} catch (error) {
+				const err = error instanceof Error ? error : new Error("Failed to update read count");
+				// Don't show toast for read count errors to avoid annoying users
+				console.error("Failed to update read count:", err);
+				config.onError?.(err);
+			} finally {
+				setIsIncrementReadPending(false);
+			}
 		},
-		onSuccess: (data) => {
-			// Update with server response
-			queryClient.setQueryData(queryKey, (old: ArticleStats | undefined) =>
-				old ? { ...old, marked: data.marked } : undefined,
-			);
-			toast.success(data.marked ? "Article marked" : "Article unmarked");
-			config.onSuccess?.(data);
-		},
-		onError: (error, _, context) => {
-			// Revert optimistic update
-			revertOptimistic(context?.previousData);
-			toast.error("Failed to update mark status");
-			config.onError?.(error as Error);
-		},
-		retry: 2,
-		retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-	});
-
-	const toggleMasterMutation = useMutation({
-		mutationFn: () => toggleMasterArticle(articleId),
-		onMutate: async () => {
-			await queryClient.cancelQueries({ queryKey });
-			const previousData = queryClient.getQueryData<ArticleStats>(queryKey);
-
-			updateOptimistically((old) =>
-				old ? { ...old, mastered: !old.mastered } : undefined,
-			);
-
-			return { previousData };
-		},
-		onSuccess: (data) => {
-			queryClient.setQueryData(queryKey, (old: ArticleStats | undefined) =>
-				old ? { ...old, mastered: data.mastered } : undefined,
-			);
-			toast.success(data.mastered ? "Article mastered" : "Article unmastered");
-			config.onSuccess?.(data);
-		},
-		onError: (error, _, context) => {
-			revertOptimistic(context?.previousData);
-			toast.error("Failed to update mastered status");
-			config.onError?.(error as Error);
-		},
-		retry: 2,
-		retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-	});
-
-	const incrementReadMutation = useMutation({
-		mutationFn: () => increaseFinishTime(articleId),
-		onMutate: async () => {
-			await queryClient.cancelQueries({ queryKey });
-			const previousData = queryClient.getQueryData<ArticleStats>(queryKey);
-
-			updateOptimistically((old) =>
-				old ? { ...old, readTimes: old.readTimes + 1 } : undefined,
-			);
-
-			return { previousData };
-		},
-		onSuccess: (data) => {
-			queryClient.setQueryData(queryKey, (old: ArticleStats | undefined) =>
-				old ? { ...old, readTimes: data.times } : undefined,
-			);
-			toast.success(`You've read this article ${data.times} times`);
-			config.onSuccess?.(data);
-		},
-		onError: (error, _, context) => {
-			revertOptimistic(context?.previousData);
-			toast.error("Failed to update read count");
-			config.onError?.(error as Error);
-		},
-		retry: 2,
-		retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-	});
+		isPending: isIncrementReadPending,
+	};
 
 	return {
-		toggleMark: {
-			mutate: toggleMarkMutation.mutate,
-			isPending: toggleMarkMutation.isPending,
-			isError: toggleMarkMutation.isError,
-			error: toggleMarkMutation.error,
-		},
-		toggleMaster: {
-			mutate: toggleMasterMutation.mutate,
-			isPending: toggleMasterMutation.isPending,
-			isError: toggleMasterMutation.isError,
-			error: toggleMasterMutation.error,
-		},
-		incrementRead: {
-			mutate: incrementReadMutation.mutate,
-			isPending: incrementReadMutation.isPending,
-			isError: incrementReadMutation.isError,
-			error: incrementReadMutation.error,
-		},
-		isAnyPending:
-			toggleMarkMutation.isPending ||
-			toggleMasterMutation.isPending ||
-			incrementReadMutation.isPending,
+		toggleMark,
+		toggleMaster,
+		incrementRead,
+		isAnyPending: isToggleMarkPending || isToggleMasterPending || isIncrementReadPending,
 	};
 }

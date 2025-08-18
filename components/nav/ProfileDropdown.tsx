@@ -7,13 +7,15 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useCurrentUser, useSignOut } from "@/hooks/useSession";
-import { BookMarked, Power, User } from "lucide-react";
+import { useCurrentUser } from "@/hooks/useSession";
+import { authClient } from "@/lib/auth/auth-client";
+import { BookMarked, LogOut, User } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function ProfileDropdown() {
 	const { user, isLoading } = useCurrentUser();
-	const { mutate: signOut } = useSignOut();
+	const [isSigningOut, setIsSigningOut] = useState(false);
 
 	return (
 		<DropdownMenu>
@@ -42,7 +44,8 @@ export default function ProfileDropdown() {
 				</DropdownMenuItem>
 				<DropdownMenuSeparator />
 
-				{user?.role === "ADMIN" && (
+				{/* biome-ignore lint/suspicious/noExplicitAny: <explanation> */}
+				{(user as any)?.role === "ADMIN" && (
 					<DropdownMenuItem asChild className={"cursor-pointer text-[16px]"}>
 						<Link href="/admin">
 							<User className="h-4 w-4 inline" />
@@ -50,12 +53,24 @@ export default function ProfileDropdown() {
 						</Link>
 					</DropdownMenuItem>
 				)}
+
 				<DropdownMenuItem
-					onClick={() => signOut()}
-					className="text-destructive focus:text-destructive cursor-pointer text-[16px]"
+					className={"cursor-pointer text-[16px]"}
+					onClick={async () => {
+						if (!isSigningOut) {
+							setIsSigningOut(true);
+							try {
+								await authClient.signOut();
+							} catch (error) {
+								console.error("Sign out failed:", error);
+							} finally {
+								setIsSigningOut(false);
+							}
+						}
+					}}
 				>
-					<Power className={"h-4 w-4 inline"} />
-					Sign out
+					<LogOut className="h-4 w-4 inline" />
+					{isSigningOut ? "Signing out..." : "Sign out"}
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

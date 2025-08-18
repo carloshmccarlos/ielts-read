@@ -34,7 +34,7 @@ export async function signIn({
 					);
 				}
 
-				//you can also show the original error message
+				toast.error(ctx.error.message);
 			},
 		},
 	);

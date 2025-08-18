@@ -62,7 +62,7 @@ export default async function RootLayout({
 					<Toaster position="top-center" />
 				</QueryProvider>
 				<SpeedInsights />
-				<Analytics />
+				{/*<Analytics />*/}
 			</body>
 		</html>
 	);

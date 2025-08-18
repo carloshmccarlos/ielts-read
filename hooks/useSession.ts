@@ -1,6 +1,8 @@
 import { authClient } from "@/lib/auth/auth-client";
-import type { Session as PrismaSession, User as PrismaUser } from "@prisma/client";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type {
+	Session as PrismaSession,
+	User as PrismaUser,
+} from "@prisma/client";
 import { useRouter } from "next/navigation";
 
 // Define the shape of the user and session objects with the added 'role' property
@@ -16,29 +18,18 @@ type SessionPayload = {
 // Define the wrapper object that getSession returns
 type SessionResult = { data: SessionPayload };
 
-const getSession = async (): Promise<SessionResult> => {
-	const session = await authClient.getSession();
-	return session as SessionResult;
-};
-
 /**
- * Enhanced session hook that uses TanStack Query to fetch and cache session data.
+ * Enhanced session hook that uses Better Auth's native useSession hook.
  */
 export function useSession() {
-	return useQuery<SessionResult, Error>({
-		queryKey: ["session"],
-		queryFn: getSession,
-		staleTime: 5 * 60 * 1000, // 5 minutes
-		refetchOnWindowFocus: true,
-	});
+	return authClient.useSession();
 }
 
 /**
  * Hook to get current user data with enhanced utilities.
  */
 export function useCurrentUser() {
-	const { data: sessionResult, isPending, error } = useSession();
-	const session = sessionResult?.data;
+	const { data: session, isPending, error } = useSession();
 
 	return {
 		user: session?.user || null,
@@ -60,15 +51,3 @@ export function useUserId() {
 /**
  * Hook for signing out the user.
  */
-export function useSignOut() {
-	const queryClient = useQueryClient();
-	const router = useRouter();
-
-	return useMutation({
-		mutationFn: () => authClient.signOut(),
-		onSuccess: () => {
-			queryClient.removeQueries({ queryKey: ["session"] });
-			router.push("/");
-		},
-	});
-}
