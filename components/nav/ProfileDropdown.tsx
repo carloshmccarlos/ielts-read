@@ -25,9 +25,7 @@ export default function ProfileDropdown() {
 				) : (
 					<User className="h-8 w-8 font-bold" />
 				)}
-				<span className={"font-bold text-xl hidden lg:block"}>
-					{user?.name || "Profile"}
-				</span>
+
 			</DropdownMenuTrigger>
 			<DropdownMenuContent align="end">
 				<DropdownMenuItem asChild className={"cursor-pointer text-[16px]"}>

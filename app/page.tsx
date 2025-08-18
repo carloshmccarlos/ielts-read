@@ -2,6 +2,12 @@ import Footer from "@/components/Footer";
 import dynamic from "next/dynamic";
 import type React from "react";
 
+const LatestSection = dynamic(
+	() => import("@/components/sections/LatestSection"),
+	{
+		loading: () => <SectionSkeleton title="Latest Articles" />,
+	},
+);
 // Dynamic imports for better performance
 const FeaturedSection = dynamic(
 	() => import("@/components/sections/FeaturedSection"),
@@ -31,12 +37,7 @@ const RecentlyReadSection = dynamic(
 	},
 );
 
-const LatestSection = dynamic(
-	() => import("@/components/sections/LatestSection"),
-	{
-		loading: () => <SectionSkeleton title="Recently Reading" />,
-	},
-);
+
 
 // Simple skeleton component for loading states
 function SectionSkeleton({ title }: { title: string }) {
