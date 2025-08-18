@@ -69,7 +69,7 @@ function ArticleContent({ article }: Props) {
 			await updateNotices(userId, "markNotice");
 		}
 
-		toggleMark.mutate();
+		await toggleMark.mutate();
 	};
 
 	const handleToggleMaster = async () => {
@@ -82,7 +82,7 @@ function ArticleContent({ article }: Props) {
 			await updateNotices(userId, "masterNotice");
 		}
 
-		toggleMaster.mutate();
+		await toggleMaster.mutate();
 	};
 
 	const handleIncreaseFinishTime = async () => {
@@ -94,7 +94,7 @@ function ArticleContent({ article }: Props) {
 		if (!finishNotice && userId) {
 			await updateNotices(userId, "finishNotice");
 		}
-		incrementRead.mutate();
+		await incrementRead.mutate();
 	};
 
 	const isMarked = stats?.marked || false;

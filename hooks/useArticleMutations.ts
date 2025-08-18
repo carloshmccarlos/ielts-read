@@ -1,10 +1,11 @@
+import { useCurrentUser } from "@/hooks/useSession";
 import {
 	getUserArticleStats,
 	increaseFinishTime,
 	toggleMarkArticle,
 	toggleMasterArticle,
 } from "@/lib/actions/article-stats";
-import { useCurrentUser } from "@/hooks/useSession";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -24,7 +25,11 @@ export function useArticleMutations(
 	articleId: number,
 	config: MutationConfig = {},
 ) {
-	const { isLoggedIn } = useCurrentUser();
+	const { isLoggedIn, user } = useCurrentUser();
+
+	const userId = user?.id || "";
+
+	const queryClient = useQueryClient();
 	const [isToggleMarkPending, setIsToggleMarkPending] = useState(false);
 	const [isToggleMasterPending, setIsToggleMasterPending] = useState(false);
 	const [isIncrementReadPending, setIsIncrementReadPending] = useState(false);
@@ -38,11 +43,18 @@ export function useArticleMutations(
 
 			setIsToggleMarkPending(true);
 			try {
-				const result = await toggleMarkArticle(articleId);
+				const result = await toggleMarkArticle({ articleId, userId });
+				// Invalidate and refetch article stats
+				await queryClient.invalidateQueries({
+					queryKey: ["articleStats", articleId],
+				});
 				toast.success(result.marked ? "Article marked!" : "Article unmarked!");
 				config.onSuccess?.(result);
 			} catch (error) {
-				const err = error instanceof Error ? error : new Error("Failed to update article status");
+				const err =
+					error instanceof Error
+						? error
+						: new Error("Failed to update article status");
 				toast.error(err.message);
 				config.onError?.(err);
 			} finally {
@@ -62,10 +74,19 @@ export function useArticleMutations(
 			setIsToggleMasterPending(true);
 			try {
 				const result = await toggleMasterArticle(articleId);
-				toast.success(result.mastered ? "Article mastered!" : "Article unmastered!");
+				// Invalidate and refetch article stats
+				await queryClient.invalidateQueries({
+					queryKey: ["articleStats", articleId],
+				});
+				toast.success(
+					result.mastered ? "Article mastered!" : "Article unmastered!",
+				);
 				config.onSuccess?.(result);
 			} catch (error) {
-				const err = error instanceof Error ? error : new Error("Failed to update article status");
+				const err =
+					error instanceof Error
+						? error
+						: new Error("Failed to update article status");
 				toast.error(err.message);
 				config.onError?.(err);
 			} finally {
@@ -84,9 +105,16 @@ export function useArticleMutations(
 			setIsIncrementReadPending(true);
 			try {
 				const result = await increaseFinishTime(articleId);
+				// Invalidate and refetch article stats
+				await queryClient.invalidateQueries({
+					queryKey: ["articleStats", articleId],
+				});
 				config.onSuccess?.(result);
 			} catch (error) {
-				const err = error instanceof Error ? error : new Error("Failed to update read count");
+				const err =
+					error instanceof Error
+						? error
+						: new Error("Failed to update read count");
 				// Don't show toast for read count errors to avoid annoying users
 				console.error("Failed to update read count:", err);
 				config.onError?.(err);
@@ -101,6 +129,7 @@ export function useArticleMutations(
 		toggleMark,
 		toggleMaster,
 		incrementRead,
-		isAnyPending: isToggleMarkPending || isToggleMasterPending || isIncrementReadPending,
+		isAnyPending:
+			isToggleMarkPending || isToggleMasterPending || isIncrementReadPending,
 	};
 }

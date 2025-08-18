@@ -9,14 +9,13 @@ import { headers } from "next/headers";
 /**
  * Mark or unmark an article for the current user
  */
-export async function toggleMarkArticle(articleId: number) {
-	const session = await getUserSession(await headers());
-
-	if (!session?.user?.id) {
+export async function toggleMarkArticle({
+	articleId,
+	userId,
+}: { articleId: number; userId: string }) {
+	if (!userId) {
 		throw new Error("You must be logged in to mark articles");
 	}
-
-	const userId = session.user.id;
 
 	// Check if the article is already marked by this user
 	const existingMark = await prisma.markedArticles.findUnique({
