@@ -3,6 +3,8 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, RefreshCw } from "lucide-react";
+import type React from "react";
+import { ClientErrorDetails } from "./ClientErrorDetails";
 
 interface Props {
 	children: ReactNode;
@@ -47,14 +49,7 @@ export class ErrorBoundary extends Component<Props, State> {
 					<p className="text-gray-600 mb-6 max-w-md">
 						We encountered an unexpected error. Please try refreshing the page or contact support if the problem persists.
 					</p>
-					{process.env.NODE_ENV === "development" && this.state.error && (
-						<details className="mb-4 p-4 bg-gray-100 rounded-lg text-left max-w-2xl">
-							<summary className="cursor-pointer font-semibold">Error Details</summary>
-							<pre className="mt-2 text-sm overflow-auto">
-								{this.state.error.stack}
-							</pre>
-						</details>
-					)}
+					{this.state.error && <ClientErrorDetails error={this.state.error} />}
 					<div className="flex gap-4">
 						<Button onClick={this.handleReset} variant="outline">
 							<RefreshCw className="w-4 h-4 mr-2" />

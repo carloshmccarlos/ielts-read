@@ -3,6 +3,7 @@ import StructuredData from "@/components/seo/StructuredData";
 import { generateMetadata as generateSEOMetadata } from "@/lib/seo/metadata";
 import { generateWebsiteStructuredData as generateWebsiteSchema } from "@/lib/seo/structured-data";
 import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import type React from "react";
 import { Toaster } from "sonner";
 import Navbar from "../components/nav/Navbar";
@@ -10,6 +11,13 @@ import "./globals.css";
 import { getAllCategories } from "@/lib/actions/category";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+
+// Configure Inter font with Next.js font optimization
+const inter = Inter({
+	subsets: ["latin"],
+	display: "swap",
+	variable: "--font-inter",
+});
 
 export const metadata: Metadata = generateSEOMetadata({
 	title:
@@ -55,7 +63,7 @@ export default async function RootLayout({
 			<head>
 				<StructuredData data={generateWebsiteSchema()} />
 			</head>
-			<body className="relative overflow-y-scroll  flex flex-col font-serif justify-center items-stretch antialiased">
+			<body className={`${inter.variable} relative overflow-y-scroll flex flex-col font-sans justify-center items-stretch antialiased`}>
 				<QueryProvider>
 					<Navbar categories={categories} />
 					{children}

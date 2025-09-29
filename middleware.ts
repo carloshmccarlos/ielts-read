@@ -18,11 +18,8 @@ export function middleware(request: NextRequest) {
 	
 	if (url === "/" || url.startsWith("/article/") || url.startsWith("/category/")) {
 		// Preload critical fonts and styles
-		response.headers.set(
-			"Link",
-			'</fonts/inter.woff2>; rel=preload; as=font; type="font/woff2"; crossorigin, ' +
-			'</_next/static/css/app.css>; rel=preload; as=style'
-		);
+		// Note: Font preloading is handled by Next.js font optimization
+		// CSS preloading is handled by Next.js automatically
 	}
 
 	// Add early hints for article pages
