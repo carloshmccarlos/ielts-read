@@ -63,14 +63,16 @@ export default async function RootLayout({
 			<head>
 				<StructuredData data={generateWebsiteSchema()} />
 			</head>
-			<body className={`${inter.variable} relative overflow-y-scroll flex flex-col font-sans justify-center items-stretch antialiased`}>
+			<body
+				className={`${inter.variable} relative overflow-y-scroll flex flex-col font-sans justify-center items-stretch antialiased`}
+			>
 				<QueryProvider>
 					<Navbar categories={categories} />
 					{children}
 					<Toaster position="top-center" />
 				</QueryProvider>
 				<SpeedInsights />
-				{/*<Analytics />*/}
+				<Analytics />
 			</body>
 		</html>
 	);
