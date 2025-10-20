@@ -46,7 +46,7 @@ export default async function RecentlyReadSection() {
 
 						{/* View More Button */}
 						<div className="flex justify-center mt-8">
-							<Link href="/user/profile">
+							<Link href="/user/collection">
 								<Button variant="outline" size="lg">
 									View All Reading History
 								</Button>
