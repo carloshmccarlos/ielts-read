@@ -1,3 +1,4 @@
 {
-    "switch2webstorm.webstormPath": "D:\\WebStorm 2024.2.4\\bin\\webstorm64.exe"
+    "switch2webstorm.webstormPath": "D:\\WebStorm 2024.2.4\\bin\\webstorm64.exe",
+    "kiroAgent.configureMCP": "Disabled"
 }
