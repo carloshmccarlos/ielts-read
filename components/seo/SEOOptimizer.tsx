@@ -112,6 +112,13 @@ export function generateOptimizedMetadata({
   return metadata;
 }
 
+// Extend Window interface for gtag
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+  }
+}
+
 // Hook for dynamic SEO optimization
 export function useSEOOptimization() {
   return {

@@ -17,7 +17,7 @@ import {
 	updateSendEmailTime,
 } from "@/lib/actions/email-check";
 import { authClient } from "@/lib/auth/auth-client";
-import { EmailOTPResponse, sendEmailOTP } from "@/lib/auth/sign-in";
+import { EmailOTPResponse, sendEmailOTP, signInWithEmailOTP } from "@/lib/auth/sign-in";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -167,7 +167,7 @@ export function EmailOTPForm({ callbackUrl = "/" }: EmailOTPFormProps) {
 		setError("");
 
 		try {
-			const { data, error: verifyError } = await authClient.signIn.emailOtp({
+			const { data, error: verifyError } = await signInWithEmailOTP({
 				email: userEmail,
 				otp: values.otp,
 			});

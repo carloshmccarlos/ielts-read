@@ -9,6 +9,7 @@ export const authClient = createAuthClient({
 	fetchOptions: {
 		timeout: 30000, // 30 seconds timeout
 		retry: {
+			type: "linear",
 			attempts: 3,
 			delay: 1000,
 		},

@@ -49,14 +49,18 @@ export async function signInWithEmailOTP({
 	email: string;
 	otp: string;
 }) {
-	const { data, error } = await authClient.signIn.emailOtp({
-		email,
-		otp,
-	});
-
-	console.log(1);
-
-	return { data, error };
+	try {
+		// Cast authClient to access emailOtp methods
+		const client = authClient as any;
+		const result = await client.emailOtp.verifyOtp({
+			email,
+			otp,
+		});
+		
+		return { data: result.data, error: result.error };
+	} catch (error) {
+		return { data: null, error: error as any };
+	}
 }
 
 // Custom response for email OTP sending
@@ -73,7 +77,9 @@ export async function sendEmailOTP({
 	email: string;
 }): Promise<EmailOTPResponse> {
 	try {
-		const response = await authClient.emailOtp.sendVerificationOtp({
+		// Cast authClient to access emailOtp methods
+		const client = authClient as any;
+		const response = await client.emailOtp.sendVerificationOtp({
 			email,
 			type: "sign-in",
 		});

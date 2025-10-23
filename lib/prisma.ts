@@ -5,17 +5,8 @@ const connectionString = `${process.env.DATABASE_URL}`;
 
 const adapter = new PrismaNeon({ 
 	connectionString,
-	// Optimize connection pooling
-	pool: {
-		max: 10,
-		min: 2,
-		acquireTimeoutMillis: 30000,
-		createTimeoutMillis: 30000,
-		destroyTimeoutMillis: 5000,
-		idleTimeoutMillis: 30000,
-		reapIntervalMillis: 1000,
-		createRetryIntervalMillis: 200,
-	}
+	// Note: Connection pooling is handled by Neon automatically
+	// Custom pool configuration is not supported with PrismaNeon adapter
 });
 
 // Optimize Prisma client configuration

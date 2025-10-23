@@ -1,10 +1,20 @@
+// Optional script for Cloudflare R2 image operations
+// Install @aws-sdk/client-s3 if you need this functionality: npm install @aws-sdk/client-s3
+
 import fs from "node:fs";
 import path from "node:path";
-import {
-	DeleteObjectCommand,
-	PutObjectCommand,
-	S3Client,
-} from "@aws-sdk/client-s3";
+
+// Conditional import to avoid build errors if AWS SDK is not installed
+let S3Client: any, PutObjectCommand: any, DeleteObjectCommand: any;
+
+try {
+	const awsSDK = require("@aws-sdk/client-s3");
+	S3Client = awsSDK.S3Client;
+	PutObjectCommand = awsSDK.PutObjectCommand;
+	DeleteObjectCommand = awsSDK.DeleteObjectCommand;
+} catch (error) {
+	console.warn("AWS SDK not installed. Image operations will be disabled.");
+}
 
 const R2_ACCESS_KEY_ID = process.env.CLOUDFLARE_R2_ACCESS_KEY_ID || "";
 const R2_SECRET_ACCESS_KEY = process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY || "";
