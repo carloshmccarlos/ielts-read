@@ -14,6 +14,7 @@ const globalForPrisma = globalThis as unknown as {
 	prisma: PrismaClient | undefined;
 };
 
+// @ts-ignore - PrismaNeon adapter requires driverAdapters preview feature
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({ 
 	adapter,
 	log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
