@@ -62,6 +62,41 @@ export default async function RootLayout({
 		<html lang="en">
 			<head>
 				<StructuredData data={generateWebsiteSchema()} />
+				{/* Preconnect to external domains */}
+				<link rel="preconnect" href="https://fonts.googleapis.com" />
+				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+				<link rel="preconnect" href="https://images.ielts-read.space" />
+				<link rel="preconnect" href="https://oauth2.googleapis.com" />
+				
+				{/* DNS prefetch for better performance */}
+				<link rel="dns-prefetch" href="//vercel-insights.com" />
+				<link rel="dns-prefetch" href="//vitals.vercel-insights.com" />
+				
+				{/* Preload critical resources */}
+				<link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+				
+				{/* PWA manifest */}
+				<link rel="manifest" href="/manifest.json" />
+				<meta name="theme-color" content="#000000" />
+				
+				{/* Service Worker Registration */}
+				<script
+					dangerouslySetInnerHTML={{
+						__html: `
+							if ('serviceWorker' in navigator) {
+								window.addEventListener('load', function() {
+									navigator.serviceWorker.register('/sw.js')
+										.then(function(registration) {
+											console.log('SW registered: ', registration);
+										})
+										.catch(function(registrationError) {
+											console.log('SW registration failed: ', registrationError);
+										});
+								});
+							}
+						`,
+					}}
+				/>
 			</head>
 			<body
 				className={`${inter.variable} relative overflow-y-scroll flex flex-col font-sans justify-center items-stretch antialiased`}
@@ -73,6 +108,27 @@ export default async function RootLayout({
 				</QueryProvider>
 				<SpeedInsights />
 				<Analytics />
+				{/* Performance monitoring */}
+				{process.env.NODE_ENV === 'production' && (
+					<script
+						dangerouslySetInnerHTML={{
+							__html: `
+								// Monitor Core Web Vitals
+								new PerformanceObserver((list) => {
+									list.getEntries().forEach((entry) => {
+										if (entry.entryType === 'largest-contentful-paint') {
+											gtag('event', 'web_vitals', {
+												name: 'LCP',
+												value: Math.round(entry.startTime),
+												event_category: 'Web Vitals'
+											});
+										}
+									});
+								}).observe({entryTypes: ['largest-contentful-paint']});
+							`,
+						}}
+					/>
+				)}
 			</body>
 		</html>
 	);

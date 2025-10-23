@@ -4,16 +4,31 @@ Allow: /
 # Allow crawling of educational content
 Allow: /article/
 Allow: /category/
-Allow: /auth/
-Allow: /user/
 
-# Disallow admin and API routes
+# Disallow admin, API routes, and user-specific content
 Disallow: /admin/
 Disallow: /api/
-Disallow: /user/profile
-Disallow: /user/collection
+Disallow: /auth/
+Disallow: /user/
+Disallow: /*?*
 
-# Crawl delay for respectful crawling
+# Block AI crawlers to reduce server load
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+# Crawl delay for respectful crawling and server performance
 Crawl-delay: 1
 
 # Sitemap location

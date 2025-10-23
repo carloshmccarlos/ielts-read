@@ -1,0 +1,20 @@
+{
+  "name": "IELTS Vocabulary Memorization",
+  "short_name": "IELTS Read",
+  "description": "Master IELTS vocabulary through contextual reading practice",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "lang": "en",
+  "dir": "ltr"
+}

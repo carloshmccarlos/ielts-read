@@ -167,20 +167,15 @@ export function EmailOTPForm({ callbackUrl = "/" }: EmailOTPFormProps) {
 		setError("");
 
 		try {
-			const { data, error: verifyError } = await authClient.signIn.emailOtp(
-				{
-					email: userEmail,
-					otp: values.otp,
-				},
-				{
-					onSuccess: () => {
-						router.push(callbackUrl);
-					},
-				},
-			);
+			const { data, error: verifyError } = await authClient.signIn.emailOtp({
+				email: userEmail,
+				otp: values.otp,
+			});
 
 			if (verifyError) {
 				setError("Invalid verification code. Please try again.");
+			} else if (data) {
+				router.push(callbackUrl);
 			}
 		} catch (err) {
 			console.error("OTP verification error:", err);

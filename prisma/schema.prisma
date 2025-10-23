@@ -1,6 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -36,7 +35,13 @@ model Article {
   ReadedTimeCount ReadedTimeCount[]
   MasteredArticle MasteredArticle[]
 
+  // Optimized indexes for better query performance
   @@index([categoryName])
+  @@index([readTimes(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+  @@index([categoryName, createdAt(sort: Desc)])
+  @@index([categoryName, readTimes(sort: Desc)])
+  @@index([ieltsWordsCount])
 }
 
 enum IeltsWordsCount {

@@ -73,23 +73,35 @@ const nextConfig: NextConfig = {
 		return config;
 	},
 
-	// Experimental features (adjusted for Node.js compatibility)
+	// Experimental features (compatible with Next.js 15.2.4)
 	experimental: {
 		// Enable optimized package imports
 		optimizePackageImports: [
 			"@radix-ui/react-icons",
 			"lucide-react",
 			"@tanstack/react-query",
+			"@radix-ui/react-dialog",
+			"@radix-ui/react-dropdown-menu",
+			"@radix-ui/react-select",
+			"@radix-ui/react-tabs",
 		],
 
+		// Enable caching for better performance
 		useCache: true,
-		// Removed experimental features that cause syntax errors
+		
+		// Note: PPR and React Compiler require Next.js canary
+		// Uncomment when upgrading to canary:
+		// ppr: 'incremental',
+		// reactCompiler: true,
+		// optimizeCss: true,
+		
+		// Server components logging is handled by Next.js automatically
 	},
 
 	// Output configuration
 	output: "standalone",
 
-	// Headers for better caching
+	// Headers for better caching and security
 	async headers() {
 		return [
 			{
@@ -106,6 +118,18 @@ const nextConfig: NextConfig = {
 					{
 						key: "X-XSS-Protection",
 						value: "1; mode=block",
+					},
+					{
+						key: "Referrer-Policy",
+						value: "strict-origin-when-cross-origin",
+					},
+					{
+						key: "Permissions-Policy",
+						value: "camera=(), microphone=(), geolocation=()",
+					},
+					{
+						key: "X-DNS-Prefetch-Control",
+						value: "on",
 					},
 				],
 			},

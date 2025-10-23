@@ -10,11 +10,18 @@ export const auth = betterAuth({
 		provider: "postgresql",
 	}),
 
+	// Add timeout configuration
+	fetchOptions: {
+		timeout: 30000, // 30 seconds timeout
+	},
+
 	socialProviders: {
 		google: {
 			prompt: "select_account",
 			clientId: process.env.GOOGLE_CLIENT_ID as string,
 			clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+			// Add retry configuration
+			redirectURI: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/auth/callback/google`,
 		},
 	},
 
