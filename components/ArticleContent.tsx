@@ -1,6 +1,7 @@
 "use client";
 
 import ArticleDialog from "@/components/ArticleDialog";
+import IeltsWordsDisplay from "@/components/IeltsWordsDisplay";
 import MarkdownRenderer from "@/components/MarkdownRender";
 import { Button } from "@/components/ui/button";
 import { useArticleMutations } from "@/hooks/useArticleMutations";
@@ -144,6 +145,12 @@ function ArticleContent({ article }: Props) {
 					/>
 				</div>
 			)}
+
+			{/* Display IELTS words for learning */}
+			<IeltsWordsDisplay
+				ieltsWords={article.ieltsWords}
+				ieltsWordsCount={article.ieltsWordsCount}
+			/>
 
 			<MarkdownRenderer content={article.content} />
 
