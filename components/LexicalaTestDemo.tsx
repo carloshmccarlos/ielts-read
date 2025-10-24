@@ -72,33 +72,38 @@ export default function LexicalaTestDemo({ ieltsWords, ieltsWordsCount }: Props)
   // Helper function for speech synthesis fallback
   const fallbackToSpeechSynthesis = (word: string) => {
     if ("speechSynthesis" in window) {
-      // Cancel any ongoing speech
-      speechSynthesis.cancel();
-      
-      const utterance = new SpeechSynthesisUtterance(word);
-      utterance.lang = "en-US";
-      utterance.rate = 0.7; // Slower for better comprehension
-      utterance.pitch = 1.0;
-      utterance.volume = 0.8;
-      
-      // Try to use a better voice if available
-      const voices = speechSynthesis.getVoices();
-      const preferredVoice = voices.find(voice => 
-        voice.lang.startsWith('en') && 
-        (voice.name.includes('Google') || voice.name.includes('Microsoft') || voice.name.includes('Natural'))
-      );
-      
-      if (preferredVoice) {
-        utterance.voice = preferredVoice;
-      }
-      
-      utterance.onend = () => setPlayingWord(null);
-      utterance.onerror = () => {
+      try {
+        // Cancel any ongoing speech
+        speechSynthesis.cancel();
+        
+        const utterance = new SpeechSynthesisUtterance(word);
+        utterance.lang = "en-US";
+        utterance.rate = 0.7; // Slower for better comprehension
+        utterance.pitch = 1.0;
+        utterance.volume = 0.8;
+        
+        // Try to use a better voice if available
+        const voices = speechSynthesis.getVoices();
+        const preferredVoice = voices.find(voice => 
+          voice.lang.startsWith('en') && 
+          (voice.name.includes('Google') || voice.name.includes('Microsoft') || voice.name.includes('Natural'))
+        );
+        
+        if (preferredVoice) {
+          utterance.voice = preferredVoice;
+        }
+        
+        utterance.onend = () => setPlayingWord(null);
+        utterance.onerror = (event) => {
+          setPlayingWord(null);
+          console.error('Speech synthesis failed:', event.error);
+        };
+        
+        speechSynthesis.speak(utterance);
+      } catch (error) {
         setPlayingWord(null);
-        console.error('Speech synthesis failed');
-      };
-      
-      speechSynthesis.speak(utterance);
+        console.error('Speech synthesis error:', error);
+      }
     } else {
       setPlayingWord(null);
       console.error('Speech synthesis not supported');
@@ -151,6 +156,7 @@ export default function LexicalaTestDemo({ ieltsWords, ieltsWordsCount }: Props)
     setSelectedWord(null);
     setWordDefinition(null);
     setDefinitionError(null);
+    setIsLoadingDefinition(false);
   };
 
   if (!ieltsWords || ieltsWords.length === 0) {
@@ -277,4 +283,15 @@ export default function LexicalaTestDemo({ ieltsWords, ieltsWordsCount }: Props)
                             </p>
                           )}
                         </div>
-                      )
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </Card>
+  );
+}
