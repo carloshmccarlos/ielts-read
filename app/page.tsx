@@ -1,6 +1,7 @@
 import Footer from "@/components/Footer";
+import MaintenanceNotice from "@/components/MaintenanceNotice";
 import dynamic from "next/dynamic";
-import type React from "react";
+import React from "react";
 
 const LatestSection = dynamic(
 	() => import("@/components/sections/LatestSection"),
@@ -37,8 +38,6 @@ const RecentlyReadSection = dynamic(
 	},
 );
 
-
-
 // Simple skeleton component for loading states
 function SectionSkeleton({ title }: { title: string }) {
 	return (
@@ -70,19 +69,15 @@ export default function Home() {
 	return (
 		<>
 			<main className="min-h-screen">
-				{/* Latest Articles Section */}
+				Latest Articles Section
 				<LatestSection />
-
-				{/* Featured Articles Section */}
+				Featured Articles Section
 				<FeaturedSection />
-
-				{/* Hottest Articles Section */}
+				Hottest Articles Section
 				<HottestSection />
-
-				{/* Category Showcase Section */}
+				Category Showcase Section
 				<CategoryShowcaseSection />
-
-				{/* Recently Reading Section */}
+				Recently Reading Section
 				<RecentlyReadSection />
 			</main>
 			<Footer />

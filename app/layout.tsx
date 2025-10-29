@@ -56,7 +56,7 @@ export default async function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const categories = await getAllCategories();
+	// const categories = await getAllCategories();
 
 	return (
 		<html lang="en">
@@ -64,21 +64,31 @@ export default async function RootLayout({
 				<StructuredData data={generateWebsiteSchema()} />
 				{/* Preconnect to external domains */}
 				<link rel="preconnect" href="https://fonts.googleapis.com" />
-				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+				<link
+					rel="preconnect"
+					href="https://fonts.gstatic.com"
+					crossOrigin="anonymous"
+				/>
 				<link rel="preconnect" href="https://images.ielts-read.space" />
 				<link rel="preconnect" href="https://oauth2.googleapis.com" />
-				
+
 				{/* DNS prefetch for better performance */}
 				<link rel="dns-prefetch" href="//vercel-insights.com" />
 				<link rel="dns-prefetch" href="//vitals.vercel-insights.com" />
-				
+
 				{/* Preload critical resources */}
-				<link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
-				
+				<link
+					rel="preload"
+					href="/fonts/inter-var.woff2"
+					as="font"
+					type="font/woff2"
+					crossOrigin="anonymous"
+				/>
+
 				{/* PWA manifest */}
 				<link rel="manifest" href="/manifest.json" />
 				<meta name="theme-color" content="#000000" />
-				
+
 				{/* Service Worker Registration */}
 				<script
 					dangerouslySetInnerHTML={{
@@ -102,14 +112,14 @@ export default async function RootLayout({
 				className={`${inter.variable} relative overflow-y-scroll flex flex-col font-sans justify-center items-stretch antialiased`}
 			>
 				<QueryProvider>
-					<Navbar categories={categories} />
+					{/*<Navbar categories={categories} />*/}
 					{children}
 					<Toaster position="top-center" />
 				</QueryProvider>
 				<SpeedInsights />
 				<Analytics />
 				{/* Performance monitoring */}
-				{process.env.NODE_ENV === 'production' && (
+				{process.env.NODE_ENV === "production" && (
 					<script
 						dangerouslySetInnerHTML={{
 							__html: `
