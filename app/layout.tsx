@@ -56,7 +56,7 @@ export default async function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	// const categories = await getAllCategories();
+	const categories = await getAllCategories();
 
 	return (
 		<html lang="en">
@@ -112,7 +112,7 @@ export default async function RootLayout({
 				className={`${inter.variable} relative overflow-y-scroll flex flex-col font-sans justify-center items-stretch antialiased`}
 			>
 				<QueryProvider>
-					{/*<Navbar categories={categories} />*/}
+					<Navbar categories={categories} />
 					{children}
 					<Toaster position="top-center" />
 				</QueryProvider>
