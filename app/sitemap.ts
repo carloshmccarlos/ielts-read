@@ -28,29 +28,36 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		},
 	];
 
-	// Get all articles for dynamic pages
-	const articles = await getAllArticles();
-	const articlePages = articles.map((article) => {
-		const slug = article.title
-			.toLowerCase()
-			.replace(/[^a-z0-9]+/g, "-")
-			.replace(/(^-|-$)/g, "");
-		return {
-			url: `${baseUrl}/article/${article.id}-${slug}`,
-			lastModified: new Date(article.updatedAt),
-			changeFrequency: "weekly" as const,
-			priority: 0.8,
-		};
-	});
+	// Try to get dynamic pages, but fallback to static pages if database is unavailable
+	try {
+		// Get all articles for dynamic pages
+		const articles = await getAllArticles();
+		const articlePages = articles.map((article) => {
+			const slug = article.title
+				.toLowerCase()
+				.replace(/[^a-z0-9]+/g, "-")
+				.replace(/(^-|-$)/g, "");
+			return {
+				url: `${baseUrl}/article/${article.id}-${slug}`,
+				lastModified: new Date(article.updatedAt),
+				changeFrequency: "weekly" as const,
+				priority: 0.8,
+			};
+		});
 
-	// Get all categories for category pages
-	const categories = await getAllCategories();
-	const categoryPages = categories.map((category) => ({
-		url: `${baseUrl}/category/${category.name.toLowerCase()}`,
-		lastModified: new Date(category.updatedAt),
-		changeFrequency: "daily" as const,
-		priority: 0.7,
-	}));
+		// Get all categories for category pages
+		const categories = await getAllCategories();
+		const categoryPages = categories.map((category) => ({
+			url: `${baseUrl}/category/${category.name.toLowerCase()}`,
+			lastModified: new Date(category.updatedAt),
+			changeFrequency: "daily" as const,
+			priority: 0.7,
+		}));
 
-	return [...staticPages, ...articlePages, ...categoryPages];
+		return [...staticPages, ...articlePages, ...categoryPages];
+	} catch (error) {
+		// Database is unavailable (maintenance mode), return only static pages
+		console.warn("Database unavailable during sitemap generation, returning static pages only:", error);
+		return staticPages;
+	}
 }
