@@ -69,15 +69,14 @@ export default function Home() {
 	return (
 		<>
 			<main className="min-h-screen">
-				Latest Articles Section
 				<LatestSection />
-				Featured Articles Section
+
 				<FeaturedSection />
-				Hottest Articles Section
+
 				<HottestSection />
-				Category Showcase Section
+
 				<CategoryShowcaseSection />
-				Recently Reading Section
+
 				<RecentlyReadSection />
 			</main>
 			<Footer />
