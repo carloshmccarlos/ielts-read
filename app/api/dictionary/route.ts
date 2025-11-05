@@ -43,7 +43,6 @@ export async function GET(request: NextRequest) {
 						definitions: [
 							{
 								definition: dictionaryEntry.meaning,
-								example: dictionaryEntry.example || undefined,
 							},
 						],
 					},
