@@ -29,6 +29,9 @@ interface WordDefinition {
 			example?: string;
 		}[];
 	}[];
+	chineseMeaning?: string;
+	chinesePos?: string;
+	chineseExample?: string;
 }
 
 function IeltsWordsDisplay({ ieltsWords, ieltsWordsCount }: Props) {
@@ -42,29 +45,51 @@ function IeltsWordsDisplay({ ieltsWords, ieltsWordsCount }: Props) {
 
 	// Function to play pronunciation with multiple options
 	const playPronunciation = async (word: string) => {
+		// Prevent multiple simultaneous plays
+		if (playingWord) {
+			return;
+		}
+
 		setPlayingWord(word);
 
 		try {
-			// First try to use audio URL from dictionary API if available and word matches
-			if (
-				wordDefinition?.audioUrl &&
-				selectedWord === word &&
-				wordDefinition.word.toLowerCase() === word.toLowerCase()
-			) {
-				try {
-					const audio = new Audio(wordDefinition.audioUrl);
-					audio.onended = () => setPlayingWord(null);
-					audio.onerror = () => {
-						console.warn(
-							"Dictionary audio failed, falling back to speech synthesis",
-						);
+			// First try Cloudflare R2 audio
+			const r2AudioUrl = `https://audio.ielts-read.space/audio/${word.toLowerCase()}.mp3`;
+
+			try {
+				const audio = new Audio(r2AudioUrl);
+				audio.onended = () => setPlayingWord(null);
+				audio.onerror = () => {
+					console.warn("R2 audio failed, trying dictionary API audio");
+					// Try dictionary API audio as fallback
+					if (
+						wordDefinition?.audioUrl &&
+						selectedWord === word &&
+						wordDefinition.word.toLowerCase() === word.toLowerCase()
+					) {
+						try {
+							const dictAudio = new Audio(wordDefinition.audioUrl);
+							dictAudio.onended = () => setPlayingWord(null);
+							dictAudio.onerror = () => {
+								console.warn(
+									"Dictionary audio failed, falling back to speech synthesis",
+								);
+								fallbackToSpeechSynthesis(word);
+							};
+							dictAudio.play();
+							return;
+						} catch (dictError) {
+							console.warn("Dictionary audio playback failed:", dictError);
+							fallbackToSpeechSynthesis(word);
+						}
+					} else {
 						fallbackToSpeechSynthesis(word);
-					};
-					await audio.play();
-					return;
-				} catch (audioError) {
-					console.warn("Audio playback failed:", audioError);
-				}
+					}
+				};
+				await audio.play();
+				return;
+			} catch (audioError) {
+				console.warn("R2 audio playback failed:", audioError);
 			}
 
 			// Fallback to Web Speech API
@@ -127,6 +152,12 @@ function IeltsWordsDisplay({ ieltsWords, ieltsWordsCount }: Props) {
 		try {
 			const response = await fetch(
 				`/api/dictionary?word=${encodeURIComponent(word)}`,
+				{
+					cache: "no-store",
+					headers: {
+						"Cache-Control": "no-cache",
+					},
+				},
 			);
 			const result = await response.json();
 
@@ -192,7 +223,8 @@ function IeltsWordsDisplay({ ieltsWords, ieltsWordsCount }: Props) {
 					IELTS Vocabulary ({ieltsWordsCount} words)
 				</CardTitle>
 				<p className="text-sm text-blue-600">
-					学习本文中的雅思词汇。点击任意单词查看中文释义和发音。
+					Learn IELTS vocabulary from this article. Click any word to view
+					definitions and pronunciation.
 				</p>
 			</CardHeader>
 			<CardContent>
@@ -217,6 +249,7 @@ function IeltsWordsDisplay({ ieltsWords, ieltsWordsCount }: Props) {
 								variant="ghost"
 								size="sm"
 								className="h-6 w-6 p-0 hover:bg-blue-100"
+								disabled={playingWord !== null}
 								onClick={(e) => {
 									e.stopPropagation();
 									playPronunciation(word).then();
@@ -226,7 +259,9 @@ function IeltsWordsDisplay({ ieltsWords, ieltsWordsCount }: Props) {
 									className={`w-3 h-3 ${
 										playingWord === word
 											? "text-blue-600 animate-pulse"
-											: "text-gray-500"
+											: playingWord !== null
+												? "text-gray-300"
+												: "text-gray-500"
 									}`}
 								/>
 							</Button>
@@ -234,10 +269,12 @@ function IeltsWordsDisplay({ ieltsWords, ieltsWordsCount }: Props) {
 					))}
 				</div>
 				<div className="mt-4 text-xs text-gray-600">
-					💡 提示：点击书本图标查看释义，点击喇叭图标听发音。这些都是雅思考试常用词汇！
+					💡 Tip: Click the book icon to view definitions, click the speaker
+					icon to hear pronunciation. These are commonly used IELTS vocabulary
+					words!
 					{playingWord && (
 						<div className="mt-2 text-blue-600 font-medium">
-							🔊 正在播放 "{playingWord}" 的发音...
+							🔊 Playing pronunciation for "{playingWord}"...
 						</div>
 					)}
 				</div>
@@ -259,27 +296,32 @@ function IeltsWordsDisplay({ ieltsWords, ieltsWordsCount }: Props) {
 								variant="ghost"
 								size="sm"
 								className={`ml-auto ${wordDefinition?.audioUrl ? "text-green-600" : ""}`}
+								disabled={playingWord !== null}
 								onClick={() => selectedWord && playPronunciation(selectedWord)}
 								title={
-									wordDefinition?.audioUrl
-										? "High-quality audio available"
-										: "Using text-to-speech"
+									playingWord !== null
+										? "Audio is playing..."
+										: wordDefinition?.audioUrl
+											? "High-quality audio available"
+											: "Using text-to-speech"
 								}
 							>
-								<Volume2 className="w-4 h-4" />
+								<Volume2
+									className={`w-4 h-4 ${playingWord === selectedWord ? "animate-pulse" : ""}`}
+								/>
 								{wordDefinition?.audioUrl && (
 									<span className="ml-1 text-xs">HD</span>
 								)}
 							</Button>
 						</DialogTitle>
-						<DialogDescription>中文释义和例句</DialogDescription>
+						<DialogDescription>Definitions and Examples</DialogDescription>
 					</DialogHeader>
 
 					<div className="mt-4">
 						{isLoadingDefinition && (
 							<div className="flex items-center justify-center py-8">
 								<Loader2 className="w-6 h-6 animate-spin" />
-								<span className="ml-2">加载中...</span>
+								<span className="ml-2">Loading...</span>
 							</div>
 						)}
 
@@ -287,37 +329,61 @@ function IeltsWordsDisplay({ ieltsWords, ieltsWordsCount }: Props) {
 							<div className="text-center py-8 text-gray-500">
 								<p>{definitionError}</p>
 								<p className="text-sm mt-2">
-									未找到该单词的释义，请尝试在线词典查询。
+									Definition not found. Please try an online dictionary.
 								</p>
 							</div>
 						)}
 
 						{wordDefinition && (
 							<div className="space-y-6">
-								{wordDefinition.meanings.map((meaning, meaningIndex) => (
-									<div
-										// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-										key={meaningIndex}
-										className="border-l-4 border-blue-200 pl-4"
-									>
-										<h3 className="font-semibold text-blue-800 mb-2">
-											{meaning.partOfSpeech}
-										</h3>
-										<div className="space-y-3">
-											{meaning.definitions.map((def, defIndex) => (
+								{/* English Definitions */}
+								{wordDefinition.meanings.length > 0 && (
+									<div className="space-y-4">
+										{wordDefinition.meanings.map((meaning, meaningIndex) => (
+											<div
 												// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-												<div key={defIndex} className="space-y-1">
-													<p className="text-gray-800">{def.definition}</p>
-													{def.example && (
-														<p className="text-sm text-gray-600 italic">
-															Example: "{def.example}"
-														</p>
-													)}
+												key={meaningIndex}
+												className="border-l-4 border-blue-200 pl-4"
+											>
+												<h3 className="font-semibold text-blue-800 flex items-center gap-2">
+													English Definition
+												</h3>
+												<h4 className="font-semibold text-blue-700 mb-2 text-sm">
+													{meaning.partOfSpeech}
+												</h4>
+												<div className="space-y-3">
+													{meaning.definitions.map((def, defIndex) => (
+														// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+														<div key={defIndex} className="space-y-1">
+															<p className="text-gray-800">{def.definition}</p>
+															{def.example && (
+																<p className="text-sm text-gray-600 italic">
+																	Example: "{def.example}"
+																</p>
+															)}
+														</div>
+													))}
 												</div>
-											))}
-										</div>
+											</div>
+										))}
 									</div>
-								))}
+								)}
+								{/* Chinese Definition */}
+								{wordDefinition.chineseMeaning && (
+									<div className="border-l-4 border-red-200 pl-4 bg-red-50/30 p-3 rounded-r">
+										<h3 className="font-semibold text-red-800 mb-2 flex items-center gap-2">
+											中文释义
+										</h3>
+										<p className="text-gray-800 text-lg">
+											{wordDefinition.chineseMeaning}
+										</p>
+										{wordDefinition.chineseExample && (
+											<p className="text-sm text-gray-600 italic mt-2">
+												Example: "{wordDefinition.chineseExample}"
+											</p>
+										)}
+									</div>
+								)}
 							</div>
 						)}
 					</div>
