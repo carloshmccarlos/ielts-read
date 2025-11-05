@@ -192,8 +192,7 @@ function IeltsWordsDisplay({ ieltsWords, ieltsWordsCount }: Props) {
 					IELTS Vocabulary ({ieltsWordsCount} words)
 				</CardTitle>
 				<p className="text-sm text-blue-600">
-					Learn these IELTS words from this article. Click on any word to see
-					its definition and hear pronunciation.
+					学习本文中的雅思词汇。点击任意单词查看中文释义和发音。
 				</p>
 			</CardHeader>
 			<CardContent>
@@ -235,11 +234,10 @@ function IeltsWordsDisplay({ ieltsWords, ieltsWordsCount }: Props) {
 					))}
 				</div>
 				<div className="mt-4 text-xs text-gray-600">
-					💡 Tip: Click the book icon to see definitions, speaker icon for
-					pronunciation. These words are commonly used in IELTS exams!
+					💡 提示：点击书本图标查看释义，点击喇叭图标听发音。这些都是雅思考试常用词汇！
 					{playingWord && (
 						<div className="mt-2 text-blue-600 font-medium">
-							🔊 Playing pronunciation for "{playingWord}"...
+							🔊 正在播放 "{playingWord}" 的发音...
 						</div>
 					)}
 				</div>
@@ -274,14 +272,14 @@ function IeltsWordsDisplay({ ieltsWords, ieltsWordsCount }: Props) {
 								)}
 							</Button>
 						</DialogTitle>
-						<DialogDescription>Definition and usage examples</DialogDescription>
+						<DialogDescription>中文释义和例句</DialogDescription>
 					</DialogHeader>
 
 					<div className="mt-4">
 						{isLoadingDefinition && (
 							<div className="flex items-center justify-center py-8">
 								<Loader2 className="w-6 h-6 animate-spin" />
-								<span className="ml-2">Loading definition...</span>
+								<span className="ml-2">加载中...</span>
 							</div>
 						)}
 
@@ -289,7 +287,7 @@ function IeltsWordsDisplay({ ieltsWords, ieltsWordsCount }: Props) {
 							<div className="text-center py-8 text-gray-500">
 								<p>{definitionError}</p>
 								<p className="text-sm mt-2">
-									Try searching for this word in an online dictionary.
+									未找到该单词的释义，请尝试在线词典查询。
 								</p>
 							</div>
 						)}

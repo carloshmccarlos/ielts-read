@@ -1,12 +1,12 @@
-import { cronCreateArticle } from "@/script/cron-create-article";
+import { cronMission } from "@/script/cron-mission";
 
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
 	try {
 		// const article = await articleGeneration();
-		await cronCreateArticle().catch((error) => {
-			console.error("Error in cronCreateArticle:", error);
+		await cronMission().catch((error) => {
+			console.error("Error in cronMission:", error);
 		});
 
 		return NextResponse.json({

@@ -37,6 +37,9 @@ self.addEventListener('fetch', (event) => {
   // Skip API routes
   if (event.request.url.includes('/api/')) return;
   
+  // Skip chrome-extension and other non-http(s) schemes
+  if (!event.request.url.startsWith('http')) return;
+  
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
@@ -46,7 +49,10 @@ self.addEventListener('fetch', (event) => {
           if (fetchResponse.status === 200) {
             const responseClone = fetchResponse.clone();
             caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, responseClone);
+              // Only cache http(s) requests
+              if (event.request.url.startsWith('http')) {
+                cache.put(event.request, responseClone);
+              }
             });
           }
           return fetchResponse;

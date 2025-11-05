@@ -76,14 +76,7 @@ export default async function RootLayout({
 				<link rel="dns-prefetch" href="//vercel-insights.com" />
 				<link rel="dns-prefetch" href="//vitals.vercel-insights.com" />
 
-				{/* Preload critical resources */}
-				<link
-					rel="preload"
-					href="/fonts/inter-var.woff2"
-					as="font"
-					type="font/woff2"
-					crossOrigin="anonymous"
-				/>
+				{/* Preload critical resources - removed font preload since we're using Next.js font optimization */}
 
 				{/* PWA manifest */}
 				<link rel="manifest" href="/manifest.json" />

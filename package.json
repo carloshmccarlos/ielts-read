@@ -8,6 +8,7 @@
     "build:analyze": "cross-env ANALYZE=true npm run build",
     "start": "next start",
     "lint": "next lint",
+    "fix": "node scripts/fix-common-issues.js",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:migrate": "prisma migrate dev",

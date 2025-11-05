@@ -1,17 +1,17 @@
-import { cronCreateArticle } from "@/script/cron-create-article";
+import { cronMission } from "@/script/cron-mission";
 
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
-	if (
+	/*if (
 		request.headers.get("Authorization") !== `Bearer ${process.env.CRON_SECRET}`
 	) {
 		return new NextResponse("Unauthorized", { status: 401 });
-	}
+	}*/
 
 	try {
 		// const article = await articleGeneration();
-		await cronCreateArticle().catch((error) => {
+		await cronMission().catch((error) => {
 			return NextResponse.json({
 				message: "Article generation failed",
 			});

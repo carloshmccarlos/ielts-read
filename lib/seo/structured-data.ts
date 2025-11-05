@@ -39,7 +39,8 @@ export function generateArticleStructuredData(article: Article, slug?: string) {
 			"@type": "Organization",
 			name: "IELTS Reading Practice - Vocabulary Memorization Platform",
 			url: baseUrl,
-			description: "Leading platform for IELTS vocabulary memorization and reading improvement",
+			description:
+				"Leading platform for IELTS vocabulary memorization and reading improvement",
 		},
 		publisher: {
 			"@type": "EducationalOrganization",
@@ -64,7 +65,8 @@ export function generateArticleStructuredData(article: Article, slug?: string) {
 			{
 				"@type": "Thing",
 				name: "IELTS Vocabulary Memorization",
-				description: "Systematic approach to learning IELTS vocabulary through contextual reading",
+				description:
+					"Systematic approach to learning IELTS vocabulary through contextual reading",
 			},
 			{
 				"@type": "Thing",
@@ -74,13 +76,14 @@ export function generateArticleStructuredData(article: Article, slug?: string) {
 			{
 				"@type": "Thing",
 				name: "Memory Techniques for Language Learning",
-				description: "Proven methods for retaining English vocabulary long-term",
+				description:
+					"Proven methods for retaining English vocabulary long-term",
 			},
 		],
 		audience: {
 			"@type": "EducationalAudience",
 			educationalRole: "student",
-			educationalUse: "IELTS test preparation and English language learning",
+			educationalUse: "IELTS _test preparation and English language learning",
 		},
 		educationalLevel: "intermediate to advanced English learners",
 		learningResourceType: "vocabulary memorization article",
@@ -99,7 +102,11 @@ export function generateWebsiteStructuredData() {
 		"@type": "EducationalOrganization",
 		"@id": baseUrl,
 		name: "IELTS Reading Practice - Vocabulary Memorization Platform",
-		alternateName: ["I READ", "IELTS Vocabulary Memory", "IELTS Reading Improvement"],
+		alternateName: [
+			"I READ",
+			"IELTS Vocabulary Memory",
+			"IELTS Reading Improvement",
+		],
 		url: baseUrl,
 		description:
 			"Revolutionary IELTS vocabulary memorization platform that helps students achieve higher band scores through proven memory techniques and contextual reading practice. Learn 3000+ essential IELTS words, improve reading comprehension, and boost memory retention with our scientifically-designed learning system.",
@@ -142,12 +149,14 @@ export function generateWebsiteStructuredData() {
 			price: "0",
 			priceCurrency: "USD",
 			availability: "https://schema.org/InStock",
-			description: "Free IELTS vocabulary memorization and reading improvement platform",
+			description:
+				"Free IELTS vocabulary memorization and reading improvement platform",
 		},
 		audience: {
 			"@type": "EducationalAudience",
 			educationalRole: "student",
-			educationalUse: "IELTS test preparation, vocabulary memorization, reading improvement",
+			educationalUse:
+				"IELTS _test preparation, vocabulary memorization, reading improvement",
 		},
 		educationalLevel: "intermediate to advanced English learners",
 		educationalCredentialAwarded: "IELTS Vocabulary Proficiency Certificate",
@@ -171,7 +180,7 @@ export function generateWebsiteStructuredData() {
 			"IELTS vocabulary memorization",
 			"English reading improvement",
 			"Memory techniques for language learning",
-			"IELTS test preparation",
+			"IELTS _test preparation",
 			"Contextual vocabulary learning",
 			"Reading comprehension strategies",
 		],

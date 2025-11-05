@@ -33,7 +33,42 @@ const nextConfig: NextConfig = {
 				: false,
 	},
 
-	// Webpack optimizations
+	// Turbopack configuration (for development)
+	experimental: {
+		// Enable optimized package imports
+		optimizePackageImports: [
+			"@radix-ui/react-icons",
+			"lucide-react",
+			"@tanstack/react-query",
+			"@radix-ui/react-dialog",
+			"@radix-ui/react-dropdown-menu",
+			"@radix-ui/react-select",
+			"@radix-ui/react-tabs",
+		],
+
+		// Enable caching for better performance
+		useCache: true,
+		
+		// Turbopack configuration
+		turbo: {
+			rules: {
+				"*.svg": {
+					loaders: ["@svgr/webpack"],
+					as: "*.js",
+				},
+			},
+		},
+		
+		// Note: PPR and React Compiler require Next.js canary
+		// Uncomment when upgrading to canary:
+		// ppr: 'incremental',
+		// reactCompiler: true,
+		// optimizeCss: true,
+		
+		// Server components logging is handled by Next.js automatically
+	},
+
+	// Webpack optimizations (for production builds)
 	webpack: (config, { isServer, dev }) => {
 		if (isServer) {
 			// Ensure prisma client is not bundled
@@ -73,30 +108,7 @@ const nextConfig: NextConfig = {
 		return config;
 	},
 
-	// Experimental features (compatible with Next.js 15.2.4)
-	experimental: {
-		// Enable optimized package imports
-		optimizePackageImports: [
-			"@radix-ui/react-icons",
-			"lucide-react",
-			"@tanstack/react-query",
-			"@radix-ui/react-dialog",
-			"@radix-ui/react-dropdown-menu",
-			"@radix-ui/react-select",
-			"@radix-ui/react-tabs",
-		],
 
-		// Enable caching for better performance
-		useCache: true,
-		
-		// Note: PPR and React Compiler require Next.js canary
-		// Uncomment when upgrading to canary:
-		// ppr: 'incremental',
-		// reactCompiler: true,
-		// optimizeCss: true,
-		
-		// Server components logging is handled by Next.js automatically
-	},
 
 	// Output configuration
 	output: "standalone",

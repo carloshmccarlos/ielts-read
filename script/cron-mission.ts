@@ -24,7 +24,7 @@ type ArticleGenerationResult = {
 	ieltsWords: string[];
 };
 
-export async function cronCreateArticle() {
+export async function cronMission() {
 	try {
 		// 1. Get the category with the least recent update time
 		const categoryToUpdate = await prisma.category.findFirst({
