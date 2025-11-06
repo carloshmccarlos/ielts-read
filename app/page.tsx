@@ -1,41 +1,41 @@
 import Footer from "@/components/Footer";
 import MaintenanceNotice from "@/components/MaintenanceNotice";
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 import React from "react";
 
 // Disable static generation and caching for dynamic content
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const LatestSection = dynamic(
+const LatestSection = dynamicImport(
 	() => import("@/components/sections/LatestSection"),
 	{
 		loading: () => <SectionSkeleton title="Latest Articles" />,
 	},
 );
 // Dynamic imports for better performance
-const FeaturedSection = dynamic(
+const FeaturedSection = dynamicImport(
 	() => import("@/components/sections/FeaturedSection"),
 	{
 		loading: () => <SectionSkeleton title="Featured Articles" />,
 	},
 );
 
-const HottestSection = dynamic(
+const HottestSection = dynamicImport(
 	() => import("@/components/sections/HottestSection"),
 	{
 		loading: () => <SectionSkeleton title="Hottest Articles" />,
 	},
 );
 
-const CategoryShowcaseSection = dynamic(
+const CategoryShowcaseSection = dynamicImport(
 	() => import("@/components/sections/CategoryShowcaseSection"),
 	{
 		loading: () => <SectionSkeleton title="Explore by Category" />,
 	},
 );
 
-const RecentlyReadSection = dynamic(
+const RecentlyReadSection = dynamicImport(
 	() => import("@/components/sections/RecentlyReadSection"),
 	{
 		loading: () => <SectionSkeleton title="Recently Reading" />,
