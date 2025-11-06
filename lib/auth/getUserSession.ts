@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth/auth";
 import { headers } from "next/headers";
 
 export async function getUserSession(header: Headers) {
-	"use cache"; // Cache the result of this function
+	// No caching - always fetch fresh session data
 	return auth.api.getSession({
 		headers: header,
 	});
