@@ -3,10 +3,11 @@ import { getUserSession } from "@/lib/auth/getUserSession";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { cache } from "react";
+import { unstable_noStore as noStore } from "next/cache";
 
-// Cache admin stats for better performance
-export const getAdminStats = cache(async () => {
+// No caching - always fetch fresh data
+export async function getAdminStats() {
+	noStore();
 	const session = await getUserSession(await headers());
 
 	if (!session?.user?.id) {
@@ -40,4 +41,4 @@ export const getAdminStats = cache(async () => {
 			{ name: "Total Marked", value: totalMarked },
 		],
 	};
-});
+}

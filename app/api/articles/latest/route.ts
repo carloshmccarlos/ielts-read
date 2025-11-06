@@ -3,12 +3,14 @@ import { prisma } from "@/lib/prisma";
 
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { unstable_noStore as noStore } from "next/cache";
 
 // Disable caching for this route
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function GET() {
+	noStore();
 	try {
 		const session = await getUserSession(await headers());
 		const userId = session?.user?.id;
