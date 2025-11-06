@@ -13,7 +13,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 // Disable all caching for the entire app
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 // Configure Inter font with Next.js font optimization
@@ -85,25 +85,6 @@ export default async function RootLayout({
 				{/* PWA manifest */}
 				<link rel="manifest" href="/manifest.json" />
 				<meta name="theme-color" content="#000000" />
-
-				{/* Service Worker Registration */}
-				<script
-					dangerouslySetInnerHTML={{
-						__html: `
-							if ('serviceWorker' in navigator) {
-								window.addEventListener('load', function() {
-									navigator.serviceWorker.register('/sw.js')
-										.then(function(registration) {
-											console.log('SW registered: ', registration);
-										})
-										.catch(function(registrationError) {
-											console.log('SW registration failed: ', registrationError);
-										});
-								});
-							}
-						`,
-					}}
-				/>
 			</head>
 			<body
 				className={`${inter.variable} relative overflow-y-scroll flex flex-col font-sans justify-center items-stretch antialiased`}
@@ -115,27 +96,6 @@ export default async function RootLayout({
 				</QueryProvider>
 				<SpeedInsights />
 				<Analytics />
-				{/* Performance monitoring */}
-				{process.env.NODE_ENV === "production" && (
-					<script
-						dangerouslySetInnerHTML={{
-							__html: `
-								// Monitor Core Web Vitals
-								new PerformanceObserver((list) => {
-									list.getEntries().forEach((entry) => {
-										if (entry.entryType === 'largest-contentful-paint') {
-											gtag('event', 'web_vitals', {
-												name: 'LCP',
-												value: Math.round(entry.startTime),
-												event_category: 'Web Vitals'
-											});
-										}
-									});
-								}).observe({entryTypes: ['largest-contentful-paint']});
-							`,
-						}}
-					/>
-				)}
 			</body>
 		</html>
 	);
