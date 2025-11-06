@@ -11,17 +11,10 @@ import {
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { cache } from "react";
 
-// Cache the article fetching to avoid redundant database calls
-const getArticle = cache(async (id: number) => {
-	return getArticleById(id);
-});
-
-// Cache the read count increment to ensure it only happens once per request
-const incrementReadCount = cache(async (id: number) => {
-	return increaseReadTimes(id);
-});
+// Disable static generation and caching for this dynamic page
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // Update the Props interface to reflect that params is a Promise
 interface Props {
@@ -40,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 	const id = slug.split("-")[0];
 	const articleId = Number(id);
-	const article = await getArticle(articleId);
+	const article = await getArticleById(articleId);
 
 	if (!article) {
 		return {};
@@ -62,8 +55,8 @@ export default async function ArticlePage({ params }: Props) {
 
 	// Fetch article data and increment read count in parallel
 	const [article] = await Promise.all([
-		getArticle(articleId),
-		incrementReadCount(articleId),
+		getArticleById(articleId),
+		increaseReadTimes(articleId),
 	]);
 
 	if (!article) {

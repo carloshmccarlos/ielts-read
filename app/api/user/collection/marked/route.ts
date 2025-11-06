@@ -4,6 +4,10 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+// Disable caching for user-specific data
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(request: NextRequest) {
 	const session = await getUserSession(await headers());
 	const user = session?.user;

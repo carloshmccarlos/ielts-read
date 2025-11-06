@@ -2,6 +2,10 @@ import ProfileContent from "@/components/user/ProfileContent";
 import { getUserProfile } from "@/lib/actions/user";
 import { Suspense } from "react";
 
+// Disable static generation and caching for user-specific content
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 // Server component for profile data
 async function ProfileDataContent() {
 	const profileData = await getUserProfile();
