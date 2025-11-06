@@ -4,6 +4,21 @@ import type { NextRequest } from "next/server";
 export function middleware(request: NextRequest) {
 	const response = NextResponse.next();
 
+	// Disable ALL caching for HTML pages
+	const url = request.nextUrl.pathname;
+	const isStaticAsset = url.startsWith('/_next/static') || 
+	                      url.startsWith('/_next/image') || 
+	                      url.match(/\.(jpg|jpeg|png|gif|svg|ico|css|js|woff|woff2|ttf|eot)$/);
+	
+	if (!isStaticAsset) {
+		// Aggressive no-cache headers for HTML/dynamic content
+		response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0");
+		response.headers.set("CDN-Cache-Control", "no-store");
+		response.headers.set("Vercel-CDN-Cache-Control", "no-store");
+		response.headers.set("Pragma", "no-cache");
+		response.headers.set("Expires", "0");
+	}
+
 	// Add performance headers
 	response.headers.set("X-DNS-Prefetch-Control", "on");
 	response.headers.set("X-Preload", "on");
