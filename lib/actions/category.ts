@@ -1,10 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import type { Category, CategoryName } from "@prisma/client";
-import { unstable_noStore as noStore } from "next/cache";
 
-// No caching - always fetch fresh data
 export async function getAllCategories() {
-  noStore();
   return prisma.category.findMany({
     orderBy: {
       name: "asc",
@@ -15,7 +12,6 @@ export async function getAllCategories() {
 export async function getCategoryByName(
   name: CategoryName
 ): Promise<Category | null> {
-  noStore();
   return prisma.category.findUnique({
     where: { name },
   });

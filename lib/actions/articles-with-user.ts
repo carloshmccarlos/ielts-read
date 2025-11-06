@@ -6,7 +6,6 @@ import { prisma } from "@/lib/prisma";
 import type { Article, Category, Role, User } from "@prisma/client";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { unstable_noStore as noStore } from "next/cache";
 
 // Define types for our data
 export interface ArticleWithCategory extends Article {
@@ -74,7 +73,6 @@ export interface ApiProfileResponse {
  * @returns User session or redirects to login if not authenticated
  */
 export async function getCurrentUser(): Promise<SessionUser> {
-	noStore();
 	const session = await getUserSession(await headers());
 
 	if (!session?.user?.id) {
@@ -90,7 +88,6 @@ export async function getCurrentUser(): Promise<SessionUser> {
  * @returns Array of marked articles with their categories
  */
 export async function getUserMarkedArticles(userId: string) {
-	noStore();
 	return prisma.markedArticles.findMany({
 		where: {
 			userId: userId,
@@ -126,7 +123,6 @@ export async function getUserMarkedArticles(userId: string) {
  * @returns Array of read articles with their categories and read count
  */
 export async function getUserReadHistory(userId: string) {
-	noStore();
 	return prisma.readedTimeCount.findMany({
 		where: {
 			userId: userId,
@@ -152,7 +148,6 @@ export async function getUserReadHistory(userId: string) {
 export async function getUserProfile(
 	userId: string,
 ): Promise<UserWithCounts | null> {
-	noStore();
 	return prisma.user.findUnique({
 		where: {
 			id: userId,
@@ -174,7 +169,6 @@ export async function getUserProfile(
  * @returns Total number of read times
  */
 export async function getUserTotalReadTimes(userId: string): Promise<number> {
-	noStore();
 	const readStats = await prisma.readedTimeCount.aggregate({
 		where: {
 			userId: userId,
@@ -199,7 +193,6 @@ export async function getPaginatedUserMarkedArticles(
 	page: number,
 	limit: number,
 ) {
-	noStore();
 	const skip = (page - 1) * limit;
 	
 	// Get mastered article IDs to exclude from marked articles
@@ -253,7 +246,6 @@ export async function getPaginatedUserReadHistory(
 	page: number,
 	limit: number,
 ) {
-	noStore();
 	const skip = (page - 1) * limit;
 	const [history, total] = await Promise.all([
 		prisma.readedTimeCount.findMany({
@@ -292,7 +284,6 @@ export async function getPaginatedUserMasteredArticles(
 	category?: string,
 	query?: string,
 ) {
-	noStore();
 	const skip = (page - 1) * limit;
 
 	// Define base where condition
@@ -348,7 +339,6 @@ export async function getPaginatedUserMasteredArticles(
  * @returns Object with marked articles and read history
  */
 export async function getUserCollections(userId: string) {
-	noStore();
 	const [markedArticles, readHistory] = await Promise.all([
 		getUserMarkedArticles(userId),
 		getUserReadHistory(userId),
@@ -368,7 +358,6 @@ export async function getUserCollections(userId: string) {
 export async function getProfileData(
 	userId: string,
 ): Promise<ApiProfileResponse | null> {
-	noStore();
 	try {
 		// Get user profile and total read times in parallel
 		const [user, totalReadTimes] = await Promise.all([
@@ -443,7 +432,6 @@ export async function deleteUserByEmail(email: string) {
 }
 
 export async function getUserByEmail(email: string) {
-	noStore();
 	return prisma.user.findUnique({
 		where: {
 			email: email,
@@ -452,7 +440,6 @@ export async function getUserByEmail(email: string) {
 }
 
 export async function getRoleByUserId(userId: string) {
-	noStore();
 	return prisma.user.findUnique({
 		where: {
 			id: userId,
@@ -508,7 +495,6 @@ export async function addMasteredArticle(userId: string, articleId: number) {
 }
 
 export async function isArticleMastered(userId: string, articleId: number) {
-	noStore();
 	const masteredArticle = await prisma.masteredArticle.findUnique({
 		where: {
 			userId_articleId: {
@@ -521,7 +507,6 @@ export async function isArticleMastered(userId: string, articleId: number) {
 }
 
 export async function getNotices(userId: string) {
-	noStore();
 	return prisma.user.findUnique({
 		where: {
 			id: userId,
@@ -555,7 +540,6 @@ export async function updateNotices(
  * @returns Array of recently read articles excluding mastered ones
  */
 export async function getUserRecentlyReadArticles(userId: string, limit = 5) {
-	noStore();
 	// Get articles that have been read by the user
 	const readArticles = await prisma.readedTimeCount.findMany({
 		where: {
@@ -597,7 +581,6 @@ export async function getUserRecentlyReadArticles(userId: string, limit = 5) {
 }
 
 export async function checkUserExist(email: string) {
-	noStore();
 	const user = await prisma.user.findUnique({
 		where: { email },
 	});

@@ -4,10 +4,6 @@ import { getArticleById, increaseReadTimes } from "@/lib/actions/article";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
-// Disable static generation and caching for this dynamic page
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 // Update the Props interface to reflect that params is a Promise
 interface Props {
 	params: Promise<{

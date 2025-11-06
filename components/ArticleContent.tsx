@@ -182,8 +182,17 @@ function ArticleContent({ article }: Props) {
 							{isMarked ? "Marked" : "Mark"}
 						</Button>
 					)}
+					<Button
+						variant="outline"
+						className="cursor-pointer flex items-center gap-2"
+						onClick={handleIncreaseFinishTime}
+						disabled={isLoading || isLoadingStats}
+					>
+						<SmilePlus className="w-4 h-4" />
+						Finished {readTimes} times
+					</Button>
 
-					{!finishNotice && userId ? (
+					{/*{!finishNotice && userId ? (
 						<ArticleDialog
 							triggerText={"finish"}
 							onClick={handleIncreaseFinishTime}
@@ -207,7 +216,7 @@ function ArticleContent({ article }: Props) {
 							<SmilePlus className="w-4 h-4" />
 							Finished {readTimes} times
 						</Button>
-					)}
+					)}*/}
 				</div>
 
 				{!masterNotice && userId ? (

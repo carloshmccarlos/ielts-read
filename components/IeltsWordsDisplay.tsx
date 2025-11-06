@@ -152,12 +152,6 @@ function IeltsWordsDisplay({ ieltsWords, ieltsWordsCount }: Props) {
 		try {
 			const response = await fetch(
 				`/api/dictionary?word=${encodeURIComponent(word)}`,
-				{
-					cache: "no-store",
-					headers: {
-						"Cache-Control": "no-cache",
-					},
-				},
 			);
 			const result = await response.json();
 

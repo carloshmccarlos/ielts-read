@@ -9,10 +9,6 @@ import { getAllCategories } from "@/lib/actions/category";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
-// Disable all caching for the entire app
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-
 // Configure Inter font with Next.js font optimization
 const inter = Inter({
 	subsets: ["latin"],

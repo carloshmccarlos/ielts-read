@@ -2,10 +2,6 @@ import Footer from "@/components/Footer";
 import dynamicImport from "next/dynamic";
 import React from "react";
 
-// Disable static generation and caching for dynamic content
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-
 const LatestSection = dynamicImport(
 	() => import("@/components/sections/LatestSection"),
 	{

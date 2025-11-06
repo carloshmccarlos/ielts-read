@@ -4,10 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { deleteArticleImage } from "@/script/image-operation";
 import type { CategoryName } from "@prisma/client";
 import { headers } from "next/headers";
-import { unstable_noStore as noStore } from "next/cache";
 
 export async function getArticleById(id: number) {
-	noStore();
 	return prisma.article.findUnique({
 		where: { id: id },
 		include: {
@@ -21,7 +19,6 @@ export async function getArticlesByCategory(
 	skip = 0,
 	take = 16,
 ) {
-	noStore();
 	const session = await getUserSession(await headers());
 
 	const userId = session?.user?.id;
@@ -56,7 +53,6 @@ export async function getArticlesByCategory(
 }
 
 export async function getLatestArticles() {
-	noStore();
 	const session = await getUserSession(await headers());
 
 	const userId = session?.user?.id;
@@ -89,7 +85,6 @@ export async function getLatestArticles() {
 }
 
 export async function getHottestArticles() {
-	noStore();
 	const session = await getUserSession(await headers());
 
 	const userId = session?.user?.id;
@@ -122,7 +117,6 @@ export async function getHottestArticles() {
 }
 
 export async function increaseReadTimes(articleId: number) {
-	noStore();
 	return prisma.article.update({
 		where: { id: articleId },
 		data: {
@@ -134,7 +128,6 @@ export async function increaseReadTimes(articleId: number) {
 }
 
 export async function countArticlesByCategory(categoryName: string) {
-	noStore();
 	return prisma.article.count({
 		where: {
 			categoryName: categoryName as CategoryName,
@@ -143,7 +136,6 @@ export async function countArticlesByCategory(categoryName: string) {
 }
 
 export async function getAllArticles() {
-	noStore();
 	return prisma.article.findMany({
 		where: {
 			imageUrl: {
@@ -161,7 +153,6 @@ export async function getAllArticles() {
 
 // Get featured articles (most marked articles)
 export async function getFeaturedArticles(limit = 20) {
-	noStore();
 	const session = await getUserSession(await headers());
 	const userId = session?.user?.id;
 
@@ -204,7 +195,6 @@ export async function getArticlesByCategories(
 	categories: CategoryName[],
 	articlesPerCategory = 6,
 ) {
-	noStore();
 	const session = await getUserSession(await headers());
 	const userId = session?.user?.id;
 
@@ -249,7 +239,6 @@ export async function getArticlesByCategories(
 
 // Get latest articles from each category
 export async function getLatestArticlesFromEachCategory() {
-	noStore();
 	const session = await getUserSession(await headers());
 	const userId = session?.user?.id;
 
@@ -293,7 +282,6 @@ export async function getLatestArticlesFromEachCategory() {
 
 // Get more hottest articles
 export async function getMoreHottestArticles(limit = 30) {
-	noStore();
 	const session = await getUserSession(await headers());
 	const userId = session?.user?.id;
 

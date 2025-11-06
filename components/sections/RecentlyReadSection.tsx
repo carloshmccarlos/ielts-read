@@ -10,6 +10,8 @@ export default async function RecentlyReadSection() {
 	const session = await getUserSession(await headers());
 	const isLoggedIn = !!session?.user?.id;
 
+	console.log(isLoggedIn);
+
 	const recentlyReadArticles = isLoggedIn
 		? await getUserRecentlyReadArticles(session.user.id, 6)
 		: [];

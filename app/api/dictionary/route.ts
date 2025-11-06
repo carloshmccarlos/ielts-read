@@ -17,10 +17,6 @@ interface DictionaryEntry {
 	chineseExample?: string;
 }
 
-// Disable caching for this route to ensure fresh data
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 export async function GET(request: NextRequest) {
 	const { searchParams } = new URL(request.url);
 	const word = searchParams.get("word");
@@ -28,12 +24,7 @@ export async function GET(request: NextRequest) {
 	if (!word) {
 		return NextResponse.json(
 			{ error: "Word parameter is required" },
-			{ 
-				status: 400,
-				headers: {
-					'Cache-Control': 'no-store, no-cache, must-revalidate',
-				}
-			},
+			{ status: 400 },
 		);
 	}
 
@@ -51,9 +42,6 @@ export async function GET(request: NextRequest) {
 		try {
 			const dictionaryResponse = await fetch(
 				`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(wordLower)}`,
-				{
-					cache: 'no-store',
-				}
 			);
 
 			if (dictionaryResponse.ok) {
@@ -103,20 +91,11 @@ export async function GET(request: NextRequest) {
 				chineseExample: chineseEntry?.example,
 			};
 
-			return NextResponse.json(
-				{
-					success: true,
-					data: result,
-					provider: englishMeanings.length > 0 ? "combined" : "chinese-only",
-				},
-				{
-					headers: {
-						'Cache-Control': 'no-store, no-cache, must-revalidate',
-						'Pragma': 'no-cache',
-						'Expires': '0',
-					}
-				}
-			);
+			return NextResponse.json({
+				success: true,
+				data: result,
+				provider: englishMeanings.length > 0 ? "combined" : "chinese-only",
+			});
 		}
 
 		// If not found in any dictionary, return error
@@ -125,12 +104,7 @@ export async function GET(request: NextRequest) {
 				success: false,
 				error: `No definition found for "${word}"`,
 			},
-			{ 
-				status: 404,
-				headers: {
-					'Cache-Control': 'no-store, no-cache, must-revalidate',
-				}
-			},
+			{ status: 404 },
 		);
 	} catch (error) {
 		console.error("Dictionary API error:", error);
@@ -139,12 +113,7 @@ export async function GET(request: NextRequest) {
 				success: false,
 				error: "Failed to fetch definition. Please try again later.",
 			},
-			{ 
-				status: 500,
-				headers: {
-					'Cache-Control': 'no-store, no-cache, must-revalidate',
-				}
-			},
+			{ status: 500 },
 		);
 	}
 }

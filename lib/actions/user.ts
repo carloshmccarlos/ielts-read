@@ -2,11 +2,8 @@ import { getUserSession } from "@/lib/auth/getUserSession";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { unstable_noStore as noStore } from "next/cache";
 
-// No caching - always fetch fresh data
 export async function getUserProfile() {
-	noStore();
 	const session = await getUserSession(await headers());
 
 	if (!session?.user?.id) {

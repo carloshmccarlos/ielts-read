@@ -3,7 +3,6 @@ import {
 	getArticleById,
 	updateArticle,
 } from "@/lib/actions/article";
-import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
@@ -81,9 +80,6 @@ export async function PUT(request: NextRequest, { params }: Props) {
 			return NextResponse.json({ error: "Article not found" }, { status: 404 });
 		}
 
-		// Revalidate the admin edit page
-		revalidatePath("/admin/edit");
-
 		return NextResponse.json(updatedArticle);
 	} catch (error) {
 		console.error("Error updating article:", error);
@@ -114,7 +110,6 @@ export async function DELETE(request: NextRequest, { params }: Props) {
 				{ status: 404 },
 			);
 		}
-		revalidatePath("/admin/edit");
 
 		return NextResponse.json({ message: "Article deleted successfully" });
 	} catch (error) {
