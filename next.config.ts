@@ -1,9 +1,5 @@
 import type { NextConfig } from "next";
 
-const withBundleAnalyzer = require("@next/bundle-analyzer")({
-	enabled: process.env.ANALYZE === "true",
-});
-
 const nextConfig: NextConfig = {
 	// Image optimization
 	images: {
@@ -20,17 +16,6 @@ const nextConfig: NextConfig = {
 		minimumCacheTTL: 60 * 60 * 24, // 30 days
 		dangerouslyAllowSVG: false,
 		contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-	},
-
-	// Performance optimizations
-	compiler: {
-		// Remove console.log in production
-		removeConsole:
-			process.env.NODE_ENV === "production"
-				? {
-						exclude: ["error", "warn"],
-					}
-				: false,
 	},
 
 	// Turbopack configuration (for development)
@@ -60,5 +45,3 @@ const nextConfig: NextConfig = {
 		},
 	},
 };
-
-export default withBundleAnalyzer(nextConfig);
