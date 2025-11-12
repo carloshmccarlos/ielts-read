@@ -1,6 +1,14 @@
 import Footer from "@/components/Footer";
 import dynamicImport from "next/dynamic";
 import React from "react";
+import { generateMetadata as generateSEOMetadata } from "@/lib/seo";
+
+export const metadata = generateSEOMetadata({
+	title: "Home",
+	description:
+		"Master IELTS reading with our comprehensive collection of articles, vocabulary practice, and interactive learning tools. Access latest articles, featured content, and practice materials across multiple categories.",
+	url: "/",
+});
 
 const LatestSection = dynamicImport(
 	() => import("@/components/sections/LatestSection"),

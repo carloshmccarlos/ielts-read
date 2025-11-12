@@ -8,6 +8,11 @@ import "./globals.css";
 import { getAllCategories } from "@/lib/actions/category";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { generateMetadata as generateSEOMetadata } from "@/lib/seo";
+import {
+	WebsiteStructuredData,
+	EducationalOrganizationStructuredData,
+} from "@/components/StructuredData";
 
 // Configure Inter font with Next.js font optimization
 const inter = Inter({
@@ -16,14 +21,14 @@ const inter = Inter({
 	variable: "--font-inter",
 });
 
-export const metadata: Metadata = {
-	title: "IELTS Reading",
-	description: "IELTS vocabulary and reading practice",
-};
+export const metadata: Metadata = generateSEOMetadata({});
 
 export const viewport: Viewport = {
 	width: "device-width",
 	initialScale: 1,
+	maximumScale: 5,
+	userScalable: true,
+	themeColor: "#000000",
 };
 
 export default async function RootLayout({
@@ -59,6 +64,8 @@ export default async function RootLayout({
 			<body
 				className={`${inter.variable} relative overflow-y-scroll flex flex-col font-sans justify-center items-stretch antialiased`}
 			>
+				<WebsiteStructuredData />
+				<EducationalOrganizationStructuredData />
 				<QueryProvider>
 					<Navbar categories={categories} />
 					{children}
