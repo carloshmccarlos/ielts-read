@@ -16,6 +16,8 @@ import { getCategoryByName } from "@/lib/actions/category";
 import { pathToCategory, transformCategoryName } from "@/lib/utils";
 import { CategoryName } from "@prisma/client";
 import Link from "next/link";
+import { generateCategoryMetadata } from "@/lib/seo";
+import type { Metadata } from "next";
 
 interface Props {
 	params: Promise<{
@@ -24,6 +26,27 @@ interface Props {
 	searchParams: Promise<{
 		page?: string | string[];
 	}>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+	const { name } = await params;
+	const categoryName = pathToCategory(name);
+	const category = await getCategoryByName(categoryName as CategoryName);
+
+	if (!category) {
+		return {
+			title: "Category Not Found",
+		};
+	}
+
+	const imageUrl = process.env.CLOUDFLARE_R2_PUBLIC_IMAGE_URL;
+	const categoryImage = `${imageUrl}/category/${categoryName}.webp`;
+
+	return generateCategoryMetadata({
+		categoryName: transformCategoryName(categoryName),
+		description: category.description || undefined,
+		image: categoryImage,
+	});
 }
 
 export default async function ArticleByCategory({

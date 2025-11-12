@@ -1,20 +1,39 @@
 {
-  "name": "IELTS Vocabulary Memorization",
+  "name": "IELTS Reading Practice - Master Your Reading Skills",
   "short_name": "IELTS Read",
-  "description": "Master IELTS vocabulary through contextual reading practice",
+  "description": "Master IELTS reading with comprehensive articles, vocabulary practice, and interactive learning tools. Improve your reading comprehension and vocabulary for IELTS success.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
   "orientation": "portrait-primary",
+  "scope": "/",
   "icons": [
     {
       "src": "/favicon.ico",
       "sizes": "48x48",
-      "type": "image/x-icon"
+      "type": "image/x-icon",
+      "purpose": "any maskable"
     }
   ],
-  "categories": ["education", "productivity"],
-  "lang": "en",
-  "dir": "ltr"
+  "categories": ["education", "productivity", "books"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Latest Articles",
+      "short_name": "Latest",
+      "description": "View latest IELTS reading articles",
+      "url": "/?section=latest",
+      "icons": []
+    },
+    {
+      "name": "Featured Articles",
+      "short_name": "Featured",
+      "description": "View featured IELTS reading articles",
+      "url": "/?section=featured",
+      "icons": []
+    }
+  ]
 }

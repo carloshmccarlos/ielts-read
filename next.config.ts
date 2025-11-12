@@ -85,6 +85,15 @@ const nextConfig: NextConfig = {
   // Output configuration
   output: "standalone",
 
+  // Compress responses
+  compress: true,
+
+  // Generate ETags for pages
+  generateEtags: true,
+
+  // Power by header
+  poweredByHeader: false,
+
   // Headers for better caching and security
   async headers() {
     return [
@@ -93,7 +102,8 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: "Cache-Control",
-            value: "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
+            value:
+              "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
           },
           {
             key: "CDN-Cache-Control",

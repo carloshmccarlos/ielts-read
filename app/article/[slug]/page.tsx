@@ -3,12 +3,43 @@ import Spinner from "@/components/Spinner";
 import { getArticleById, increaseReadTimes } from "@/lib/actions/article";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { generateArticleMetadata } from "@/lib/seo";
+import type { Metadata } from "next";
 
-// Update the Props interface to reflect that params is a Promise
 interface Props {
 	params: Promise<{
 		slug: string;
 	}>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+	const { slug } = await params;
+	const id = slug.split("-")[0];
+	const articleId = Number(id);
+
+	const article = await getArticleById(articleId);
+
+	if (!article) {
+		return {
+			title: "Article Not Found",
+		};
+	}
+
+	const imageUrl = process.env.CLOUDFLARE_R2_PUBLIC_IMAGE_URL;
+	const articleImage = article.imageUrl
+		? `${imageUrl}/${article.categoryName}/${article.id}.webp`
+		: undefined;
+
+	return generateArticleMetadata({
+		title: article.title,
+		description: article.description,
+		image: articleImage,
+		slug,
+		publishedTime: article.createdAt,
+		modifiedTime: article.updatedAt,
+		category: article.Category?.name,
+		ieltsWords: article.ieltsWords,
+	});
 }
 
 export default async function ArticlePage({ params }: Props) {
@@ -32,8 +63,10 @@ export default async function ArticlePage({ params }: Props) {
 	}
 
 	return (
-		<Suspense fallback={<Spinner />}>
-			<ArticleContent article={article} />
-		</Suspense>
+		<>
+			<Suspense fallback={<Spinner />}>
+				<ArticleContent article={article} />
+			</Suspense>
+		</>
 	);
 }
