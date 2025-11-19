@@ -3,6 +3,9 @@ import NoImageCard from "@/components/NoImageCard";
 import VerticalCard from "@/components/VerticalCard";
 import { getMoreHottestArticles } from "@/lib/actions/article";
 
+// Cache for 12 hours
+export const revalidate = 43200; // 12 hours in seconds
+
 export default async function HottestSection() {
 	const articles = await getMoreHottestArticles(30);
 	if (!articles || articles.length === 0) return null;
