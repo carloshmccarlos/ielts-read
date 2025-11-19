@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { getFeaturedArticles } from "@/lib/actions/article";
 import Link from "next/link";
 
-// Cache for 12 hours
-export const revalidate = 43200; // 12 hours in seconds
+// Cache for 24 hours
+export const revalidate = 86400; // 24 hours in seconds
 
 export default async function FeaturedSection() {
 	const articles = await getFeaturedArticles(20);

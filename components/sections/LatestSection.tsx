@@ -3,8 +3,8 @@ import HorizontalCard from "@/components/HorizontalCard";
 import VerticalCard from "@/components/VerticalCard";
 import { getLatestArticlesFromEachCategory } from "@/lib/actions/article";
 
-// Cache for 12 hours
-export const revalidate = 43200; // 12 hours in seconds
+// Cache for 24 hours
+export const revalidate = 86400; // 24 hours in seconds
 
 export default async function LatestSection() {
 	const articles = await getLatestArticlesFromEachCategory();
