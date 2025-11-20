@@ -18,6 +18,7 @@ import { CategoryName } from "@prisma/client";
 import Link from "next/link";
 import { generateCategoryMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
+import { BreadcrumbStructuredData } from "@/components/StructuredData";
 
 interface Props {
 	params: Promise<{
@@ -46,6 +47,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 		categoryName: transformCategoryName(categoryName),
 		description: category.description || undefined,
 		image: categoryImage,
+		url: `/category/${name}`,
 	});
 }
 
@@ -88,6 +90,12 @@ export default async function ArticleByCategory({
 			className="h-[30vh] bg-cover bg-center relative"
 			style={{ backgroundImage: `url(${bgImageUrl})` }}
 		>
+			<BreadcrumbStructuredData
+				items={[
+					{ name: "Home", url: "/" },
+					{ name: transformCategoryName(categoryName), url: `/category/${categoryName}` },
+				]}
+			/>
 			{/* Semi-transparent overlay */}
 			<div className="absolute inset-0 bg-black opacity-50" />
 

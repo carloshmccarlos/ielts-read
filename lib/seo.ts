@@ -185,17 +185,19 @@ export function generateCategoryMetadata({
 	categoryName,
 	description,
 	image,
+	url,
 }: {
 	categoryName: string;
 	description?: string;
 	image?: string;
+	url?: string;
 }): Metadata {
 	const metaTitle = `${categoryName} Articles | IELTS Reading Practice`;
 	const metaDescription =
 		description ||
 		`Explore ${categoryName} articles for IELTS reading practice. Improve your vocabulary and comprehension skills with curated content.`;
 	const metaImage = image || siteConfig.ogImage;
-	const metaUrl = `${siteConfig.url}/category/${categoryName.toLowerCase()}`;
+	const metaUrl = url ? `${siteConfig.url}${url}` : `${siteConfig.url}/category/${categoryName.toLowerCase()}`;
 
 	return {
 		title: metaTitle,
