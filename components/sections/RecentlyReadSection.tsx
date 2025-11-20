@@ -7,12 +7,17 @@ import { headers } from "next/headers";
 import Link from "next/link";
 
 export default async function RecentlyReadSection() {
-	const session = await getUserSession(await headers());
-	const isLoggedIn = !!session?.user?.id;
+	let session: Awaited<ReturnType<typeof getUserSession>> | null = null;
+	let isLoggedIn = false;
 
-	console.log(isLoggedIn);
+	try {
+		session = await getUserSession(await headers());
+		isLoggedIn = !!session?.user?.id;
+	} catch (error) {
+		console.error("Failed to load user session", error);
+	}
 
-	const recentlyReadArticles = isLoggedIn
+	const recentlyReadArticles = isLoggedIn && session?.user?.id
 		? await getUserRecentlyReadArticles(session.user.id, 6)
 		: [];
 	return (

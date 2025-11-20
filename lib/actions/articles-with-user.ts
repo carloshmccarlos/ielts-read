@@ -3,7 +3,15 @@
 import { auth } from "@/lib/auth/auth";
 import { getUserSession } from "@/lib/auth/getUserSession";
 import { prisma } from "@/lib/prisma";
-import type { Article, Category, Role, User } from "@prisma/client";
+import type {
+	Article,
+	Category,
+	CategoryName,
+	Prisma,
+	Role,
+	User,
+} from "@prisma/client";
+import { revalidateTag, unstable_cache } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -181,6 +189,16 @@ export async function getUserTotalReadTimes(userId: string): Promise<number> {
 	return readStats._sum.times || 0;
 }
 
+const USER_COLLECTION_TAG = "user-collection";
+const USER_MARKED_CACHE_KEY = "user-marked";
+const USER_HISTORY_CACHE_KEY = "user-history";
+const USER_MASTERED_CACHE_KEY = "user-mastered";
+const USER_COLLECTION_REVALIDATE_SECONDS = 60 * 5; // 5 minutes
+
+export async function revalidateUserCollectionCache() {
+	revalidateTag(USER_COLLECTION_TAG);
+}
+
 /**
  * Get paginated marked articles for the current user
  * @param userId User ID
@@ -193,45 +211,54 @@ export async function getPaginatedUserMarkedArticles(
 	page: number,
 	limit: number,
 ) {
-	const skip = (page - 1) * limit;
-	
-	// Get mastered article IDs to exclude from marked articles
-	const masteredArticleIds = await prisma.masteredArticle.findMany({
-		where: { userId },
-		select: { articleId: true },
-	});
-	
-	const masteredIds = masteredArticleIds.map((ma: { articleId: number }) => ma.articleId);
-	
-	const whereCondition = {
-		userId,
-		// Exclude articles that are already mastered
-		articleId: {
-			notIn: masteredIds,
-		},
-	};
-	
-	const [articles, total] = await Promise.all([
-		prisma.markedArticles.findMany({
-			where: whereCondition,
-			include: {
-				article: {
+	const getCachedMarked = unstable_cache(
+		async (userId: string, page: number, limit: number) => {
+			const skip = (page - 1) * limit;
+
+			const masteredArticleIds = await prisma.masteredArticle.findMany({
+				where: { userId },
+				select: { articleId: true },
+			});
+			const masteredIds = masteredArticleIds.map((ma) => ma.articleId);
+
+			const whereCondition = {
+				userId,
+				articleId: {
+					notIn: masteredIds,
+				},
+			};
+
+			const [articles, total] = await Promise.all([
+				prisma.markedArticles.findMany({
+					where: whereCondition,
 					include: {
-						Category: true,
+						article: {
+							include: {
+								Category: true,
+							},
+						},
 					},
-				},
-			},
-			orderBy: {
-				article: {
-					createdAt: "desc",
-				},
-			},
-			skip,
-			take: limit,
-		}),
-		prisma.markedArticles.count({ where: whereCondition }),
-	]);
-	return { articles, total };
+					orderBy: {
+						article: {
+							createdAt: "desc",
+						},
+					},
+					skip,
+					take: limit,
+				}),
+				prisma.markedArticles.count({ where: whereCondition }),
+			]);
+
+			return { articles, total };
+		},
+		[USER_MARKED_CACHE_KEY],
+		{
+			revalidate: USER_COLLECTION_REVALIDATE_SECONDS,
+			tags: [USER_COLLECTION_TAG],
+		},
+	);
+
+	return getCachedMarked(userId, page, limit);
 }
 
 /**
@@ -246,26 +273,38 @@ export async function getPaginatedUserReadHistory(
 	page: number,
 	limit: number,
 ) {
-	const skip = (page - 1) * limit;
-	const [history, total] = await Promise.all([
-		prisma.readedTimeCount.findMany({
-			where: { userId },
-			include: {
-				article: {
+	const getCachedHistory = unstable_cache(
+		async (userId: string, page: number, limit: number) => {
+			const skip = (page - 1) * limit;
+			const [history, total] = await Promise.all([
+				prisma.readedTimeCount.findMany({
+					where: { userId },
 					include: {
-						Category: true,
+						article: {
+							include: {
+								Category: true,
+							},
+						},
 					},
-				},
-			},
-			orderBy: {
-				times: "desc",
-			},
-			skip,
-			take: limit,
-		}),
-		prisma.readedTimeCount.count({ where: { userId } }),
-	]);
-	return { history, total };
+					orderBy: {
+						times: "desc",
+					},
+					skip,
+					take: limit,
+				}),
+				prisma.readedTimeCount.count({ where: { userId } }),
+			]);
+
+			return { history, total };
+		},
+		[USER_HISTORY_CACHE_KEY],
+		{
+			revalidate: USER_COLLECTION_REVALIDATE_SECONDS,
+			tags: [USER_COLLECTION_TAG],
+		},
+	);
+
+	return getCachedHistory(userId, page, limit);
 }
 
 /**
@@ -284,53 +323,67 @@ export async function getPaginatedUserMasteredArticles(
 	category?: string,
 	query?: string,
 ) {
-	const skip = (page - 1) * limit;
-
-	// Define base where condition
-	// Need to use type assertion due to complex nested filters
-	// biome-ignore lint/suspicious/noExplicitAny: Prisma filters require complex type handling
-	const where: any = { userId };
+	const where: Prisma.MasteredArticleWhereInput = { userId };
+	const articleFilter: Prisma.ArticleWhereInput = {};
 
 	if (category) {
-		where.article = {
-			...(where.article || {}),
-			Category: {
-				name: category,
+		articleFilter.Category = {
+			name: {
+				equals: category as CategoryName,
 			},
 		};
 	}
 
 	if (query) {
-		where.article = {
-			...(where.article || {}),
-			title: {
-				contains: query,
-				mode: "insensitive",
-			},
+		articleFilter.title = {
+			contains: query,
+			mode: "insensitive",
 		};
 	}
 
-	const [articles, total] = await Promise.all([
-		prisma.masteredArticle.findMany({
-			where,
-			include: {
-				article: {
+	if (Object.keys(articleFilter).length > 0) {
+		where.article = articleFilter;
+	}
+
+	const getCachedMastered = unstable_cache(
+		async (
+			userId: string,
+			page: number,
+			limit: number,
+			where: Prisma.MasteredArticleWhereInput,
+		) => {
+			const skip = (page - 1) * limit;
+			const [articles, total] = await Promise.all([
+				prisma.masteredArticle.findMany({
+					where,
 					include: {
-						Category: true,
+						article: {
+							include: {
+								Category: true,
+							},
+						},
 					},
-				},
-			},
-			orderBy: {
-				article: {
-					createdAt: "desc",
-				},
-			},
-			skip,
-			take: limit,
-		}),
-		prisma.masteredArticle.count({ where }),
-	]);
-	return { articles, total };
+					orderBy: {
+						article: {
+							createdAt: "desc",
+						},
+					},
+					skip,
+					take: limit,
+				}),
+				prisma.masteredArticle.count({ where }),
+			]);
+
+			return { articles, total };
+		},
+		[USER_MASTERED_CACHE_KEY],
+		{
+			revalidate: USER_COLLECTION_REVALIDATE_SECONDS,
+			tags: [USER_COLLECTION_TAG],
+		},
+	);
+
+	return getCachedMastered(userId, page, limit, where);
 }
 
 /**

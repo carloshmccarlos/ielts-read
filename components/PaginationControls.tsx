@@ -1,5 +1,3 @@
-"use client";
-
 import {
 	Pagination,
 	PaginationContent,
@@ -8,69 +6,76 @@ import {
 	PaginationNext,
 	PaginationPrevious,
 } from "@/components/ui/pagination";
+import { cn } from "@/lib/utils";
 
 interface PaginationControlsProps {
 	total: number;
 	page: number;
 	limit: number;
-	onPageChange: (page: number) => void;
+	makeHref?: (page: number) => string;
+	onPageChange?: (page: number) => void;
 }
 
 export default function PaginationControls({
 	total,
 	page,
 	limit,
+	makeHref,
 	onPageChange,
 }: PaginationControlsProps) {
 	const totalPages = Math.ceil(total / limit);
-
-	const handlePrevious = () => {
-		if (page > 1) {
-			onPageChange(page - 1);
-		}
-	};
-
-	const handleNext = () => {
-		if (page < totalPages) {
-			onPageChange(page + 1);
-		}
-	};
-
 	if (totalPages <= 1) {
 		return null;
 	}
+
+	const prevDisabled = page <= 1;
+	const nextDisabled = page >= totalPages;
+
+	const getHref = (targetPage: number) =>
+		makeHref ? makeHref(targetPage) : "#";
+
+	const handleClick = (
+		e: React.MouseEvent<HTMLAnchorElement>,
+		disabled: boolean,
+		targetPage: number,
+	) => {
+		if (disabled) {
+			e.preventDefault();
+			return;
+		}
+		if (onPageChange) {
+			e.preventDefault();
+			onPageChange(targetPage);
+		}
+	};
 
 	return (
 		<Pagination>
 			<PaginationContent>
 				<PaginationItem>
 					<PaginationPrevious
-						href="#"
-						onClick={(e) => {
-							e.preventDefault();
-							handlePrevious();
-						}}
-						className={page === 1 ? "pointer-events-none opacity-50" : ""}
+						href={prevDisabled ? "#" : getHref(page - 1)}
+						aria-disabled={prevDisabled}
+						tabIndex={prevDisabled ? -1 : undefined}
+						className={cn(prevDisabled && "pointer-events-none opacity-50")}
+						onClick={(event) => handleClick(event, prevDisabled, page - 1)}
 					/>
 				</PaginationItem>
 				<PaginationItem>
-					<PaginationLink href="#" isActive>
+					<PaginationLink href="#" isActive aria-current="page">
 						{page}
 					</PaginationLink>
 				</PaginationItem>
 				<PaginationItem>
 					<PaginationNext
-						href="#"
-						onClick={(e) => {
-							e.preventDefault();
-							handleNext();
-						}}
-						className={
-							page === totalPages ? "pointer-events-none opacity-50" : ""
-						}
+						href={nextDisabled ? "#" : getHref(page + 1)}
+						aria-disabled={nextDisabled}
+						tabIndex={nextDisabled ? -1 : undefined}
+						className={cn(nextDisabled && "pointer-events-none opacity-50")}
+						onClick={(event) => handleClick(event, nextDisabled, page + 1)}
 					/>
 				</PaginationItem>
 			</PaginationContent>
 		</Pagination>
 	);
-} 
+}

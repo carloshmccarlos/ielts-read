@@ -288,42 +288,53 @@ export async function getLatestArticlesFromEachCategory() {
   const session = await getUserSession(await headers());
   const userId = session?.user?.id;
 
-  // Get all categories
-  const categories = await prisma.category.findMany();
+  const getCachedLatestArticlesFromEachCategory = unstable_cache(
+    async (userId?: string) => {
+      // Get all categories
+      const categories = await prisma.category.findMany();
 
-  // Get latest article from each category
-  const latestArticles = await Promise.all(
-    categories.map(async (category) => {
-      return prisma.article.findFirst({
-        where: {
-          categoryName: category.name,
-          imageUrl: {
-            gt: "",
-          },
-          ...(userId
-            ? {
-                NOT: {
-                  MasteredArticle: {
-                    some: {
-                      userId: userId,
+      // Get latest article from each category
+      const latestArticles = await Promise.all(
+        categories.map(async (category) => {
+          return prisma.article.findFirst({
+            where: {
+              categoryName: category.name,
+              imageUrl: {
+                gt: "",
+              },
+              ...(userId
+                ? {
+                    NOT: {
+                      MasteredArticle: {
+                        some: {
+                          userId: userId,
+                        },
+                      },
                     },
-                  },
-                },
-              }
-            : {}),
-        },
-        include: {
-          Category: true,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      });
-    })
+                  }
+                : {}),
+            },
+            include: {
+              Category: true,
+            },
+            orderBy: {
+              createdAt: "desc",
+            },
+          });
+        })
+      );
+
+      // Filter out null results and return
+      return latestArticles.filter((article) => article !== null);
+    },
+    ["latest-articles-from-each-category"],
+    {
+      revalidate: 86400, // 24 hours
+      tags: ["latest-articles-from-each-category"],
+    }
   );
 
-  // Filter out null results and return
-  return latestArticles.filter((article) => article !== null);
+  return getCachedLatestArticlesFromEachCategory(userId);
 }
 
 // Get more hottest articles
