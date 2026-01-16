@@ -5,6 +5,6 @@ import { cache } from "react";
 export const getUserSession = cache(async () => {
 	// Per-request cache to dedupe repeated session lookups.
 	return auth.api.getSession({
-		headers: headers(),
+		headers: await headers(),
 	});
 });
