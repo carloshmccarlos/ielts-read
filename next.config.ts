@@ -30,16 +30,6 @@ const nextConfig: NextConfig = {
       "@radix-ui/react-select",
       "@radix-ui/react-tabs",
     ],
-
-    // Turbopack configuration
-    turbo: {
-      rules: {
-        "*.svg": {
-          loaders: ["@svgr/webpack"],
-          as: "*.js",
-        },
-      },
-    },
   },
 
   // Webpack optimizations (for production builds)
