@@ -75,6 +75,9 @@ const nextConfig: NextConfig = {
   // Output configuration
   output: "standalone",
 
+  // Silence Turbopack warning when using Webpack config
+  turbopack: {},
+
   // Compress responses
   compress: true,
 

@@ -8,12 +8,17 @@ import path from "node:path";
 let S3Client: any, PutObjectCommand: any, DeleteObjectCommand: any;
 
 try {
-	const awsSDK = require("@aws-sdk/client-s3");
+	// Using a more dynamic require to avoid Turbopack resolving issues when not installed
+	const moduleName = "@aws-sdk/client-s3";
+	const awsSDK = require(moduleName);
 	S3Client = awsSDK.S3Client;
 	PutObjectCommand = awsSDK.PutObjectCommand;
 	DeleteObjectCommand = awsSDK.DeleteObjectCommand;
 } catch (error) {
-	console.warn("AWS SDK not installed. Image operations will be disabled.");
+	// Silence warning during build if not needed
+	if (process.env.NODE_ENV !== "production") {
+		console.warn("AWS SDK not installed. Image operations will be disabled.");
+	}
 }
 
 const R2_ACCESS_KEY_ID = process.env.CLOUDFLARE_R2_ACCESS_KEY_ID || "";
@@ -24,7 +29,7 @@ const R2_REGION = "auto";
 
 const BUCKET_NAME = process.env.BUCKET_NAME || "ielts-read";
 
-const s3Client = new S3Client({
+const s3Client = S3Client ? new S3Client({
 	region: R2_REGION,
 	endpoint: R2_ENDPOINT_URL,
 	credentials: {
@@ -33,7 +38,7 @@ const s3Client = new S3Client({
 	},
 	// Optional: Force path style if you encounter issues
 	forcePathStyle: true,
-});
+}) : null;
 
 /**
  * Uploads an image buffer directly to R2 bucket
@@ -47,6 +52,10 @@ export async function uploadArticleImage(
 	fileName: string,
 	targetPath?: string,
 ): Promise<string | null> {
+	if (!s3Client || !PutObjectCommand) {
+		console.warn("AWS SDK not installed. Skipping image upload.");
+		return null;
+	}
 	try {
 		// Determine the file's MIME type based on extension
 		const fileExtension = path.extname(fileName).toLowerCase();
@@ -88,6 +97,10 @@ export async function uploadArticleImage(
  * @returns Promise with the delete result
  */
 export async function deleteArticleImage(imageName: string): Promise<boolean> {
+	if (!s3Client || !DeleteObjectCommand) {
+		console.warn("AWS SDK not installed. Skipping image deletion.");
+		return false;
+	}
 	try {
 		// Delete the file from R2
 		const key = `article/${imageName}.webp`;

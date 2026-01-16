@@ -1,6 +1,6 @@
 import Footer from "@/components/Footer";
 import dynamicImport from "next/dynamic";
-import React from "react";
+import React, { Suspense } from "react";
 import { generateMetadata as generateSEOMetadata } from "@/lib/seo";
 
 export const metadata = generateSEOMetadata({
@@ -10,12 +10,22 @@ export const metadata = generateSEOMetadata({
 	url: "/",
 });
 
+export const dynamic = "force-dynamic";
+
+const RecentlyReadSection = dynamicImport(
+	() => import("@/components/sections/RecentlyReadSection"),
+	{
+		loading: () => <SectionSkeleton title="Recently Reading" />,
+	},
+);
+
 const LatestSection = dynamicImport(
 	() => import("@/components/sections/LatestSection"),
 	{
 		loading: () => <SectionSkeleton title="Latest Articles" />,
 	},
 );
+
 // Dynamic imports for better performance
 const FeaturedSection = dynamicImport(
 	() => import("@/components/sections/FeaturedSection"),
@@ -35,13 +45,6 @@ const CategoryShowcaseSection = dynamicImport(
 	() => import("@/components/sections/CategoryShowcaseSection"),
 	{
 		loading: () => <SectionSkeleton title="Explore by Category" />,
-	},
-);
-
-const RecentlyReadSection = dynamicImport(
-	() => import("@/components/sections/RecentlyReadSection"),
-	{
-		loading: () => <SectionSkeleton title="Recently Reading" />,
 	},
 );
 

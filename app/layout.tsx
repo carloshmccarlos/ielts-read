@@ -1,7 +1,7 @@
 import { QueryProvider } from "@/components/QueryProvider";
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
-import type React from "react";
+import React, { Suspense } from "react";
 import { Toaster } from "sonner";
 import Navbar from "../components/nav/Navbar";
 import "./globals.css";
@@ -67,7 +67,9 @@ export default async function RootLayout({
         className={`${inter.variable} relative overflow-y-scroll flex flex-col font-sans justify-center items-stretch antialiased`}
       >
         <QueryProvider>
-          <Navbar categories={categories} />
+          <Suspense fallback={<div className="h-16 bg-white animate-pulse" />}>
+            <NavbarWrapper categories={categories} />
+          </Suspense>
           {children}
           <Toaster position="top-center" />
         </QueryProvider>
@@ -76,4 +78,8 @@ export default async function RootLayout({
       </body>
     </html>
   );
+}
+
+function NavbarWrapper({ categories }: { categories: any[] }) {
+  return <Navbar categories={categories} />;
 }
