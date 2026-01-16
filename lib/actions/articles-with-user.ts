@@ -194,7 +194,7 @@ const USER_MASTERED_CACHE_KEY = "user-mastered";
 const USER_COLLECTION_REVALIDATE_SECONDS = 60 * 5; // 5 minutes
 
 export async function revalidateUserCollectionCache() {
-	revalidateTag(USER_COLLECTION_TAG);
+	revalidateTag(USER_COLLECTION_TAG, "default");
 }
 
 /**

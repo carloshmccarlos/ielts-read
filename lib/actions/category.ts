@@ -33,7 +33,7 @@ const getCachedCategoryByName = unstable_cache(
 );
 
 export function revalidateCategoryCache() {
-  revalidateTag(CATEGORY_TAG);
+  revalidateTag(CATEGORY_TAG, "default");
 }
 
 export async function getAllCategories() {
