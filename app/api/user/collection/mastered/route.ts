@@ -3,15 +3,13 @@ import {
 	getPaginatedUserMasteredArticles,
 	isArticleMastered,
 } from "@/lib/actions/articles-with-user";
-import { auth } from "@/lib/auth/auth";
 import { getUserSession } from "@/lib/auth/getUserSession";
 
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
-	const session = await getUserSession(await headers());
+	const session = await getUserSession();
 	const user = session?.user;
 	if (!user?.id) {
 		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -51,9 +49,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
 	try {
-		const session = await auth.api.getSession({
-			headers: await headers(),
-		});
+		const session = await getUserSession();
 		const user = session?.user;
 		if (!user?.id) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

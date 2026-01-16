@@ -2,12 +2,11 @@ import { ArticleTable } from "@/components/admin/ArticleTable";
 import { getRoleByUserId } from "@/lib/actions/articles-with-user";
 import { auth } from "@/lib/auth/auth";
 import { getUserSession } from "@/lib/auth/getUserSession";
-import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function ManageArticlesPage() {
-	const session = await getUserSession(await headers());
+	const session = await getUserSession();
 
 	if (!session?.user?.id) {
 		redirect("/auth/login");

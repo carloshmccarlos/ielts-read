@@ -1,11 +1,9 @@
-import { auth } from "@/lib/auth/auth";
 import { getUserSession } from "@/lib/auth/getUserSession";
 import { prisma } from "@/lib/prisma";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 export async function getAdminStats() {
-	const session = await getUserSession(await headers());
+	const session = await getUserSession();
 
 	if (!session?.user?.id) {
 		redirect("/auth/login");

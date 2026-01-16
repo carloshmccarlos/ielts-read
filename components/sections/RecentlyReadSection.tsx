@@ -3,7 +3,6 @@ import VerticalCard from "@/components/VerticalCard";
 import { Button } from "@/components/ui/button";
 import { getUserRecentlyReadArticles } from "@/lib/actions/articles-with-user";
 import { getUserSession } from "@/lib/auth/getUserSession";
-import { headers } from "next/headers";
 import Link from "next/link";
 
 export default async function RecentlyReadSection() {
@@ -11,7 +10,7 @@ export default async function RecentlyReadSection() {
 	let isLoggedIn = false;
 
 	try {
-		session = await getUserSession(await headers());
+		session = await getUserSession();
 		isLoggedIn = !!session?.user?.id;
 	} catch (error) {
 		console.error("Failed to load user session", error);

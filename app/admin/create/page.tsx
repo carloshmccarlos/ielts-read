@@ -1,11 +1,10 @@
 import { ArticleForm } from "@/components/ArticleForm";
 import { getRoleByUserId } from "@/lib/actions/articles-with-user";
 import { getUserSession } from "@/lib/auth/getUserSession";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 export default async function CreateArticlePage() {
-	const session = await getUserSession(await headers());
+	const session = await getUserSession();
 	const user = session?.user;
 
 	if (!user?.id) {

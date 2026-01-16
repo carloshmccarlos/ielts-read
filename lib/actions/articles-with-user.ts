@@ -1,6 +1,5 @@
 "use server";
 
-import { auth } from "@/lib/auth/auth";
 import { getUserSession } from "@/lib/auth/getUserSession";
 import { prisma } from "@/lib/prisma";
 import type {
@@ -12,7 +11,6 @@ import type {
 	User,
 } from "@prisma/client";
 import { revalidateTag, unstable_cache } from "next/cache";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 // Define types for our data
@@ -81,7 +79,7 @@ export interface ApiProfileResponse {
  * @returns User session or redirects to login if not authenticated
  */
 export async function getCurrentUser(): Promise<SessionUser> {
-	const session = await getUserSession(await headers());
+	const session = await getUserSession();
 
 	if (!session?.user?.id) {
 		return redirect("/auth/login");

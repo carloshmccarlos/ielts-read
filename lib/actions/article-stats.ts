@@ -1,10 +1,7 @@
 "use server";
 
-import { auth } from "@/lib/auth/auth";
-
 import { getUserSession } from "@/lib/auth/getUserSession";
 import { prisma } from "@/lib/prisma";
-import { headers } from "next/headers";
 
 /**
  * Mark or unmark an article for the current user
@@ -54,7 +51,7 @@ export async function toggleMarkArticle({
  * Increment the read count for an article by the current user
  */
 export async function increaseFinishTime(articleId: number) {
-	const session = await getUserSession(await headers());
+	const session = await getUserSession();
 
 	if (!session?.user?.id) {
 		throw new Error("You must be logged in to track read times");
@@ -105,9 +102,7 @@ export async function increaseFinishTime(articleId: number) {
  * Toggle the mastered status of an article for the current user
  */
 export async function toggleMasterArticle(articleId: number) {
-	const session = await auth.api.getSession({
-		headers: await headers(),
-	});
+	const session = await getUserSession();
 
 	if (!session?.user?.id) {
 		throw new Error("You must be logged in to master articles");
@@ -152,9 +147,7 @@ export async function toggleMasterArticle(articleId: number) {
  * Get the current user's mark status, read count, and mastered status for an article
  */
 export async function getUserArticleStats(articleId: number) {
-	const session = await auth.api.getSession({
-		headers: await headers(),
-	});
+	const session = await getUserSession();
 
 	if (!session?.user?.id) {
 		return { marked: false, readTimes: 0, mastered: false, isLoggedIn: false };
@@ -162,35 +155,32 @@ export async function getUserArticleStats(articleId: number) {
 
 	const userId = session.user.id;
 
-	// Get mark status
-	const mark = await prisma.markedArticles.findUnique({
-		where: {
-			userId_articleId: {
-				userId,
-				articleId,
+	const [mark, readCount, mastered] = await Promise.all([
+		prisma.markedArticles.findUnique({
+			where: {
+				userId_articleId: {
+					userId,
+					articleId,
+				},
 			},
-		},
-	});
-
-	// Get read count
-	const readCount = await prisma.readedTimeCount.findUnique({
-		where: {
-			userId_articleId: {
-				userId,
-				articleId,
+		}),
+		prisma.readedTimeCount.findUnique({
+			where: {
+				userId_articleId: {
+					userId,
+					articleId,
+				},
 			},
-		},
-	});
-
-	// Get mastered status
-	const mastered = await prisma.masteredArticle.findUnique({
-		where: {
-			userId_articleId: {
-				userId,
-				articleId,
+		}),
+		prisma.masteredArticle.findUnique({
+			where: {
+				userId_articleId: {
+					userId,
+					articleId,
+				},
 			},
-		},
-	});
+		}),
+	]);
 
 	return {
 		marked: !!mark,

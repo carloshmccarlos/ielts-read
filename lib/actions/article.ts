@@ -2,24 +2,24 @@ import { getUserSession } from "@/lib/auth/getUserSession";
 import { prisma } from "@/lib/prisma";
 import { deleteArticleImage } from "@/script/image-operation";
 import type { CategoryName } from "@prisma/client";
-import { headers } from "next/headers";
 import { unstable_cache } from "next/cache";
+import { cache } from "react";
 
-export async function getArticleById(id: number) {
+export const getArticleById = cache(async (id: number) => {
   return prisma.article.findUnique({
     where: { id: id },
     include: {
       Category: true,
     },
   });
-}
+});
 
 export async function getArticlesByCategory(
   categoryName: string,
   skip = 0,
   take = 16
 ) {
-  const session = await getUserSession(await headers());
+  const session = await getUserSession();
 
   const userId = session?.user?.id;
 
@@ -53,7 +53,7 @@ export async function getArticlesByCategory(
 }
 
 export async function getLatestArticles() {
-  const session = await getUserSession(await headers());
+  const session = await getUserSession();
   const userId = session?.user?.id;
 
   const getCachedLatestArticles = unstable_cache(
@@ -95,7 +95,7 @@ export async function getLatestArticles() {
 }
 
 export async function getHottestArticles() {
-  const session = await getUserSession(await headers());
+  const session = await getUserSession();
   const userId = session?.user?.id;
 
   const getCachedHottestArticles = unstable_cache(
@@ -173,7 +173,7 @@ export async function getAllArticles() {
 
 // Get featured articles (most marked articles)
 export async function getFeaturedArticles(limit = 20) {
-  const session = await getUserSession(await headers());
+  const session = await getUserSession();
   const userId = session?.user?.id;
 
   const getCachedFeaturedArticles = unstable_cache(
@@ -226,7 +226,7 @@ export async function getArticlesByCategories(
   categories: CategoryName[],
   articlesPerCategory = 6
 ) {
-  const session = await getUserSession(await headers());
+  const session = await getUserSession();
   const userId = session?.user?.id;
 
   const getCachedArticlesByCategories = unstable_cache(
@@ -285,47 +285,34 @@ export async function getArticlesByCategories(
 
 // Get latest articles from each category
 export async function getLatestArticlesFromEachCategory() {
-  const session = await getUserSession(await headers());
+  const session = await getUserSession();
   const userId = session?.user?.id;
 
   const getCachedLatestArticlesFromEachCategory = unstable_cache(
     async (userId?: string) => {
-      // Get all categories
-      const categories = await prisma.category.findMany();
-
-      // Get latest article from each category
-      const latestArticles = await Promise.all(
-        categories.map(async (category) => {
-          return prisma.article.findFirst({
-            where: {
-              categoryName: category.name,
-              imageUrl: {
-                gt: "",
-              },
-              ...(userId
-                ? {
-                    NOT: {
-                      MasteredArticle: {
-                        some: {
-                          userId: userId,
-                        },
-                      },
+      return prisma.article.findMany({
+        where: {
+          imageUrl: {
+            gt: "",
+          },
+          ...(userId
+            ? {
+                NOT: {
+                  MasteredArticle: {
+                    some: {
+                      userId: userId,
                     },
-                  }
-                : {}),
-            },
-            include: {
-              Category: true,
-            },
-            orderBy: {
-              createdAt: "desc",
-            },
-          });
-        })
-      );
-
-      // Filter out null results and return
-      return latestArticles.filter((article) => article !== null);
+                  },
+                },
+              }
+            : {}),
+        },
+        distinct: ["categoryName"],
+        include: {
+          Category: true,
+        },
+        orderBy: [{ categoryName: "asc" }, { createdAt: "desc" }],
+      });
     },
     ["latest-articles-from-each-category"],
     {
@@ -339,7 +326,7 @@ export async function getLatestArticlesFromEachCategory() {
 
 // Get more hottest articles
 export async function getMoreHottestArticles(limit = 30) {
-  const session = await getUserSession(await headers());
+  const session = await getUserSession();
   const userId = session?.user?.id;
 
   return prisma.article.findMany({
