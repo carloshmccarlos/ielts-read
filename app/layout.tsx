@@ -55,6 +55,13 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="//vercel-insights.com" />
         <link rel="dns-prefetch" href="//vitals.vercel-insights.com" />
 
+        {/* Umami analytics */}
+        <script
+          defer
+          src="https://umami-ten-khaki-92.vercel.app/script.js"
+          data-website-id="36baab72-7a03-4d41-9a8a-9f7ebbd329de"
+        />
+
         {/* PWA manifest */}
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#000000" />
