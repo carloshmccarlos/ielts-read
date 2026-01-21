@@ -14,6 +14,7 @@ import type { ArticleWithCategory } from "@/types/interface";
 import { useQuery } from "@tanstack/react-query";
 import { GraduationCap, SmilePlus, Star } from "lucide-react";
 import Image from "next/image";
+import { useEffect } from "react";
 import { toast } from "sonner";
 
 interface Props {
@@ -32,6 +33,25 @@ function ArticleContent({ article }: Props) {
 
 	const showCategoryName = transformCategoryName(article.Category?.name || "");
 	const userId = user?.id;
+
+	useEffect(() => {
+		if (typeof window === "undefined") return;
+
+		const storageKey = `article-viewed-${article.id}`;
+		if (sessionStorage.getItem(storageKey)) return;
+
+		sessionStorage.setItem(storageKey, "1");
+
+		fetch("/api/article/read", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({ articleId: article.id }),
+		}).catch((error) => {
+			console.warn("Failed to record article view", error);
+		});
+	}, [article.id]);
 
 	// Use TanStack Query to fetch user notices
 	const { data: noticesData } = useQuery({

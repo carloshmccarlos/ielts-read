@@ -1,6 +1,6 @@
 import Footer from "@/components/Footer";
 import dynamicImport from "next/dynamic";
-import React, { Suspense } from "react";
+import React from "react";
 import { generateMetadata as generateSEOMetadata } from "@/lib/seo";
 
 export const metadata = generateSEOMetadata({
@@ -10,7 +10,7 @@ export const metadata = generateSEOMetadata({
 	url: "/",
 });
 
-export const dynamic = "force-dynamic";
+export const revalidate = 86400;
 
 const RecentlyReadSection = dynamicImport(
 	() => import("@/components/sections/RecentlyReadSection"),

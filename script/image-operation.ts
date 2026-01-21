@@ -1,23 +1,36 @@
 // Optional script for Cloudflare R2 image operations
 // Install @aws-sdk/client-s3 if you need this functionality: npm install @aws-sdk/client-s3
 
-import fs from "node:fs";
 import path from "node:path";
 
 // Conditional import to avoid build errors if AWS SDK is not installed
-let S3Client: any, PutObjectCommand: any, DeleteObjectCommand: any;
+let S3Client: any;
+let PutObjectCommand: any;
+let DeleteObjectCommand: any;
+let s3Client: any = null;
+let awsSdkLoadAttempted = false;
 
-try {
-	// Using a more dynamic require to avoid Turbopack resolving issues when not installed
-	const moduleName = "@aws-sdk/client-s3";
-	const awsSDK = require(moduleName);
-	S3Client = awsSDK.S3Client;
-	PutObjectCommand = awsSDK.PutObjectCommand;
-	DeleteObjectCommand = awsSDK.DeleteObjectCommand;
-} catch (error) {
-	// Silence warning during build if not needed
-	if (process.env.NODE_ENV !== "production") {
-		console.warn("AWS SDK not installed. Image operations will be disabled.");
+function loadAwsSdk() {
+	if (awsSdkLoadAttempted) {
+		return;
+	}
+	awsSdkLoadAttempted = true;
+
+	try {
+		// Avoid static resolution so the SDK can stay optional.
+		const moduleName = "@aws-sdk/client-s3";
+		const requireFn = (0, eval)("require") as NodeRequire;
+		const awsSDK = requireFn(moduleName);
+		S3Client = awsSDK.S3Client;
+		PutObjectCommand = awsSDK.PutObjectCommand;
+		DeleteObjectCommand = awsSDK.DeleteObjectCommand;
+	} catch (error) {
+		// Silence warning during build if not needed
+		if (process.env.NODE_ENV !== "production") {
+			console.warn(
+				"AWS SDK not installed. Image operations will be disabled.",
+			);
+		}
 	}
 }
 
@@ -29,16 +42,29 @@ const R2_REGION = "auto";
 
 const BUCKET_NAME = process.env.BUCKET_NAME || "ielts-read";
 
-const s3Client = S3Client ? new S3Client({
-	region: R2_REGION,
-	endpoint: R2_ENDPOINT_URL,
-	credentials: {
-		accessKeyId: R2_ACCESS_KEY_ID,
-		secretAccessKey: R2_SECRET_ACCESS_KEY,
-	},
-	// Optional: Force path style if you encounter issues
-	forcePathStyle: true,
-}) : null;
+function getS3Client() {
+	if (s3Client) {
+		return s3Client;
+	}
+
+	loadAwsSdk();
+	if (!S3Client) {
+		return null;
+	}
+
+	s3Client = new S3Client({
+		region: R2_REGION,
+		endpoint: R2_ENDPOINT_URL,
+		credentials: {
+			accessKeyId: R2_ACCESS_KEY_ID,
+			secretAccessKey: R2_SECRET_ACCESS_KEY,
+		},
+		// Optional: Force path style if you encounter issues
+		forcePathStyle: true,
+	});
+
+	return s3Client;
+}
 
 /**
  * Uploads an image buffer directly to R2 bucket
@@ -52,7 +78,8 @@ export async function uploadArticleImage(
 	fileName: string,
 	targetPath?: string,
 ): Promise<string | null> {
-	if (!s3Client || !PutObjectCommand) {
+	const client = getS3Client();
+	if (!client || !PutObjectCommand) {
 		console.warn("AWS SDK not installed. Skipping image upload.");
 		return null;
 	}
@@ -78,7 +105,7 @@ export async function uploadArticleImage(
 			ContentType: contentType,
 		};
 
-		await s3Client.send(new PutObjectCommand(uploadParams));
+		await client.send(new PutObjectCommand(uploadParams));
 		console.log(
 			`Successfully uploaded ${fileName} to ${BUCKET_NAME}/${targetKey}`,
 		);
@@ -97,7 +124,8 @@ export async function uploadArticleImage(
  * @returns Promise with the delete result
  */
 export async function deleteArticleImage(imageName: string): Promise<boolean> {
-	if (!s3Client || !DeleteObjectCommand) {
+	const client = getS3Client();
+	if (!client || !DeleteObjectCommand) {
 		console.warn("AWS SDK not installed. Skipping image deletion.");
 		return false;
 	}
@@ -110,7 +138,7 @@ export async function deleteArticleImage(imageName: string): Promise<boolean> {
 			Key: key,
 		};
 
-		await s3Client.send(new DeleteObjectCommand(deleteParams));
+		await client.send(new DeleteObjectCommand(deleteParams));
 		console.log(`Successfully deleted ${key} from ${BUCKET_NAME}`);
 		return true;
 	} catch (error) {

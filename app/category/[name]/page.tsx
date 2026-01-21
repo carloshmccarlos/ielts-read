@@ -84,6 +84,11 @@ export default async function ArticleByCategory({
 	const imageUrl = process.env.CLOUDFLARE_R2_PUBLIC_IMAGE_URL;
 
 	const bgImageUrl = `${imageUrl}/category/${categoryName}.webp`;
+	const heroArticle = articles[0];
+	const sideArticles = articles.slice(1, 3);
+	const verticalArticles = articles.slice(3, 9);
+	const secondaryHeroArticle = articles[9];
+	const noImageArticles = articles.slice(10, 17);
 
 	return (
 		<main
@@ -111,19 +116,20 @@ export default async function ArticleByCategory({
 				<div className="grid grid-cols-1 lg:grid-cols-6 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12 items-stretch">
 					{/* Latest Big Card  */}
 					<div className="lg:col-span-4 ">
-						<BigCard article={articles[0]} />
+						{heroArticle && <BigCard article={heroArticle} />}
 					</div>
 
 					{/* Horizontal Cards */}
 					<div className="lg:col-span-2 grid grid-rows-2 grid-cols-1 gap-4 sm:gap-6 ">
-						<HorizontalCard article={articles[1]} />
-						<HorizontalCard article={articles[2]} />
+						{sideArticles.map((article) => (
+							<HorizontalCard key={`side-${article.id}`} article={article} />
+						))}
 					</div>
 				</div>
 
 				{/* Vertical Card Section */}
 				<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-12">
-					{articles.slice(3, 9).map((article) => (
+					{verticalArticles.map((article) => (
 						<VerticalCard
 							key={`${article.title}-VerticalCard`}
 							article={article}
@@ -134,12 +140,14 @@ export default async function ArticleByCategory({
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 					{/* Two Big Cards on the left */}
 					<div className="flex items-center justify-center">
-						<BigCard article={articles[9]} />
+						{secondaryHeroArticle && (
+							<BigCard article={secondaryHeroArticle} />
+						)}
 					</div>
 
 					{/* NoImageCards on the right */}
 					<div className="grid grid-cols-2 grid-rows-2 lg:grid-cols-3 gap-4">
-						{articles.slice(10, 17).map((article) => (
+						{noImageArticles.map((article) => (
 							<NoImageCard
 								key={`${article.title}${article.id}`}
 								article={article}

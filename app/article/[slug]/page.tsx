@@ -1,6 +1,6 @@
 import ArticleContent from "@/components/ArticleContent";
 import Spinner from "@/components/Spinner";
-import { getArticleById, increaseReadTimes } from "@/lib/actions/article";
+import { getArticleById } from "@/lib/actions/article";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { generateArticleMetadata } from "@/lib/seo";
@@ -52,11 +52,7 @@ export default async function ArticlePage({ params }: Props) {
 	const id = slug.split("-")[0];
 	const articleId = Number(id);
 
-	// Fetch article data and increment read count in parallel
-	const [article] = await Promise.all([
-		getArticleById(articleId),
-		increaseReadTimes(articleId),
-	]);
+	const article = await getArticleById(articleId);
 
 	if (!article) {
 		notFound();

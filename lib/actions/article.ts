@@ -173,27 +173,13 @@ export async function getAllArticles() {
 
 // Get featured articles (most marked articles)
 export async function getFeaturedArticles(limit = 20) {
-  const session = await getUserSession();
-  const userId = session?.user?.id;
-
   const getCachedFeaturedArticles = unstable_cache(
-    async (userId?: string, limit = 20) => {
+    async (limit = 20) => {
       return prisma.article.findMany({
         where: {
           imageUrl: {
             gt: "",
           },
-          ...(userId
-            ? {
-                NOT: {
-                  MasteredArticle: {
-                    some: {
-                      userId: userId,
-                    },
-                  },
-                },
-              }
-            : {}),
         },
         include: {
           Category: true,
@@ -218,7 +204,7 @@ export async function getFeaturedArticles(limit = 20) {
     }
   );
 
-  return getCachedFeaturedArticles(userId, limit);
+  return getCachedFeaturedArticles(limit);
 }
 
 // Get articles by multiple categories for showcase
@@ -226,15 +212,8 @@ export async function getArticlesByCategories(
   categories: CategoryName[],
   articlesPerCategory = 6
 ) {
-  const session = await getUserSession();
-  const userId = session?.user?.id;
-
   const getCachedArticlesByCategories = unstable_cache(
-    async (
-      categories: CategoryName[],
-      userId?: string,
-      articlesPerCategory = 6
-    ) => {
+    async (categories: CategoryName[], articlesPerCategory = 6) => {
       const results = await Promise.all(
         categories.map(async (categoryName) => {
           const articles = await prisma.article.findMany({
@@ -243,17 +222,6 @@ export async function getArticlesByCategories(
               imageUrl: {
                 gt: "",
               },
-              ...(userId
-                ? {
-                    NOT: {
-                      MasteredArticle: {
-                        some: {
-                          userId: userId,
-                        },
-                      },
-                    },
-                  }
-                : {}),
             },
             include: {
               Category: true,
@@ -280,32 +248,18 @@ export async function getArticlesByCategories(
     }
   );
 
-  return getCachedArticlesByCategories(categories, userId, articlesPerCategory);
+  return getCachedArticlesByCategories(categories, articlesPerCategory);
 }
 
 // Get latest articles from each category
 export async function getLatestArticlesFromEachCategory() {
-  const session = await getUserSession();
-  const userId = session?.user?.id;
-
   const getCachedLatestArticlesFromEachCategory = unstable_cache(
-    async (userId?: string) => {
+    async () => {
       return prisma.article.findMany({
         where: {
           imageUrl: {
             gt: "",
           },
-          ...(userId
-            ? {
-                NOT: {
-                  MasteredArticle: {
-                    some: {
-                      userId: userId,
-                    },
-                  },
-                },
-              }
-            : {}),
         },
         distinct: ["categoryName"],
         include: {
@@ -321,30 +275,16 @@ export async function getLatestArticlesFromEachCategory() {
     }
   );
 
-  return getCachedLatestArticlesFromEachCategory(userId);
+  return getCachedLatestArticlesFromEachCategory();
 }
 
 // Get more hottest articles
 export async function getMoreHottestArticles(limit = 30) {
-  const session = await getUserSession();
-  const userId = session?.user?.id;
-
   return prisma.article.findMany({
     where: {
       imageUrl: {
         gt: "",
       },
-      ...(userId
-        ? {
-            NOT: {
-              MasteredArticle: {
-                some: {
-                  userId: userId,
-                },
-              },
-            },
-          }
-        : {}),
     },
     include: {
       Category: true,

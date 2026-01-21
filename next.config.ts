@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV !== "production";
+
 const nextConfig: NextConfig = {
   // Image optimization
   images: {
@@ -11,9 +13,10 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
+    unoptimized: isDev,
     // Optimize image loading
     formats: ["image/webp", "image/avif"],
-    minimumCacheTTL: 0, // No caching for images
+    minimumCacheTTL: 3600, // Cache optimized images for 1 hour
     dangerouslyAllowSVG: false,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
@@ -94,27 +97,6 @@ const nextConfig: NextConfig = {
         source: "/(.*)",
         headers: [
           {
-            key: "Cache-Control",
-            value:
-              "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
-          },
-          {
-            key: "CDN-Cache-Control",
-            value: "no-store",
-          },
-          {
-            key: "Vercel-CDN-Cache-Control",
-            value: "no-store",
-          },
-          {
-            key: "Pragma",
-            value: "no-cache",
-          },
-          {
-            key: "Expires",
-            value: "0",
-          },
-          {
             key: "X-Content-Type-Options",
             value: "nosniff",
           },
@@ -137,6 +119,33 @@ const nextConfig: NextConfig = {
           {
             key: "X-DNS-Prefetch-Control",
             value: "on",
+          },
+        ],
+      },
+      {
+        source: "/auth/(.*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "private, no-store, max-age=0, must-revalidate",
+          },
+        ],
+      },
+      {
+        source: "/user/(.*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "private, no-store, max-age=0, must-revalidate",
+          },
+        ],
+      },
+      {
+        source: "/admin/(.*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "private, no-store, max-age=0, must-revalidate",
           },
         ],
       },
