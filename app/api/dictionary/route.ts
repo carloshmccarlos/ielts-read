@@ -96,7 +96,7 @@ const getCachedDictionaryEntry = unstable_cache(
 	},
 );
 
-export const revalidate = DICTIONARY_REVALIDATE_SECONDS;
+export const revalidate = 86400;
 
 export async function GET(request: NextRequest) {
 	const { searchParams } = new URL(request.url);
